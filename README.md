@@ -17,7 +17,7 @@ This git repository contains the project code for our spike.
    macOS/Linux:
 
    ```
-   .venv\Scripts\activate
+   python3 -m venv .venv
    ```
 
 2. Enter the Flask python environment (must repeat each time you reopen your IDE/terminal):
