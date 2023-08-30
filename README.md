@@ -34,13 +34,19 @@ This git repository contains the project code for our spike.
    . .venv/bin/activate
    ```
 
-3. Start the server:
+3. Install flask to python environment (one time):
+
+   ```shell
+   pip install Flask
+   ```
+
+4. Start the server:
 
    ```
    flask run
    ```
 
-4. Open site in browser:
+5. Open site in browser:
 
    http://localhost:5000/
 
