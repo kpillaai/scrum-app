@@ -22,6 +22,10 @@ def post_remove(index):
     session.modified = True
     return redirect(url_for('index'))
 
+@app.route('/backlog')
+def backlog():
+    return render_template('backlog.html')
+
 
 if __name__ == "__main__":
     app.run(debug=True)
