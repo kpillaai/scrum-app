@@ -10,7 +10,7 @@
         <nav class="nav-container">
             <ul class="right-side">
                 <li> <a href="index.asp">Home</a></li>
-                <li> <a href="backlog.html">Backlog</a></li>
+                <li> <a href="{{url_for('backlog') }}">Backlog</a></li>
                 <li> <a href="default.asp">Sprints</a></li>
                 <li> <a href="default.asp">Extra link #1</a></li>
             </ul>
@@ -24,7 +24,7 @@
 
 <!-- HTML form to add tasks  -->
 <h1>Add task</h1>
-  <form action="/post" method="POST">
+  <form action="/post/" method="POST">
     <div class="mb-3 mt-3">
         <label for="task" class="form-label">Task:</label>
         <input method="POST" type="text" name="task" class="form-control" required="true" placeholder="Enter task name" />
@@ -50,7 +50,7 @@
                 <td>{{i+1}}.</td>
                 <td>{{ tasks_db[i] }}</td>
                 <td>
-                <a type="button" class="btn btn-danger" href="/remove/{{ i }}">Edit </a>
+                <a type="button" class="btn btn-success" href="/edit/{{ i }}">Edit </a>
                 <a type="button" class="btn btn-danger" href="/remove/{{ i }}">Remove </a>
                 </td>
             </tr>

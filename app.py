@@ -14,17 +14,19 @@ def post():
     if request.method == 'POST':
         session['tasks_db'].append(request.form['task'])
         session.modified = True
-        return redirect(url_for('index'))
+        return redirect(url_for('backlog'))
 
 @app.route('/remove/<int:index>')
 def post_remove(index):
     session["tasks_db"].pop(index)
     session.modified = True
-    return redirect(url_for('index'))
+    return redirect(url_for('backlog'))
 
-@app.route('/backlog')
+@app.route('/backlog/')
 def backlog():
-    return render_template('backlog.html')
+    if not 'tasks_db' in session:
+        session['tasks_db'] = []
+    return render_template('backlog.html', tasks_db=session["tasks_db"])
 
 
 if __name__ == "__main__":
