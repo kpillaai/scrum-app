@@ -5,7 +5,7 @@ from Task import Task
 class User:
     next_id = 1
 
-    def __int__(self, name: str, role: RoleType, email: str, phone_number: str):
+    def __init__(self, name: str, role: RoleType, email: str, phone_number: str, password: str):
         self.name = name
         self.id = User.next_id  # unique id for each User
         User.next_id += 1
@@ -13,6 +13,7 @@ class User:
         self.email = email
         self.phone_number = phone_number
         self.task_dict = {}  # dict used to store tasks this user has contributed to, key is task.id, value is hours
+        self.password = password
 
     def add_task(self, task: Task) -> None:
         """

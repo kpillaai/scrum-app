@@ -1,12 +1,12 @@
 from datetime import datetime
 from TaskStatus import TaskStatus
-from User import User
+
 
 
 class Task:
     next_id = 1
 
-    def __init__(self, name: str, priority: int, estimated_effort: int, status: TaskStatus, due_date: datetime, description: str, assignee: User):
+    def __init__(self, name: str, priority: int, estimated_effort: int, status: TaskStatus, due_date: datetime, description: str, assignee: str):
         self.name = name
         self.id = Task.next_id  # unique id for each task
         Task.next_id += 1
@@ -30,7 +30,7 @@ class Task:
         """
         self.status = new_status
 
-    def change_assignee(self, new_assignee: User) -> None:
+    def change_assignee(self, new_assignee: str) -> None:
         """
         Used to change assignee of the current task
         :param new_assignee: the new User
