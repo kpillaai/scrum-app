@@ -1,7 +1,10 @@
-from RoleType import RoleType
-from Task import Task
+from models.task import Task, db
+from enum import Enum
 
-
+class RoleType(Enum):
+    ADMIN = 'Admin'
+    MEMBER = 'Member'
+    
 class User:
     next_id = 1
 
@@ -34,3 +37,4 @@ class User:
         :return: None
         """
         self.task_dict[task.id] += hours
+
