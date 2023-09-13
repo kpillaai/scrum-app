@@ -34,7 +34,7 @@ def index():
         if session['loggedin'] == True:
             print('User Logged In: ' + session['username'])
     tasks = Task.query.all() # Get all Tasks in database (query)
-    return render_template('login.html', tasks=tasks)
+    return render_template('index.html', tasks=tasks)
 
 @app.route('/task/add/', methods=['POST'])
 def post():
