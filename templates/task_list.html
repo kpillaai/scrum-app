@@ -5,7 +5,9 @@
         <tr>
             <th>No.</th>
             <th>Task</th>
-            <th>Action</th>
+            {% if show_edit == True %}
+                <th>Action</th>
+            {% endif %}
         </tr>
     </thead>
     <tbody>
