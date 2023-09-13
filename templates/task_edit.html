@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Task Page{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block content %}
+<h1>Edit task</h1>
+  <form action="/task/edit/{{ task.id }}" method="POST">
+    <div class="mb-3 mt-3">
+        <label for="task" class="form-label">Task:</label>
+        <input type="text" name="task_description" class="form-control" required="true" value="{{task.description}}" />
+    </div>
+    <div>
+        <button type="submit" class="btn btn-success">Update</button>
+    </div>  
+</form>
+{% endblock %}
+
