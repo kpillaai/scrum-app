@@ -9,14 +9,23 @@ app.config['SECRET_KEY'] = 'dl@31l2s31k24e1n'
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///agility.db" # Configure SQLite database file
 db.init_app(app) # Initialize the app with the extension
 with app.app_context():
+    # db.drop_all() CURRENTLY ADDING 2 USERS EACH TIME, ENABLE THIS LINE TO CLEAR THEM
     db.create_all() # Create table schemas in the database if not exist
+    # temporarily creating users in the database
+    user1 = User(name="admin1", role=RoleType.ADMIN, email="admin1email@email.com", phone_number="01234567890", password="admin")
+    db.session.add(user1)
+    db.session.commit()
+
+    user2 = User(name="admin2", role=RoleType.ADMIN, email="admin2email@email.com", phone_number="0123456789", password="admin2")
+    db.session.add(user2)
+    db.session.commit()
 
 # Legacy variables (should convert to database)
-users = {}
-user1 = User("admin", RoleType.ADMIN, 'email@email.com', '0123456789', 'admin' )
-user2 = User("admin2", RoleType.ADMIN, 'email@email.com', '0123456789', 'admin2' )
-users[user1.id] = user1
-users[user2.id] = user2
+# users = {}
+# user1 = User("admin", RoleType.ADMIN, 'email@email.com', '0123456789', 'admin' )
+# user2 = User("admin2", RoleType.ADMIN, 'email@email.com', '0123456789', 'admin2' )
+# users[user1.id] = user1
+# users[user2.id] = user2
 
 # Routes
 @app.route('/')
@@ -62,18 +71,29 @@ def login():
     error = None
     account = False
     if request.method == 'POST':
-        for user in users:
-            if request.form['username'] == users[user].name and request.form['password'] == users[user].password:
+        username_input = request.form['username']
+        password_input = request.form['password']
+        # if user with email exists
+        if db.session.query(db.session.query(User).filter_by(email=username_input).exists()):
+            user = db.one_or_404(db.select(User).filter_by(email=username_input))
+
+            # if correct password
+            if user.password == password_input:
                 account = True
-                id = users[user].id
-                username = users[user].name
-        if account:
-            # Create session data, we can access this data in other routes
-            session['loggedin'] = True
-            session['id'] = id
-            session['username'] = username
-            return render_template('index.html')
+                id = user.id
+                username = user.email
+
+            if account:
+                # Create session data, we can access this data in other routes
+                session['loggedin'] = True
+                session['id'] = id
+                session['username'] = username
+                return render_template('index.html')
+            else:
+                # if correct email but incorrect password
+                error = "Invalid Login Credentials"
         else:
+            # if incorrect email
             error = "Invalid Login Credentials"
     return render_template('login.html', error=error)
 
