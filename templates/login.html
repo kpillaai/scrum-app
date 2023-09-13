@@ -7,8 +7,6 @@
         <ul class="right-side">
             <li> <a href="{{url_for('index') }}">Home</a></li>
             <li> <a href="{{url_for('backlog') }}">Backlog</a></li>
-            <li> <a href="default.asp">Sprints</a></li>
-            <li> <a href="default.asp">Extra link #1</a></li>
         </ul>
 
         <ul class="left-side">
@@ -35,7 +33,6 @@
                 request.form.username }}">
             <br>
             <button type="submit" value="Login">Login</button>
-            <button type="submit" value="Logout">Logout</button>
         </form>
         {% if error %}
         <p class="error"><strong>Error:</strong> {{ error }}
