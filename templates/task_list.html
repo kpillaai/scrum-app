@@ -5,6 +5,9 @@
         <tr>
             <th>No.</th>
             <th>Task</th>
+            {% if show_edit == True %}
+                <th>Action</th>
+            {% endif %}
         </tr>
     </thead>
     <tbody>
@@ -12,6 +15,12 @@
             <tr>
                 <td>{{i+1}}.</td>
                 <td>{{ tasks[i].description }}</td>
+                <td>
+                {% if show_edit == True %}
+                    <a type="button" class="btn btn-success" href="/task/edit/{{ tasks[i].id }}">Edit </a>
+                    <a type="button" class="btn btn-danger" href="/task/remove/{{ tasks[i].id }}">Remove </a>
+                {% endif %}
+                </td>
             </tr>
         {% endfor %}
     </tbody>

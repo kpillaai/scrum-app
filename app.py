@@ -34,7 +34,7 @@ def index():
         if session['loggedin'] == True:
             print('User Logged In: ' + session['username'])
     tasks = Task.query.all() # Get all Tasks in database (query)
-    return render_template('index.html', tasks=tasks)
+    return render_template('index.html', tasks=tasks, show_edit=False)
 
 @app.route('/task/add/', methods=['POST'])
 def post():
@@ -64,7 +64,7 @@ def edit(id):
 @app.route('/task/backlog/')
 def backlog():
     tasks = Task.query.all() # Get all Tasks in database (query)
-    return render_template('backlog.html', tasks=tasks)
+    return render_template('backlog.html', tasks=tasks, show_edit=True)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
