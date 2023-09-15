@@ -1,5 +1,8 @@
 # Modules
 from flask import Flask, render_template, request, session, redirect, url_for
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SubmitField
+from wtforms.validators import InputRequired, ValidationError
 from models.task import Task, db # Import Task database
 from models.user import User, RoleType 
 
@@ -20,12 +23,30 @@ with app.app_context():
     # db.session.add(user2)
     # db.session.commit()
 
-# Legacy variables (should convert to database)
-# users = {}
-# user1 = User("admin", RoleType.ADMIN, 'email@email.com', '0123456789', 'admin' )
-# user2 = User("admin2", RoleType.ADMIN, 'email@email.com', '0123456789', 'admin2' )
-# users[user1.id] = user1
-# users[user2.id] = user2
+# Register class
+class RegisterForm(FlaskForm):
+    name = StringField(validators=[InputRequired()], render_kw={"placeholder": "Name"})
+
+    phone_number = StringField(render_kw={"placeholder": "Phone Number (Optional)"})
+
+    email = StringField(validators=[InputRequired()], render_kw={"placeholder": "Email"})
+
+    password = StringField(validators=[InputRequired()], render_kw={"placeholder": "Password"})
+
+    submit = SubmitField("Register")
+
+    def validate_email(self, email):
+        existing_user_email = User.query.filter_by(email=email.data).first()
+
+        if existing_user_email:
+            raise ValidationError("That email is already registered")
+
+class LoginForm(FlaskForm):
+    email = StringField(validators=[InputRequired()], render_kw={"placeholder": "Email"})
+
+    password = StringField(validators=[InputRequired()], render_kw={"placeholder": "Password"})
+
+    submit = SubmitField("Login")
 
 # Routes
 @app.route('/')
@@ -66,37 +87,23 @@ def backlog():
     tasks = Task.query.all() # Get all Tasks in database (query)
     return render_template('backlog.html', tasks=tasks, show_edit=True)
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegisterForm()
+
+    if form.validate_on_submit():
+        new_user = User(name=form.name.data, phone_number=form.phone_number.data, email=form.email.data, password=form.password.data)
+        db.session.add(new_user)
+        db.session.commit()
+        return redirect(url_for('login'))
+
+    return render_template('register.html', form=form)
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    error = None
-    account = False
-    if request.method == 'POST':
-        username_input = request.form['username']
-        password_input = request.form['password']
-        # if user with email exists
-        if db.session.query(db.session.query(User).filter_by(email=username_input).exists()).scalar():
-            # user = db.one_or_404(db.select(User).filter_by(email=username_input))
-            user = db.session.query(User).filter_by(email=username_input).one()
+    form = LoginForm()
 
-            # if correct password
-            if user.password == password_input:
-                account = True
-                id = user.id
-                username = user.email
-
-            if account:
-                # Create session data, we can access this data in other routes
-                session['loggedin'] = True
-                session['id'] = id
-                session['username'] = username
-                return redirect(url_for('index'))
-            else:
-                # if correct email but incorrect password
-                error = "Invalid Login Credentials"
-        else:
-            # if incorrect email
-            error = "Invalid Login Credentials"
-    return render_template('login.html', error=error)
+    return render_template('login.html', form=form)
 
 def logout():
     session['loggedin'] = False
