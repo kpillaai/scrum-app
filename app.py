@@ -9,16 +9,16 @@ app.config['SECRET_KEY'] = 'dl@31l2s31k24e1n'
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///agility.db" # Configure SQLite database file
 db.init_app(app) # Initialize the app with the extension
 with app.app_context():
-    # db.drop_all() CURRENTLY ADDING 2 USERS EACH TIME, ENABLE THIS LINE TO CLEAR THEM
+    # db.drop_all() #CURRENTLY ADDING 2 USERS EACH TIME, ENABLE THIS LINE TO CLEAR THEM
     db.create_all() # Create table schemas in the database if not exist
-    # temporarily creating users in the database
-    user1 = User(name="admin1", role=RoleType.ADMIN, email="admin1email@email.com", phone_number="01234567890", password="admin")
-    db.session.add(user1)
-    db.session.commit()
+    # # temporarily creating users in the database
+    # user1 = User(name="admin1", role=RoleType.ADMIN, email="admin1email@email.com", phone_number="01234567890", password="admin")
+    # db.session.add(user1)
+    # db.session.commit()
 
-    user2 = User(name="admin2", role=RoleType.ADMIN, email="admin2email@email.com", phone_number="0123456789", password="admin2")
-    db.session.add(user2)
-    db.session.commit()
+    # user2 = User(name="admin2", role=RoleType.ADMIN, email="admin2email@email.com", phone_number="0123456789", password="admin2")
+    # db.session.add(user2)
+    # db.session.commit()
 
 # Legacy variables (should convert to database)
 # users = {}
@@ -74,8 +74,9 @@ def login():
         username_input = request.form['username']
         password_input = request.form['password']
         # if user with email exists
-        if db.session.query(db.session.query(User).filter_by(email=username_input).exists()):
-            user = db.one_or_404(db.select(User).filter_by(email=username_input))
+        if db.session.query(db.session.query(User).filter_by(email=username_input).exists()).scalar():
+            # user = db.one_or_404(db.select(User).filter_by(email=username_input))
+            user = db.session.query(User).filter_by(email=username_input).one()
 
             # if correct password
             if user.password == password_input:
@@ -88,7 +89,7 @@ def login():
                 session['loggedin'] = True
                 session['id'] = id
                 session['username'] = username
-                return render_template('index.html')
+                return redirect(url_for('index'))
             else:
                 # if correct email but incorrect password
                 error = "Invalid Login Credentials"
