@@ -47,7 +47,7 @@ def task_add():
         db.session.commit() # Commit database changes
         return turbo.stream([
             turbo.update(render_template('task_add.html'), target='task_add'),
-            turbo.update(render_template('blank.html'), target="task_panel"),
+            turbo.update(render_template('task_panel_hide.html'), target="task_area"),
             turbo.update(refresh_task_list(), target='task_list')
         ])
         
@@ -59,7 +59,7 @@ def task_remove(id):
         db.session.delete(task) # Delete task from Task database
         db.session.commit() # Save database changes
         return turbo.stream([
-            turbo.update(render_template('blank.html'), target="task_panel"),
+            turbo.update(render_template('task_panel_hide.html'), target="task_area"),
             turbo.update(refresh_task_list(), target='task_list')
         ])
     
