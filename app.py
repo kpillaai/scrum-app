@@ -1,31 +1,44 @@
 # Modules
 from flask import Flask, render_template, request, session, redirect, url_for
+from turbo_flask import Turbo
 from models.task import Task, db # Import Task database
 from models.user import User, RoleType 
 
 # Server Configuration
 app = Flask(__name__)
+turbo = Turbo(app) # Turbo flask
 app.config['SECRET_KEY'] = 'dl@31l2s31k24e1n'
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///agility.db" # Configure SQLite database file
 db.init_app(app) # Initialize the app with the extension
 with app.app_context():
     # db.drop_all() #CURRENTLY ADDING 2 USERS EACH TIME, ENABLE THIS LINE TO CLEAR THEM
     db.create_all() # Create table schemas in the database if not exist
-    # # temporarily creating users in the database
-    # user1 = User(name="admin1", role=RoleType.ADMIN, email="admin1email@email.com", phone_number="01234567890", password="admin")
-    # db.session.add(user1)
-    # db.session.commit()
+    # temporarily creating users in the database
+    users = User.query.all()
+    if (len(users) == 0):
+        user1 = User(name="admin1", role=RoleType.ADMIN, email="admin1email@email.com", phone_number="01234567890", password="admin")
+        db.session.add(user1)
+        db.session.commit()
 
-    # user2 = User(name="admin2", role=RoleType.ADMIN, email="admin2email@email.com", phone_number="0123456789", password="admin2")
-    # db.session.add(user2)
-    # db.session.commit()
+        user2 = User(name="admin2", role=RoleType.ADMIN, email="admin2email@email.com", phone_number="0123456789", password="admin2")
+        db.session.add(user2)
+        db.session.commit()
 
-# Legacy variables (should convert to database)
-# users = {}
-# user1 = User("admin", RoleType.ADMIN, 'email@email.com', '0123456789', 'admin' )
-# user2 = User("admin2", RoleType.ADMIN, 'email@email.com', '0123456789', 'admin2' )
-# users[user1.id] = user1
-# users[user2.id] = user2
+ 
+ # Adaptive Page functions
+def refresh_task_list(refresh_everyone=False):
+    tasks = Task.query.all() # Get all Tasks in database (query)
+    if (refresh_everyone):
+        with app.app_context():
+            turbo.push(
+                turbo.replace(render_template('task_list.html', tasks=tasks, show_edit=True), target='task_list'),
+            )
+    if turbo.can_stream():
+        return turbo.stream(
+            turbo.replace(render_template('task_list.html', tasks=tasks, show_edit=True), target='task_list'),
+        )
+    else:
+        return render_template('task_list.html', tasks=tasks, show_edit=True)   
 
 # Routes
 @app.route('/')
@@ -34,37 +47,42 @@ def index():
         if session['loggedin'] == True:
             print('User Logged In: ' + session['username'])
     tasks = Task.query.all() # Get all Tasks in database (query)
-    return render_template('index.html', tasks=tasks, show_edit=False)
+    return render_template('index.html', tasks=tasks, show_edit=True)
 
 @app.route('/task/add/', methods=['POST'])
-def post():
+def task_add():
     if request.method == 'POST':
         task = Task(description=request.form['task'])
         db.session.add(task) # Add Task to database
         db.session.commit() # Commit database changes
-        return redirect(url_for('backlog'))
-
-@app.route('/task/remove/<int:id>')
-def post_remove(id):
-    task = Task.query.get_or_404(id) # Get task to be deleted by id
-    db.session.delete(task) # Delete task from Task database
-    db.session.commit() # Save database changes
-    return redirect(url_for('backlog'))
-
-@app.route('/task/edit/<int:id>',methods=['GET','POST'])
-def edit(id):
-    task = Task.query.get_or_404(id)
+        return refresh_task_list()
+    
+@app.route('/task/remove/<int:id>', methods=['POST'])
+def task_remove(id):
     if request.method == 'POST':
+        task = Task.query.get_or_404(id) # Get task to be deleted by id
+        db.session.delete(task) # Delete task from Task database
+        db.session.commit() # Save database changes
+        return refresh_task_list(refresh_everyone=True)
+    
+@app.route('/task/edit/view/<int:id>', methods=['POST'])
+def task_edit_view(id):
+    if request.method == 'POST':
+        task = Task.query.get_or_404(id)
+        if turbo.can_stream():
+            return turbo.stream(
+                turbo.replace(render_template('task_edit.html', task=task), target=f"task_edit_view_{id}"),
+            )
+        else:
+            return render_template('task_edit.html', task=task)
+    
+@app.route('/task/edit/<int:id>', methods=['POST'])
+def task_edit(id):
+    if request.method == 'POST':
+        task = Task.query.get_or_404(id)
         task.description = request.form['task_description'] # Edit description
         db.session.commit() # Save database changes
-        return redirect(url_for('backlog'))
-    else:
-        return render_template('task_edit.html',task=task)
-
-@app.route('/task/backlog/')
-def backlog():
-    tasks = Task.query.all() # Get all Tasks in database (query)
-    return render_template('backlog.html', tasks=tasks, show_edit=True)
+        return refresh_task_list(refresh_everyone=True)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

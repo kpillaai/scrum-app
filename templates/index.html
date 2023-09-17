@@ -5,5 +5,8 @@
 {% block header %}{% endblock %}
 
 {% block content %}
-{% include 'task_list.html' %}
+<div id="content">
+    {% include 'task_add.html' %}
+    {% include 'task_list.html' %}
+</div>
 {% endblock %}

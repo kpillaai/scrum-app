@@ -1,11 +1,4 @@
-{% extends 'base.html' %}
-
-{% block title %}Edit Task Page{% endblock %}
-
-{% block header %}{% endblock %}
-
-{% block content %}
-<h1>Edit task</h1>
+<h3>Edit task</h3>
   <form action="/task/edit/{{ task.id }}" method="POST">
     <div class="mb-3 mt-3">
         <label for="task" class="form-label">Task:</label>
@@ -15,5 +8,3 @@
         <button type="submit" class="btn btn-success">Update</button>
     </div>  
 </form>
-{% endblock %}
-
