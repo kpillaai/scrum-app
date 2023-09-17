@@ -26,9 +26,21 @@ with app.app_context():
 
  
  # Adaptive Page functions
-def refresh_task_list():
+def page_task_list_refresh():
     tasks = Task.query.all() # Get all Tasks in database (query)
-    return render_template('task_list.html', tasks=tasks, show_edit=True)
+    return turbo.update(render_template('task_list.html', tasks=tasks, show_edit=True), target='task_list')
+
+def page_task_panel_hide():
+    return turbo.update(render_template('task_panel_hide.html'), target="task_area")
+
+def page_task_panel_show():
+    return turbo.update(render_template('task_panel_show.html'), target="task_area")
+
+def page_task_add_show(task):
+    return turbo.update(render_template('task_edit.html', task=task), target="task_panel")
+
+def page_task_add_clear():
+    return turbo.update(render_template('task_add.html'), target='task_add')
 
 # Routes
 @app.route('/')
@@ -46,12 +58,11 @@ def task_add():
         db.session.add(task) # Add Task to database
         db.session.commit() # Commit database changes
         return turbo.stream([
-            turbo.update(render_template('task_add.html'), target='task_add'),
-            turbo.update(render_template('task_panel_hide.html'), target="task_area"),
-            turbo.update(refresh_task_list(), target='task_list')
+            page_task_add_clear(),
+            page_task_panel_hide(),
+            page_task_list_refresh()
         ])
         
-    
 @app.route('/task/remove/<int:id>', methods=['POST'])
 def task_remove(id):
     if request.method == 'POST':
@@ -59,8 +70,8 @@ def task_remove(id):
         db.session.delete(task) # Delete task from Task database
         db.session.commit() # Save database changes
         return turbo.stream([
-            turbo.update(render_template('task_panel_hide.html'), target="task_area"),
-            turbo.update(refresh_task_list(), target='task_list')
+            page_task_panel_hide(),
+            page_task_list_refresh()
         ])
     
 @app.route('/task/edit/view/<int:id>', methods=['POST'])
@@ -68,9 +79,9 @@ def task_edit_view(id):
     if request.method == 'POST':
         task = Task.query.get_or_404(id)
         return turbo.stream([
-            turbo.update(render_template('task_panel_show.html'), target="task_area"),
-            turbo.update(refresh_task_list(), target='task_list'),
-            turbo.update(render_template('task_edit.html', task=task), target="task_panel"),
+            page_task_panel_show(),
+            page_task_add_show(task),
+            page_task_list_refresh()
         ])
 
     
@@ -81,8 +92,8 @@ def task_edit(id):
         task.description = request.form['task_description'] # Edit description
         db.session.commit() # Save database changes
         return turbo.stream([
-            turbo.update(render_template('task_panel_hide.html'), target="task_area"),
-            turbo.update(refresh_task_list(), target='task_list')
+            page_task_panel_hide(),
+            page_task_list_refresh()
         ])
         
 @app.route('/login', methods=['GET', 'POST'])
