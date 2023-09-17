@@ -5,8 +5,14 @@
 {% block header %}{% endblock %}
 
 {% block content %}
-<div id="content">
-    {% include 'task_add.html' %}
-    {% include 'task_list.html' %}
+<div class="container-fluid" id="content">
+    <div class="row">
+        <div class="col">
+            {% include 'task_add.html' %}
+        </div>
+    </div>
+    <div class="row">
+        <div id="task_area"> {% include 'task_list.html' %} </div>
+    </div>
 </div>
 {% endblock %}

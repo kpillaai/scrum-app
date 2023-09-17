@@ -1,10 +1,12 @@
-<h3>Edit task</h3>
+<div id="task_edit">
+  <h1>Edit task</h1>
   <form action="/task/edit/{{ task.id }}" method="POST">
-    <div class="mb-3 mt-3">
-        <label for="task" class="form-label">Task:</label>
-        <input type="text" name="task_description" class="form-control" required="true" value="{{task.description}}" />
+    <div class="">
+      <label for="task" class="form-label">Task:</label>
+      <input type="text" name="task_description" class="form-control" required="true" value="{{task.description}}"/>
     </div>
     <div>
-        <button type="submit" class="btn btn-success">Update</button>
-    </div>  
-</form>
+      <button type="submit" class="btn btn-success">Update</button>
+    </div>
+  </form>
+</div>

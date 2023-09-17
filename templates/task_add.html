@@ -1,11 +1,13 @@
-<!-- HTML form to add tasks  -->
-<h1>Add task</h1>
-<form action="/task/add/" method="POST">
-    <div class="mb-3 mt-3">
-        <label for="task" class="form-label">Task:</label>
-        <input method="POST" type="text" name="task" class="form-control" required="true" placeholder="Enter task name" />
-    </div>
-    <div>
-        <button class="btn btn-primary">Submit</button>
-    </div>  
-</form>
+<div id="task_add">
+    <h1>Add task</h1>
+    <!-- HTML form to add tasks  -->
+    <form action="/task/add/" method="POST">
+        <div class="">
+            <label for="task" class="form-label">Task:</label>
+            <input method="POST" type="text" name="task" class="form-control" required="true" placeholder="Enter task name" />
+        </div>
+        <div>
+            <button class="btn btn-primary">Submit</button>
+        </div>  
+    </form>
+</div>
