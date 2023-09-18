@@ -57,6 +57,7 @@ def task_add():
         task = Task(description=request.form['task'])
         db.session.add(task) # Add Task to database
         db.session.commit() # Commit database changes
+        turbo.push(page_task_list_refresh()) # Push Real time changes to all connected clients
         return turbo.stream([
             page_task_add_clear(),
             page_task_panel_hide(),
@@ -69,6 +70,7 @@ def task_remove(id):
         task = Task.query.get_or_404(id) # Get task to be deleted by id
         db.session.delete(task) # Delete task from Task database
         db.session.commit() # Save database changes
+        turbo.push(page_task_list_refresh()) # Push Real time changes to all connected clients
         return turbo.stream([
             page_task_panel_hide(),
             page_task_list_refresh()
@@ -91,6 +93,7 @@ def task_edit(id):
         task = Task.query.get_or_404(id)
         task.description = request.form['task_description'] # Edit description
         db.session.commit() # Save database changes
+        turbo.push(page_task_list_refresh()) # Push Real time changes to all connected clients
         return turbo.stream([
             page_task_panel_hide(),
             page_task_list_refresh()
