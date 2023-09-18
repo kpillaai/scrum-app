@@ -49,7 +49,7 @@ def page_task_add_clear():
     return turbo.update(render_template('task_add.html'), target='task_add')
 
 # Routes
-@app.route('/')
+@app.route('/', methods=['GET'])
 def index():
     if 'loggedin' in session:
         if session['loggedin'] == True:
@@ -57,67 +57,61 @@ def index():
     tasks = Task.query.all() # Get all Tasks in database (query)
     return render_template('index.html', tasks=tasks, show_edit=False)
 
-@app.route('/backlog', methods=['POST'])
+@app.route('/backlog', methods=['PUT'])
 def backlog():
-    if request.method == 'POST':
-        tasks = Task.query.all() # Get all Tasks in database (query)
-        return render_template('backlog.html', tasks=tasks, show_edit=True)
+    tasks = Task.query.all() # Get all Tasks in database (query)
+    return render_template('backlog.html', tasks=tasks, show_edit=True)
 
 @app.route('/task/add/', methods=['POST'])
 def task_add():
-    if request.method == 'POST':
-        task = Task(description=request.form['task'])
-        db.session.add(task) # Add Task to database
-        db.session.commit() # Commit database changes
-        live_task_list_refresh() # Push realtime changes to all connected clients
-        return turbo.stream([
-            page_task_add_clear(),
-            page_task_panel_hide(),
-            page_task_list_refresh()
-        ])
+    task = Task(description=request.form['task'])
+    db.session.add(task) # Add Task to database
+    db.session.commit() # Commit database changes
+    live_task_list_refresh() # Push realtime changes to all connected clients
+    return turbo.stream([
+        page_task_add_clear(),
+        page_task_panel_hide(),
+        page_task_list_refresh()
+    ])
         
 @app.route('/task/remove/<int:id>', methods=['POST'])
 def task_remove(id):
-    if request.method == 'POST':
-        task = Task.query.get_or_404(id) # Get task to be deleted by id
-        db.session.delete(task) # Delete task from Task database
-        db.session.commit() # Save database changes
-        live_task_list_refresh() # Push realtime changes to all connected clients
-        return turbo.stream([
-            page_task_panel_hide(),
-            page_task_list_refresh()
-        ])
+    task = Task.query.get_or_404(id) # Get task to be deleted by id
+    db.session.delete(task) # Delete task from Task database
+    db.session.commit() # Save database changes
+    live_task_list_refresh() # Push realtime changes to all connected clients
+    return turbo.stream([
+        page_task_panel_hide(),
+        page_task_list_refresh()
+    ])
     
 @app.route('/task/edit/view/<int:id>', methods=['POST'])
 def task_edit_view(id):
-    if request.method == 'POST':
-        task = Task.query.get_or_404(id)
-        return turbo.stream([
-            page_task_panel_show(),
-            page_task_add_show(task),
-            page_task_list_refresh()
-        ])
+    task = Task.query.get_or_404(id)
+    return turbo.stream([
+        page_task_panel_show(),
+        page_task_add_show(task),
+        page_task_list_refresh()
+    ])
 
     
 @app.route('/task/edit/<int:id>', methods=['POST'])
 def task_edit(id):
-    if request.method == 'POST':
-        task = Task.query.get_or_404(id)
-        task.description = request.form['task_description'] # Edit description
-        db.session.commit() # Save database changes
-        live_task_list_refresh() # Push realtime changes to all connected clients
-        return turbo.stream([
-            page_task_panel_hide(),
-            page_task_list_refresh()
-        ])
+    task = Task.query.get_or_404(id)
+    task.description = request.form['task_description'] # Edit description
+    db.session.commit() # Save database changes
+    live_task_list_refresh() # Push realtime changes to all connected clients
+    return turbo.stream([
+        page_task_panel_hide(),
+        page_task_list_refresh()
+    ])
         
 @app.route('/task/panel/hide/', methods=['POST'])
 def task_panel_hide():
-    if request.method == 'POST':
-        return turbo.stream([
-            page_task_panel_hide(),
-            page_task_list_refresh()
-        ])
+    return turbo.stream([
+        page_task_panel_hide(),
+        page_task_list_refresh()
+    ])
         
 @app.route('/login', methods=['GET', 'POST'])
 def login():
