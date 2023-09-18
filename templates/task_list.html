@@ -1,8 +1,8 @@
 <!-- HTML table to display all tasks  -->
-<div id="task_list">
+<div id="task_list_{{show_edit}}">
     <h1>Tasks</h1>
-    <table class="table">
-        <thead class="table-secondary">
+    <table class="table table-responsive">
+        <thead>
             <tr>
                 <th>No.</th>
                 <th>Task</th>
@@ -24,9 +24,6 @@
                             <form action="/task/remove/{{ tasks[i].id }}" method="POST" style="display: inline;">
                                 <button type="submit" class="btn btn-danger">Remove</button>
                             </form>
-                        </td>
-                        <td>
-                            <div id="task_edit_view_{{ tasks[i].id }}"></div>
                         </td>
                     {% endif %}
             {% endfor %}

@@ -25,16 +25,22 @@ with app.app_context():
         db.session.commit()
 
  
- # Adaptive Page functions
-def page_task_list_refresh():
+# Adaptive Page functions
+def live_task_list_refresh(): # Push realtime task list changes to all connected clients
+    turbo.push([
+        page_task_list_refresh(show_edit=True), # Backlog page
+        page_task_list_refresh(show_edit=False) # Index page
+    ]) 
+    
+def page_task_list_refresh(show_edit=True):
     tasks = Task.query.all() # Get all Tasks in database (query)
-    return turbo.update(render_template('task_list.html', tasks=tasks, show_edit=True), target='task_list')
+    return turbo.update(render_template('task_list.html', tasks=tasks, show_edit=show_edit), target=f'task_list_{show_edit}')
 
-def page_task_panel_hide():
-    return turbo.update(render_template('task_panel_hide.html'), target="task_area")
+def page_task_panel_hide(task_show_edit=True):
+    return turbo.update(render_template('task_panel_hide.html', show_edit=task_show_edit), target="task_area")
 
-def page_task_panel_show():
-    return turbo.update(render_template('task_panel_show.html'), target="task_area")
+def page_task_panel_show(task_show_edit=True):
+    return turbo.update(render_template('task_panel_show.html', show_edit=task_show_edit), target="task_area")
 
 def page_task_add_show(task):
     return turbo.update(render_template('task_edit.html', task=task), target="task_panel")
@@ -49,7 +55,12 @@ def index():
         if session['loggedin'] == True:
             print('User Logged In: ' + session['username'])
     tasks = Task.query.all() # Get all Tasks in database (query)
-    return render_template('index.html', tasks=tasks, show_edit=True)
+    return render_template('index.html', tasks=tasks, show_edit=False)
+
+@app.route('/backlog')
+def backlog():
+    tasks = Task.query.all() # Get all Tasks in database (query)
+    return render_template('backlog.html', tasks=tasks, show_edit=True)
 
 @app.route('/task/add/', methods=['POST'])
 def task_add():
@@ -57,7 +68,7 @@ def task_add():
         task = Task(description=request.form['task'])
         db.session.add(task) # Add Task to database
         db.session.commit() # Commit database changes
-        turbo.push(page_task_list_refresh()) # Push Real time changes to all connected clients
+        live_task_list_refresh() # Push realtime changes to all connected clients
         return turbo.stream([
             page_task_add_clear(),
             page_task_panel_hide(),
@@ -70,7 +81,7 @@ def task_remove(id):
         task = Task.query.get_or_404(id) # Get task to be deleted by id
         db.session.delete(task) # Delete task from Task database
         db.session.commit() # Save database changes
-        turbo.push(page_task_list_refresh()) # Push Real time changes to all connected clients
+        live_task_list_refresh() # Push realtime changes to all connected clients
         return turbo.stream([
             page_task_panel_hide(),
             page_task_list_refresh()
@@ -93,7 +104,15 @@ def task_edit(id):
         task = Task.query.get_or_404(id)
         task.description = request.form['task_description'] # Edit description
         db.session.commit() # Save database changes
-        turbo.push(page_task_list_refresh()) # Push Real time changes to all connected clients
+        live_task_list_refresh() # Push realtime changes to all connected clients
+        return turbo.stream([
+            page_task_panel_hide(),
+            page_task_list_refresh()
+        ])
+        
+@app.route('/task/panel/hide/', methods=['POST'])
+def task_panel_hide():
+    if request.method == 'POST':
         return turbo.stream([
             page_task_panel_hide(),
             page_task_list_refresh()

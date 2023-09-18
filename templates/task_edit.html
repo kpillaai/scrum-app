@@ -1,5 +1,12 @@
 <div id="task_edit">
-  <h1>Edit task</h1>
+  <h1 style="display: inline;">
+    Edit task
+    <h2 style="display: inline;">
+      <form action="/task/panel/hide/" method="POST" style="display: inline;">
+        <button type="submit" class="btn-close">&nbsp;</button>
+      </form>
+    </h2>
+  </h1>
   <form action="/task/edit/{{ task.id }}" method="POST">
     <div class="">
       <label for="task" class="form-label">Task:</label>

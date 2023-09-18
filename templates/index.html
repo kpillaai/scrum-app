@@ -1,18 +1,13 @@
 {% extends 'base.html' %}
 
-{% block title %}Home Page{% endblock %}
+{% block title %}Agility App{% endblock %}
 
 {% block header %}{% endblock %}
 
 {% block content %}
-<div class="container-fluid" id="content">
+<turbo-frame id="page_content">
     <div class="row">
-        <div class="col">
-            {% include 'task_add.html' %}
-        </div>
+        {% include 'task_list.html' %}
     </div>
-    <div class="row">
-        <div id="task_area"> {% include 'task_list.html' %} </div>
-    </div>
-</div>
+</turbo-frame>
 {% endblock %}
