@@ -57,10 +57,11 @@ def index():
     tasks = Task.query.all() # Get all Tasks in database (query)
     return render_template('index.html', tasks=tasks, show_edit=False)
 
-@app.route('/backlog')
+@app.route('/backlog', methods=['POST'])
 def backlog():
-    tasks = Task.query.all() # Get all Tasks in database (query)
-    return render_template('backlog.html', tasks=tasks, show_edit=True)
+    if request.method == 'POST':
+        tasks = Task.query.all() # Get all Tasks in database (query)
+        return render_template('backlog.html', tasks=tasks, show_edit=True)
 
 @app.route('/task/add/', methods=['POST'])
 def task_add():
