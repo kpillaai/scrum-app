@@ -1,4 +1,4 @@
-# FIT2101 Project (spike)
+# FIT2101 Project (sprint2)
 Team Agility
 Agile Project Management Software
 

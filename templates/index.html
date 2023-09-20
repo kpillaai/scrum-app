@@ -5,9 +5,11 @@
 {% block header %}{% endblock %}
 
 {% block content %}
-<turbo-frame id="page_content">
-    <div class="row">
-        {% include 'task_list.html' %}
+<turbo-frame id="page">
+    <div id="page_content">
+        <div class="row">
+            {% include 'task_list.html' %}
+        </div>
     </div>
 </turbo-frame>
 {% endblock %}

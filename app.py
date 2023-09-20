@@ -4,6 +4,7 @@ from turbo_flask import Turbo
 from models.task import Task, db # Import Task database
 from models.user import User, RoleType 
 
+
 # Server Configuration
 app = Flask(__name__)
 turbo = Turbo(app) # Turbo flask
@@ -28,25 +29,26 @@ with app.app_context():
 # Adaptive Page functions
 def live_task_list_refresh(): # Push realtime task list changes to all connected clients
     turbo.push([
-        page_task_list_refresh(show_edit=True), # Backlog page
-        page_task_list_refresh(show_edit=False) # Index page
+        page_task_list_refresh(tasks_show_edit=True), # Backlog page
+        page_task_list_refresh(tasks_show_edit=False) # Index page
     ]) 
     
-def page_task_list_refresh(show_edit=True):
+def page_task_list_refresh(tasks_show_edit=True):
     tasks = Task.query.all() # Get all Tasks in database (query)
-    return turbo.update(render_template('task_list.html', tasks=tasks, show_edit=show_edit), target=f'task_list_{show_edit}')
+    return turbo.update(render_template('task_list.html', tasks=tasks, tasks_show_edit=tasks_show_edit), target=f'task_list_{tasks_show_edit}')
 
-def page_task_panel_hide(task_show_edit=True):
-    return turbo.update(render_template('task_panel_hide.html', show_edit=task_show_edit), target="task_area")
+def backlog_task_panel_hide():
+    return turbo.update(render_template('backlog.html', tasks_show_edit=True, show_task_panel=False), target="page_content")
 
-def page_task_panel_show(task_show_edit=True):
-    return turbo.update(render_template('task_panel_show.html', show_edit=task_show_edit), target="task_area")
+def backlog_task_panel_show():
+    return turbo.update(render_template('backlog.html', tasks_show_edit=True, show_task_panel=True), target="page_content")
 
-def page_task_add_show(task):
+def page_task_edit_show(task):
     return turbo.update(render_template('task_edit.html', task=task), target="task_panel")
 
 def page_task_add_clear():
     return turbo.update(render_template('task_add.html'), target='task_add')
+
 
 # Routes
 @app.route('/', methods=['GET'])
@@ -55,12 +57,12 @@ def index():
         if session['loggedin'] == True:
             print('User Logged In: ' + session['username'])
     tasks = Task.query.all() # Get all Tasks in database (query)
-    return render_template('index.html', tasks=tasks, show_edit=False)
+    return render_template('index.html', tasks=tasks, tasks_show_edit=False)
 
 @app.route('/backlog', methods=['PUT'])
 def backlog():
     tasks = Task.query.all() # Get all Tasks in database (query)
-    return render_template('backlog.html', tasks=tasks, show_edit=True)
+    return render_template('backlog.html', tasks=tasks, tasks_show_edit=True)
 
 @app.route('/task/add/', methods=['POST'])
 def task_add():
@@ -70,7 +72,7 @@ def task_add():
     live_task_list_refresh() # Push realtime changes to all connected clients
     return turbo.stream([
         page_task_add_clear(),
-        page_task_panel_hide(),
+        backlog_task_panel_hide(),
         page_task_list_refresh()
     ])
         
@@ -81,7 +83,7 @@ def task_remove(id):
     db.session.commit() # Save database changes
     live_task_list_refresh() # Push realtime changes to all connected clients
     return turbo.stream([
-        page_task_panel_hide(),
+        backlog_task_panel_hide(),
         page_task_list_refresh()
     ])
     
@@ -89,12 +91,11 @@ def task_remove(id):
 def task_edit_view(id):
     task = Task.query.get_or_404(id)
     return turbo.stream([
-        page_task_panel_show(),
-        page_task_add_show(task),
+        backlog_task_panel_show(),
+        page_task_edit_show(task),
         page_task_list_refresh()
     ])
 
-    
 @app.route('/task/edit/<int:id>', methods=['POST'])
 def task_edit(id):
     task = Task.query.get_or_404(id)
@@ -102,14 +103,14 @@ def task_edit(id):
     db.session.commit() # Save database changes
     live_task_list_refresh() # Push realtime changes to all connected clients
     return turbo.stream([
-        page_task_panel_hide(),
+        backlog_task_panel_hide(),
         page_task_list_refresh()
     ])
         
 @app.route('/task/panel/hide/', methods=['POST'])
 def task_panel_hide():
     return turbo.stream([
-        page_task_panel_hide(),
+        backlog_task_panel_hide(),
         page_task_list_refresh()
     ])
         
@@ -152,6 +153,7 @@ def logout():
 @app.errorhandler(404)
 def not_found(error):
     return render_template('404.html', error=error)
-    
+
+
 if __name__ == "__main__":
     app.run(debug=True)

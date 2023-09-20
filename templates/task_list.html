@@ -1,12 +1,12 @@
 <!-- HTML table to display all tasks  -->
-<div id="task_list_{{show_edit}}">
+<div id="task_list_{{tasks_show_edit}}">
     <h1>Tasks</h1>
     <table class="table table-responsive">
         <thead>
             <tr>
                 <th>No.</th>
                 <th>Task</th>
-                {% if show_edit == True %}
+                {% if tasks_show_edit == True %}
                     <th>Action</th>
                 {% endif %}
             </tr>
@@ -16,7 +16,7 @@
                 <tr>
                     <td>{{i+1}}.</td>
                     <td>{{ tasks[i].description }}</td>
-                    {% if show_edit == True %}
+                    {% if tasks_show_edit == True %}
                         <td>
                             <form action="/task/edit/view/{{ tasks[i].id }}" method="POST" style="display: inline;">
                                 <button type="submit" class="btn btn-success">Edit</button>

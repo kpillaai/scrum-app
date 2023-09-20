@@ -1,8 +1,23 @@
-<turbo-frame id="page_content">
-    <div class="row">
-        <div class="col">
-            {% include 'task_add.html' %}
+<turbo-frame id="page">
+    <div id="page_content">
+        <div class="row">
+            <div class="col">
+                {% include 'task_add.html' %}
+            </div>
         </div>
+        {% if (show_task_panel): %}
+            <div class="row">
+                <div class="col-7">
+                    {% include 'task_list.html' %}
+                </div>
+                <div class="col-3">
+                    <div id="task_panel"></div>
+                </div>
+            </div>
+        {% else %}
+            <div class="row">
+                {% include 'task_list.html' %}
+            </div>
+        {% endif %}
     </div>
-    <div id="task_area"> {% include 'task_list.html' %} </div>
 </turbo-frame>
