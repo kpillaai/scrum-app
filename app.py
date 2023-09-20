@@ -1,5 +1,5 @@
 # Modules
-from flask import Flask, render_template, request, session, redirect, url_for
+from flask import Flask, render_template, request, session, redirect, url_for,jsonify
 from models.task import Task, db # Import Task database
 from models.user import User, RoleType 
 
@@ -105,6 +105,22 @@ def logout():
 @app.errorhandler(404)
 def not_found(error):
     return render_template('404.html', error=error)
+
+@app.route('/task/sprint/')
+def sprint():
+    tasks = Task.query.all() # Get all Tasks in database (query)
+    return render_template('sprint.html', tasks=tasks)
+
+@app.route('/update_positions', methods=['POST'])
+def update_positions():
+    new_positions = request.json['positions']
+    update_item_positions(new_positions)
+    return jsonify({'message': 'Positions updated successfully'})
+
+def update_item_positions(item_positions):
+    # Update item positions in the database
+    # Replace this with the actual database update logic
+    pass
     
 if __name__ == "__main__":
     app.run(debug=True)

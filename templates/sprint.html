@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Sprint{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block content %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<style>
+    .draggable{
+        cursor: move;
+    }
+</style>
+
+<div class="container">
+    <table class="table" id="tasktable">
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>Task</th>
+            </tr>
+        </thead>
+        <tbody class="row-position">
+            {% for i in range(tasks|length): %}
+                <tr data-id="{{ tasks[i].id }}" class="draggable">
+                    <td>{{i+1}}.</td>
+                    <td>{{ tasks[i].description }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script>
+    $(document).ready(function() {
+        $('#tasktable tbody').sortable({
+            update: function(event, ui) {
+                var positions = [];
+                $('#tasktable tbody tr').each(function(index) {
+                    var itemId = $(this).data('id');
+                    positions.push({ 'id': itemId, 'position': index + 1 });
+                });
+    
+                // Send AJAX request to update positions
+                $.ajax({
+                    type: 'POST',
+                    url: '/update_positions',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ 'positions': positions }),
+                    success: function(response) {
+                        console.log(response.message);
+                    },
+                    error: function(error) {
+                        console.error('Error updating positions:', error);
+                    }
+                });
+            }
+        });
+    });
+    </script>
+{% endblock %}
