@@ -1,0 +1,16 @@
+<div id="task_area">
+    {% if (show_task_panel): %}
+        <div class="row">
+            <div class="col-7">
+                {% include 'task_list.html' %}
+            </div>
+            <div class="col-3">
+                <div id="task_panel"></div>
+            </div>
+        </div>
+    {% else %}
+        <div class="row">
+            {% include 'task_list.html' %}
+        </div>
+    {% endif %}
+</div>
