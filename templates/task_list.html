@@ -18,12 +18,8 @@
                     <td>{{ tasks[i].description }}</td>
                     {% if tasks_show_edit == True %}
                         <td>
-                            <form action="/task/edit/view/{{ tasks[i].id }}" method="POST" style="display: inline;">
-                                <button type="submit" class="btn btn-success">Edit</button>
-                            </form>
-                            <form action="/task/remove/{{ tasks[i].id }}" method="POST" style="display: inline;">
-                                <button type="submit" class="btn btn-danger">Remove</button>
-                            </form>
+                            <a href="/task/edit/view/{{ tasks[i].id }}" data-turbo-method="post" class="btn btn-success">Edit</a>
+                            <a href="/task/remove/{{ tasks[i].id }}" data-turbo-method="post" class="btn btn-danger">Remove</a>
                         </td>
                     {% endif %}
             {% endfor %}

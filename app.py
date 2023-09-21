@@ -59,10 +59,10 @@ def index():
     tasks = Task.query.all() # Get all Tasks in database (query)
     return render_template('index.html', tasks=tasks, tasks_show_edit=False)
 
-@app.route('/backlog', methods=['PUT'])
+@app.route('/backlog', methods=['POST'])
 def backlog():
     tasks = Task.query.all() # Get all Tasks in database (query)
-    return render_template('backlog.html', tasks=tasks, tasks_show_edit=True)
+    return turbo.stream(turbo.replace(render_template('backlog.html', tasks=tasks, tasks_show_edit=True), target='page_content'))
 
 @app.route('/task/add/', methods=['POST'])
 def task_add():
