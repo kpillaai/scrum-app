@@ -1,6 +1,7 @@
 # Modules
 from flask import Flask, render_template, request, session, redirect, url_for
 from flask_wtf import FlaskForm
+from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, ValidationError
 from models.task import Task, db # Import Task database
@@ -22,6 +23,15 @@ with app.app_context():
     # user2 = User(name="admin2", role=RoleType.ADMIN, email="admin2email@email.com", phone_number="0123456789", password="admin2")
     # db.session.add(user2)
     # db.session.commit()
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 # Register class
 class RegisterForm(FlaskForm):
@@ -83,6 +93,7 @@ def edit(id):
         return render_template('task_edit.html',task=task)
 
 @app.route('/task/backlog/')
+@login_required
 def backlog():
     tasks = Task.query.all() # Get all Tasks in database (query)
     return render_template('backlog.html', tasks=tasks, show_edit=True)
@@ -102,12 +113,22 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            if user.password == form.password.data:
+                login_user(user)
+                return redirect(url_for('backlog'))
 
     return render_template('login.html', form=form)
 
+@app.route('/logout', methods=['GET','POST'])
+@login_required
 def logout():
-    session['loggedin'] = False
-    return render_template('login.html')
+    logout_user()
+    return redirect(url_for('login'))
+    # session['loggedin'] = False
+    # return render_template('login.html')
 
 @app.errorhandler(404)
 def not_found(error):
