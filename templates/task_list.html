@@ -1,29 +1,32 @@
-<!-- HTML table to display all tasks  -->
-<h1>Tasks</h1>
-<table class="table">
-    <thead class="table-secondary">
-        <tr>
-            <th>No.</th>
-            <th>Task</th>
-            {% if show_edit == True %}
-                <th>Action</th>
-            {% endif %}
-        </tr>
-    </thead>
-    <tbody>
-        {% for i in range(tasks|length): %}
+<div id="task_list_{{tasks_show_edit}}">
+    <h1>Tasks</h1>
+    <!-- HTML table to display all tasks  -->
+    <table class="table table-responsive">
+        <thead>
             <tr>
-                <td>{{i+1}}.</td>
-                <td>{{ tasks[i].description }}</td>
-                <td>
-                {% if show_edit == True %}
-                    <a type="button" class="btn btn-success" href="/task/edit/{{ tasks[i].id }}">Edit </a>
-                    <a type="button" class="btn btn-danger" href="/task/remove/{{ tasks[i].id }}">Remove </a>
+                <th>No.</th>
+                <th>Task</th>
+                {% if tasks_show_edit == True %}
+                    <th>Action</th>
                 {% endif %}
-                </td>
             </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-    
+        </thead>
+        <tbody>
+            {% for i in range(tasks|length): %}
+                <tr>
+                    <td>{{i+1}}.</td>
+                    <td>{{ tasks[i].description }}</td>
+                    {% if tasks_show_edit == True %}
+                        <td>
+                            <form action="/task/edit/view/{{ tasks[i].id }}" method="POST" style="display: inline;">
+                                <button type="submit" class="btn btn-success">Edit</button>
+                            </form>
+                            <form action="/task/remove/{{ tasks[i].id }}" method="POST" style="display: inline;">
+                                <button type="submit" class="btn btn-danger">Remove</button>
+                            </form>
+                        </td>
+                    {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

@@ -4,11 +4,14 @@ from flask_wtf import FlaskForm
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, ValidationError
+from turbo_flask import Turbo
 from models.task import Task, db # Import Task database
 from models.user import User, RoleType 
 
+
 # Server Configuration
 app = Flask(__name__)
+turbo = Turbo(app) # Turbo flask
 app.config['SECRET_KEY'] = 'dl@31l2s31k24e1n'
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///agility.db" # Configure SQLite database file
 db.init_app(app) # Initialize the app with the extension
@@ -58,32 +61,80 @@ class LoginForm(FlaskForm):
 
     submit = SubmitField("Login")
 
+    # temporarily creating users in the database
+    users = User.query.all()
+    if (len(users) == 0):
+        user1 = User(name="admin1", role=RoleType.ADMIN, email="admin1email@email.com", phone_number="01234567890", password="admin")
+        db.session.add(user1)
+        db.session.commit()
+
+        user2 = User(name="admin2", role=RoleType.ADMIN, email="admin2email@email.com", phone_number="0123456789", password="admin2")
+        db.session.add(user2)
+        db.session.commit()
+
+ 
+# Adaptive Page functions
+def live_task_list_refresh(): # Push realtime task list changes to all connected clients
+    turbo.push([
+        page_task_list_refresh(tasks_show_edit=True), # Backlog page
+        page_task_list_refresh(tasks_show_edit=False) # Index page
+    ]) 
+    
+def page_task_list_refresh(tasks_show_edit=True):
+    tasks = Task.query.all() # Get all Tasks in database (query)
+    return turbo.replace(render_template('task_list.html', tasks=tasks, tasks_show_edit=tasks_show_edit), target=f'task_list_{tasks_show_edit}')
+
+def page_task_add_clear():
+    return turbo.replace(render_template('task_add.html'), target='task_add') # target = id of html element to replace with html from file
+
+def page_task_panel_show():
+    return turbo.replace(render_template('task_area.html', tasks_show_edit=True, show_task_panel=True), target="task_area")
+
+def page_task_panel_hide():
+    return turbo.replace(render_template('task_area.html', tasks_show_edit=True, show_task_panel=False), target="task_area")
+
+def page_task_edit_show(task):
+    return turbo.replace(render_template('task_edit.html', task=task), target="task_panel")
+
+
 # Routes
-@app.route('/')
+@app.route('/', methods=['GET'])
 def index():
     if 'loggedin' in session:
         if session['loggedin'] == True:
             print('User Logged In: ' + session['username'])
     tasks = Task.query.all() # Get all Tasks in database (query)
-    return render_template('index.html', tasks=tasks, show_edit=False)
+    return render_template('index.html', tasks=tasks, tasks_show_edit=False)
+
+@app.route('/backlog', methods=['PUT'])
+def backlog():
+    tasks = Task.query.all() # Get all Tasks in database (query)
+    return render_template('backlog.html', tasks=tasks, tasks_show_edit=True)
 
 @app.route('/task/add/', methods=['POST'])
-def post():
-    if request.method == 'POST':
-        task = Task(description=request.form['task'])
-        db.session.add(task) # Add Task to database
-        db.session.commit() # Commit database changes
-        return redirect(url_for('backlog'))
-
-@app.route('/task/remove/<int:id>')
-def post_remove(id):
+def task_add():
+    task = Task(description=request.form['task'])
+    db.session.add(task) # Add Task to database
+    db.session.commit() # Commit database changes
+    live_task_list_refresh() # Push realtime changes to all connected clients
+    return turbo.stream([
+        page_task_add_clear(), # Clears add task input after adding a task 
+        page_task_list_refresh() # Refresh task list so that newly added task will show up
+    ])
+        
+@app.route('/task/remove/<int:id>', methods=['POST'])
+def task_remove(id):
     task = Task.query.get_or_404(id) # Get task to be deleted by id
     db.session.delete(task) # Delete task from Task database
     db.session.commit() # Save database changes
-    return redirect(url_for('backlog'))
-
-@app.route('/task/edit/<int:id>',methods=['GET','POST'])
-def edit(id):
+    live_task_list_refresh() # Push realtime changes to all connected clients
+    return turbo.stream([
+        page_task_panel_hide(), # Hide the task panel
+        page_task_list_refresh() # Refresh task list
+    ])
+    
+@app.route('/task/edit/view/<int:id>', methods=['POST'])
+def task_edit_view(id):
     task = Task.query.get_or_404(id)
     if request.method == 'POST':
         task.description = request.form['task_description'] # Edit description
@@ -110,6 +161,30 @@ def register():
 
     return render_template('register.html', form=form)
 
+    return turbo.stream([
+        page_task_panel_show(), # Show task panel
+        page_task_edit_show(task), # 3Show edit task on task panel
+        page_task_list_refresh() # Refresh task list
+    ])
+
+@app.route('/task/edit/<int:id>', methods=['POST'])
+def task_edit(id):
+    task = Task.query.get_or_404(id)
+    task.description = request.form['task_description'] # Edit description
+    db.session.commit() # Save database changes
+    live_task_list_refresh() # Push realtime changes to all connected clients
+    return turbo.stream([
+        page_task_panel_hide(), # Hide task panel
+        page_task_list_refresh() # Refresh task list
+    ])
+        
+@app.route('/task/panel/hide/', methods=['POST'])
+def task_panel_hide():
+    return turbo.stream([
+        page_task_panel_hide(), # Hide task panel
+        page_task_list_refresh() # Refresh task list
+    ])
+        
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -133,6 +208,7 @@ def logout():
 @app.errorhandler(404)
 def not_found(error):
     return render_template('404.html', error=error)
-    
+
+
 if __name__ == "__main__":
     app.run(debug=True)

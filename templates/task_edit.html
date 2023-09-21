@@ -1,19 +1,19 @@
-{% extends 'base.html' %}
-
-{% block title %}Edit Task Page{% endblock %}
-
-{% block header %}{% endblock %}
-
-{% block content %}
-<h1>Edit task</h1>
+<div id="task_edit">
+  <h1 style="display: inline;">
+    Edit task
+    <h2 style="display: inline;">
+      <form action="/task/panel/hide/" method="POST" style="display: inline;">
+        <button type="submit" class="btn-close">&nbsp;</button>
+      </form>
+    </h2>
+  </h1>
   <form action="/task/edit/{{ task.id }}" method="POST">
-    <div class="mb-3 mt-3">
-        <label for="task" class="form-label">Task:</label>
-        <input type="text" name="task_description" class="form-control" required="true" value="{{task.description}}" />
+    <div class="">
+      <label for="task" class="form-label">Task:</label>
+      <input type="text" name="task_description" class="form-control" required="true" value="{{task.description}}"/>
     </div>
     <div>
-        <button type="submit" class="btn btn-success">Update</button>
-    </div>  
-</form>
-{% endblock %}
-
+      <button type="submit" class="btn btn-success">Update</button>
+    </div>
+  </form>
+</div>
