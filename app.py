@@ -2,6 +2,7 @@
 from flask import Flask, render_template, request, session, redirect, url_for,jsonify
 from models.task import Task, db # Import Task database
 from models.user import User, RoleType 
+from models.team import Team 
 
 # Server Configuration
 app = Flask(__name__)
@@ -111,6 +112,20 @@ def sprint():
     tasks = Task.query.all() # Get all Tasks in database (query)
     return render_template('sprint.html', tasks=tasks)
 
+@app.route('/teams/')
+def teams():
+    teams = Team.query.all() # Get all Tasks in database (query)
+    users = User.query.all()
+    return render_template('teams.html', teams=teams, users=users)
+
+@app.route('/teams/add/', methods=['POST'])
+def add_team():
+    if request.method == 'POST':
+        team = Team(name=request.form['team'])
+        db.session.add(team) #  Task to database
+        db.session.commit() # Commit database changes
+    return redirect(url_for('teams'))
+    
 @app.route('/update_positions', methods=['POST'])
 def update_positions():
     new_positions = request.json['positions']

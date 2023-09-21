@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Teams Page{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block content %}
+<!-- HTML form to add tasks  -->
+<h1>Add Team</h1>
+  <form action="/teams/add/" method="POST">
+    <div class="mb-3 mt-3">
+        <label for="team" class="form-label">Team:</label>
+        <input method="POST" type="text" name="team" class="form-control" required="true" placeholder="Enter team name" />
+    </div>
+    <div>
+        <button class="btn btn-primary">Submit</button>
+    </div>  
+</form>
+{% include 'team_list.html' %}
+{% include 'user_list.html' %}
+
+{% endblock %}
