@@ -111,16 +111,6 @@ def sprint():
     tasks = Task.query.all() # Get all Tasks in database (query)
     return render_template('sprint.html', tasks=tasks)
 
-@app.route('/update_positions', methods=['POST'])
-def update_positions():
-    new_positions = request.json['positions']
-    update_item_positions(new_positions)
-    return jsonify({'message': 'Positions updated successfully'})
-
-def update_item_positions(item_positions):
-    # Update item positions in the database
-    # Replace this with the actual database update logic
-    pass
     
 if __name__ == "__main__":
     app.run(debug=True)

@@ -8,13 +8,11 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<style>
-    .draggable{
-        cursor: move;
-    }
-</style>
 
+<button id="generate-table" class="btn btn-primary">Generate Table</button>
+<div id="table-container"></div>
 <div class="container">
+
     <table class="table" id="tasktable">
         <thead>
             <tr>
@@ -33,29 +31,17 @@
     </table>
 </div>
 <script>
-    $(document).ready(function() {
-        $('#tasktable tbody').sortable({
-            update: function(event, ui) {
-                var positions = [];
-                $('#tasktable tbody tr').each(function(index) {
-                    var itemId = $(this).data('id');
-                    positions.push({ 'id': itemId, 'position': index + 1 });
-                });
-    
-                // Send AJAX request to update positions
-                $.ajax({
-                    type: 'POST',
-                    url: '/update_positions',
-                    contentType: 'application/json',
-                    data: JSON.stringify({ 'positions': positions }),
-                    success: function(response) {
-                        console.log(response.message);
-                    },
-                    error: function(error) {
-                        console.error('Error updating positions:', error);
-                    }
-                });
-            }
+    $('#generate-table').click(function() {
+        // Create the generated table when the button is clicked
+        $('#table-container').html('<table id="generated-table" class="table">\
+                <thead><tr><th>No.</th><th>Task</th></tr></thead><tbody><tr class="draggable"></tr></tbody></table>');
+        $('#tasktable tbody,#generated-table').sortable({
+        connectWith:"#generated-table",
+        dropOnEmpty: true
+        })
+        $('#generated-table tbody').sortable({
+            connectWith:"#tasktable",
+            dropOnEmpty: true,
         });
     });
     </script>
