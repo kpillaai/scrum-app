@@ -27,9 +27,12 @@ nav a {
     height: 100%;
 }
 .container{
-    width: 200%;
+    width: 100%;
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+.draggable{
+    cursor: move;
 }
