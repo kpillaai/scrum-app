@@ -10,9 +10,9 @@
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
 <button id="generate-table" class="btn btn-primary">Generate Table</button>
-<div id="table-container"></div>
-<div class="container">
+<div class="container" id="table-container"></div>
 
+<div class="container">
     <table class="table" id="tasktable">
         <thead>
             <tr>
@@ -22,7 +22,7 @@
         </thead>
         <tbody class="row-position">
             {% for i in range(tasks|length): %}
-                <tr data-id="{{ tasks[i].id }}" class="draggable">
+                <tr class="draggable">
                     <td>{{i+1}}.</td>
                     <td>{{ tasks[i].description }}</td>
                 </tr>
@@ -31,17 +31,54 @@
     </table>
 </div>
 <script>
-    $('#generate-table').click(function() {
-        // Create the generated table when the button is clicked
-        $('#table-container').html('<table id="generated-table" class="table">\
-                <thead><tr><th>No.</th><th>Task</th></tr></thead><tbody><tr class="draggable"></tr></tbody></table>');
-        $('#tasktable tbody,#generated-table').sortable({
-        connectWith:"#generated-table",
-        dropOnEmpty: true
-        })
-        $('#generated-table tbody').sortable({
-            connectWith:"#tasktable",
-            dropOnEmpty: true,
+    let tableCounter = 1;
+
+    function initializeSortable() {
+    // Select all tables with class "table"
+    $('table.table tbody').sortable({
+        items: "> tr",
+        connectWith: "table.table tbody",
+        dropOnEmpty: true,
+        receive: function(event, ui) {
+            $(this).find('.droppable-area').remove();
+        }
+    }).disableSelection();
+}
+
+    function addDroppableArea(table) {
+        if ($(table).find('tbody').children().length === 0) {
+            $(table).find('tbody').append('<tr class="draggable droppable-area"><td colspan="2">Droppable Area</td></tr>');
+        }
+    }
+
+    $(document).ready(function() {
+        initializeSortable('tasktable');
+
+        $('#generate-table').click(function() {
+            tableCounter++;
+            const newTableId = `generated-table-${tableCounter}`;
+
+            const newTableHTML = `
+                <table id="${newTableId}" class="table">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Task</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="draggable droppable-area">
+                            <td colspan="2">Droppable Area</td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+
+            $('#table-container').after(newTableHTML);
+
+            // Initialize sortable for the new table
+            initializeSortable(newTableId);
+            addDroppableArea(`#${newTableId}`);
         });
     });
     </script>

@@ -28,11 +28,21 @@ nav a {
 }
 .container{
     width: 100%;
-    min-height: 100vh;
+    min-height: 10vh;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 .draggable{
     cursor: move;
+}
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.table th, .table td {
+    text-align: left;
+}
+#accordion {
+    width: 100%;
 }
