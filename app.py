@@ -62,15 +62,15 @@ class LoginForm(FlaskForm):
     submit = SubmitField("Login")
 
     # temporarily creating users in the database
-    users = User.query.all()
-    if (len(users) == 0):
-        user1 = User(name="admin1", role=RoleType.ADMIN, email="admin1email@email.com", phone_number="01234567890", password="admin")
-        db.session.add(user1)
-        db.session.commit()
+    # users = User.query.all()
+    # if (len(users) == 0):
+    #     user1 = User(name="admin1", role=RoleType.ADMIN, email="admin1email@email.com", phone_number="01234567890", password="admin")
+    #     db.session.add(user1)
+    #     db.session.commit()
 
-        user2 = User(name="admin2", role=RoleType.ADMIN, email="admin2email@email.com", phone_number="0123456789", password="admin2")
-        db.session.add(user2)
-        db.session.commit()
+    #     user2 = User(name="admin2", role=RoleType.ADMIN, email="admin2email@email.com", phone_number="0123456789", password="admin2")
+    #     db.session.add(user2)
+    #     db.session.commit()
 
  
 # Adaptive Page functions
@@ -98,7 +98,8 @@ def page_task_edit_show(task):
 
 
 # Routes
-@app.route('/', methods=['GET'])
+@app.route('/')
+@login_required
 def index():
     if 'loggedin' in session:
         if session['loggedin'] == True:
@@ -107,6 +108,7 @@ def index():
     return render_template('index.html', tasks=tasks, tasks_show_edit=False)
 
 @app.route('/backlog', methods=['PUT'])
+@login_required
 def backlog():
     tasks = Task.query.all() # Get all Tasks in database (query)
     return render_template('backlog.html', tasks=tasks, tasks_show_edit=True)
@@ -142,12 +144,6 @@ def task_edit_view(id):
         return redirect(url_for('backlog'))
     else:
         return render_template('task_edit.html',task=task)
-
-@app.route('/task/backlog/')
-@login_required
-def backlog():
-    tasks = Task.query.all() # Get all Tasks in database (query)
-    return render_template('backlog.html', tasks=tasks, show_edit=True)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -193,7 +189,7 @@ def login():
         if user:
             if user.password == form.password.data:
                 login_user(user)
-                return redirect(url_for('backlog'))
+                return redirect(url_for('index'))
 
     return render_template('login.html', form=form)
 
