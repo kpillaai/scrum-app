@@ -1,8 +1,9 @@
 # Modules
 from flask import Flask, render_template, request, session, redirect, url_for
 from turbo_flask import Turbo
-from models.task import Task, db # Import Task database
+from models.task import Task, TaskStatus, db # Import Task database
 from models.user import User, RoleType 
+from datetime import datetime
 
 
 # Server Configuration
@@ -35,7 +36,7 @@ def live_task_list_refresh(): # Push realtime task list changes to all connected
     
 def page_task_list_refresh(tasks_show_edit=True):
     tasks = Task.query.all() # Get all Tasks in database (query)
-    return turbo.replace(render_template('task_list.html', tasks=tasks, tasks_show_edit=tasks_show_edit), target=f'task_list_{tasks_show_edit}')
+    return turbo.replace(render_template('task_list.html', tasks=tasks, tasks_show_edit=tasks_show_edit, TaskStatus=TaskStatus, users = User.query.all()), target=f'task_list_{tasks_show_edit}')
 
 def page_task_add_clear():
     return turbo.replace(render_template('task_add.html'), target='task_add') # target = id of html element to replace with html from file
@@ -47,7 +48,7 @@ def page_task_panel_hide():
     return turbo.replace(render_template('task_area.html', tasks_show_edit=True, show_task_panel=False), target="task_area")
 
 def page_task_edit_show(task):
-    return turbo.replace(render_template('task_edit.html', task=task), target="task_panel")
+    return turbo.replace(render_template('task_edit.html', task=task, TaskStatus=TaskStatus, users = User.query.all()), target="task_panel")
 
 
 # Routes
@@ -57,16 +58,16 @@ def index():
         if session['loggedin'] == True:
             print('User Logged In: ' + session['username'])
     tasks = Task.query.all() # Get all Tasks in database (query)
-    return render_template('index.html', tasks=tasks, tasks_show_edit=False)
+    return render_template('index.html', tasks=tasks, tasks_show_edit=False, TaskStatus=TaskStatus, users = User.query.all())
 
 @app.route('/backlog', methods=['POST'])
 def backlog():
     tasks = Task.query.all() # Get all Tasks in database (query)
-    return turbo.stream(turbo.replace(render_template('backlog.html', tasks=tasks, tasks_show_edit=True), target='page_content'))
+    return turbo.stream(turbo.replace(render_template('backlog.html', tasks=tasks, tasks_show_edit=True, TaskStatus=TaskStatus, users = User.query.all()), target='page_content'))
 
 @app.route('/task/add/', methods=['POST'])
 def task_add():
-    task = Task(description=request.form['task'])
+    task = Task(name=request.form['task_name'])
     db.session.add(task) # Add Task to database
     db.session.commit() # Commit database changes
     live_task_list_refresh() # Push realtime changes to all connected clients
@@ -98,14 +99,24 @@ def task_edit_view(id):
 @app.route('/task/edit/<int:id>', methods=['POST'])
 def task_edit(id):
     task = Task.query.get_or_404(id)
+    task.name = request.form['task_name'] # Edit name
     task.description = request.form['task_description'] # Edit description
+    task.priority = request.form['task_priority'] # Edit priority
+    task.status = request.form['task_status'] # Edit status
+    task.estimated_effort = request.form['task_estimated_effort'] # Edit estimated effort
+    if request.form['task_start_date'] != "": # Ignore empty value
+        task.start_date = datetime.strptime(request.form['task_start_date'], '%Y-%m-%dT%H:%M') # Edit start date
+    if request.form['task_due_date'] != "": # Ignore empty value
+        task.due_date = datetime.strptime(request.form['task_due_date'], '%Y-%m-%dT%H:%M') # Edit due date
+    task.assignee = request.form['task_assignee'] # Edit assignee
+    task.hours_taken = request.form['task_hours_taken'] # Edit hours taken
     db.session.commit() # Save database changes
     live_task_list_refresh() # Push realtime changes to all connected clients
     return turbo.stream([
         page_task_panel_hide(), # Hide task panel
         page_task_list_refresh() # Refresh task list
     ])
-        
+
 @app.route('/task/panel/hide/', methods=['POST'])
 def task_panel_hide():
     return turbo.stream([

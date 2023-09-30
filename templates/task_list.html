@@ -6,6 +6,7 @@
             <tr>
                 <th>No.</th>
                 <th>Task</th>
+                <th>Status</th>
                 {% if tasks_show_edit == True %}
                     <th>Action</th>
                 {% endif %}
@@ -15,7 +16,24 @@
             {% for i in range(tasks|length): %}
                 <tr>
                     <td>{{i+1}}.</td>
-                    <td>{{ tasks[i].description }}</td>
+                        <td>
+                            {% if tasks[i].status ==  TaskStatus.DONE %}
+                                <del>
+                            {% endif %}
+                                {% if tasks_show_edit == True %}
+                                    <a href="/task/edit/view/{{ tasks[i].id }}" data-turbo-method="post" style="text-decoration: none">
+                                        {{ tasks[i].name }}
+                                    </a>
+                                {% else %}
+                                    {{ tasks[i].name }}
+                                {% endif %}
+                            {% if tasks[i].status ==  TaskStatus.DONE %}
+                                </del>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ tasks[i].status.value }}
+                        </td>
                     {% if tasks_show_edit == True %}
                         <td>
                             <a href="/task/edit/view/{{ tasks[i].id }}" data-turbo-method="post" class="btn btn-success">Edit</a>
