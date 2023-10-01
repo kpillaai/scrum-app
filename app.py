@@ -138,12 +138,12 @@ def task_remove(id):
 @app.route('/task/edit/view/<int:id>', methods=['POST'])
 def task_edit_view(id):
     task = Task.query.get_or_404(id)
-    if request.method == 'POST':
-        task.description = request.form['task_description'] # Edit description
-        db.session.commit() # Save database changes
-        return redirect(url_for('backlog'))
-    else:
-        return render_template('task_edit.html',task=task)
+    live_task_list_refresh() # Push realtime changes to all connected clients
+    return turbo.stream([
+        page_task_list_refresh(),
+        page_task_panel_show(),
+        page_task_edit_show(task)
+    ])
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
