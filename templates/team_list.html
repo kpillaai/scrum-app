@@ -11,12 +11,31 @@
             {% endif %}
         </tr>
     </thead>
+    <script>
+        function allowDrop(ev) {
+          ev.preventDefault();
+        }
+        
+        function drag(ev) {
+          ev.dataTransfer.setData("text", ev.target.id);
+        }
+        
+        function drop(ev, teamid) {
+          ev.preventDefault();
+          var data = ev.dataTransfer.getData("text");
+          ev.target.appendChild(document.getElementById(data));
+          document.getElementById(teamid).innerHTML = data 
+        }
+        </script>
     <tbody>
         {% for i in range(teams|length): %}
             <tr>
-                <td>{{teams[i].id}}.</td>
+                <form action="/teams/move/" method="POST">
+                <td><input method="POST" type="hidden" class="form-control" name="team_id" value="{{teams[i].id}}"/>{{teams[i].id}}</td>
                 <td>{{teams[i].name}}</td>
-                <td id="div1" type="submit" ondrop="drop(event)" ondragover="allowDrop(event)">{{teams[i].users}}</td>
+                <td ondrop="drop(event, 'input{{ teams[i].id }}')" ondragover="allowDrop(event)"><input method="POST" name="users" id="input{{ teams[i].id }}" value="{{teams[i].users}}"/>{% if teams[i].users != None %} {{teams[i].users}} {%- endif %} </td>
+                <td><button class="btn btn-primary">Update Users</button></td>
+            </form>
             </tr>
         {% endfor %}
     </tbody>

@@ -118,24 +118,25 @@ def teams():
     users = User.query.all()
     return render_template('teams.html', teams=teams, users=users)
 
+@app.route('/teams/move/', methods=['POST'])
+def move_user():
+    if request.method == 'POST':
+        team = Team.query.filter_by(id=request.form['team_id']).first()
+        user = User.query.filter_by(id=request.form['users'][0]).first()
+        team.users = user
+        db.session.merge(team) # Commit database changes
+        db.session.commit() # Commit database changes
+    return redirect(url_for('teams'))
+
 @app.route('/teams/add/', methods=['POST'])
 def add_team():
     if request.method == 'POST':
         team = Team(name=request.form['team'])
         db.session.add(team) #  Task to database
+        
         db.session.commit() # Commit database changes
     return redirect(url_for('teams'))
 
-@app.route('/teams/move/<int:id>',methods=['POST'])
-def move_teams(id):
-    user = User.query.get_or_404(id)
-    if request.method == 'POST':
-        teams.users.append(user)
-        db.session.commit()
-        return redirect(url_for('teams'))
-    else:
-        return render_template('task_edit.html',task=task)
-    
 @app.route('/update_positions', methods=['POST'])
 def update_positions():
     new_positions = request.json['positions']
