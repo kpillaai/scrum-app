@@ -1,13 +1,13 @@
 <div id="task_edit">
-  <h1 style="display: inline;">
-    Edit task
-    <h2 style="display: inline;">
+  <h2 style="display: inline;">
+    Edit Task
+    <h3 style="display: inline;">
       <form action="/task/panel/hide/" method="POST" style="display: inline;">
         <button type="submit" class="btn-close">&nbsp;</button>
       </form>
-    </h2>
-  </h1>
-  <form class="skipEmptyFields" action="/task/edit/{{ task.id }}" method="POST">
+    </h3>
+  </h2>
+  <form class="mb-1 mt-1" action="/task/edit/{{ task.id }}" method="POST">
       <label for="task_name" class="form-label">Name:</label>
       <input type="text" name="task_name" class="form-control" required="true" value="{{task.name}}"/>
       <label for="task_description" class="form-label">Description:</label>
@@ -30,8 +30,7 @@
       <select class="form-select" name="task_assignee">
         <option value="None" >None</option>
         {% for user in users: %}
-            <!-- <option value="{{user.id}}" {% if task.assignee == user.id %} selected {% endif %}>{{user.name}}</option> -->
-            <option value="{{user.name}}" {% if task.assignee == user.name %} selected {% endif %}>{{user.name}}</option>
+            <option value="{{user.id}}" {% if task.assignee == user.id %} selected {% endif %}>{{user.name}}</option>
         {% endfor %}
       </select>
       <!-- <input type="text" name="task_assignee" class="form-control" value="{{task.assignee}}"/> -->
