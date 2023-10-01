@@ -16,7 +16,7 @@
             <tr>
                 <td>{{teams[i].id}}.</td>
                 <td>{{teams[i].name}}</td>
-                <td>{{teams[i].users}}</td>
+                <td id="div1" type="submit" ondrop="drop(event)" ondragover="allowDrop(event)">{{teams[i].users}}</td>
             </tr>
         {% endfor %}
     </tbody>
