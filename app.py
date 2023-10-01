@@ -7,6 +7,7 @@ from wtforms.validators import InputRequired, ValidationError
 from turbo_flask import Turbo
 from models.task import Task, TaskStatus, db # Import Task database
 from models.user import User, RoleType 
+from models.sprint import Sprint # Import Sprint database
 from datetime import datetime
 
 
@@ -33,7 +34,10 @@ with app.app_context():
         user2 = User(name="admin2", role=RoleType.ADMIN, email="admin2email@email.com", phone_number="0123456789", password="admin2")
         db.session.add(user2)
         db.session.commit()
-
+        
+        sprint1 = Sprint(name="Sprint 1", number=1)
+        db.session.add(sprint1)
+        db.session.commit()
 
 # Register class
 class RegisterForm(FlaskForm):
@@ -66,8 +70,8 @@ def live_task_list_refresh(): # Push realtime task list changes to all connected
     ]) 
     
 def page_task_list_refresh(tasks_show_edit=True):
-    tasks = Task.query.all() # Get all Tasks in database (query)
-    return turbo.replace(render_template('task_list.html', tasks=tasks, tasks_show_edit=tasks_show_edit, TaskStatus=TaskStatus, users = User.query.all()), target=f'task_list_{tasks_show_edit}')
+    tasks = Task.query.filter_by(in_sprint=False).all() # Get all Tasks in database (query)
+    return turbo.replace(render_template('task_list.html', tasks=tasks, tasks_show_edit=tasks_show_edit, TaskStatus=TaskStatus, users = User.query.all(), sprint_number=1), target=f'task_list_{tasks_show_edit}')
 
 def page_task_add_clear():
     return turbo.replace(render_template('task_add.html'), target='task_add') # target = id of html element to replace with html from file
@@ -89,14 +93,21 @@ def index():
     if 'loggedin' in session:
         if session['loggedin'] == True:
             print('User Logged In: ' + session['username'])
-    tasks = Task.query.all() # Get all Tasks in database (query)
-    return render_template('index.html', tasks=tasks, tasks_show_edit=False, TaskStatus=TaskStatus, users = User.query.all())
+    tasks = Task.query.filter_by(in_sprint=False).all() # Get all Tasks in database (query)
+    return render_template('index.html', tasks=tasks, tasks_show_edit=False, TaskStatus=TaskStatus, users = User.query.all(), sprint_number=1)
 
 @app.route('/backlog', methods=['POST'])
 @login_required
 def backlog():
-    tasks = Task.query.all() # Get all Tasks in database (query)
-    return turbo.stream(turbo.replace(render_template('backlog.html', tasks=tasks, tasks_show_edit=True, TaskStatus=TaskStatus, users = User.query.all()), target='page_content'))
+    tasks = Task.query.filter_by(in_sprint=False).all() # Get all Tasks in database (query)
+    return turbo.stream(turbo.replace(render_template('backlog.html', tasks=tasks, tasks_show_edit=True, TaskStatus=TaskStatus, users = User.query.all(), sprint_number=1), target='page_content'))
+
+@app.route('/sprint', methods=['POST'])
+@login_required
+def sprint():
+    sprint_number = 1
+    sprint = Sprint.query.get_or_404(sprint_number) 
+    return turbo.stream(turbo.replace(render_template('sprint.html', tasks=sprint.tasks, tasks_show_edit=True, TaskStatus=TaskStatus, users = User.query.all(), sprint_number=1), target='page_content'))
 
 @app.route('/task/add/', methods=['POST'])
 def task_add():
@@ -123,24 +134,6 @@ def task_remove(id):
 @app.route('/task/edit/view/<int:id>', methods=['POST'])
 def task_edit_view(id):
     task = Task.query.get_or_404(id)
-    return turbo.stream([
-        page_task_panel_show(), # Show task panel
-        page_task_edit_show(task), # 3Show edit task on task panel
-        page_task_list_refresh() # Refresh task list
-    ])
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    form = RegisterForm()
-
-    if form.validate_on_submit():
-        new_user = User(name=form.name.data, phone_number=form.phone_number.data, email=form.email.data, password=form.password.data)
-        db.session.add(new_user)
-        db.session.commit()
-        return redirect(url_for('login'))
-
-    return render_template('register.html', form=form)
-
     return turbo.stream([
         page_task_panel_show(), # Show task panel
         page_task_edit_show(task), # 3Show edit task on task panel
@@ -174,7 +167,51 @@ def task_panel_hide():
         page_task_panel_hide(), # Hide task panel
         page_task_list_refresh() # Refresh task list
     ])
-        
+
+@app.route('/task/sprint/<int:sprint_number>/task/add/<int:task_id>', methods=['POST'])
+def sprint_task_add(sprint_number, task_id):
+    task = Task.query.get_or_404(task_id) # Get task to be deleted by id
+    task.in_sprint = True
+    sprint = Sprint.query.get_or_404(sprint_number) # Get task to be deleted by id
+    sprint.tasks.append(task) # Add task to sprint's tasks
+    db.session.commit() # Commit database changes
+    live_task_list_refresh() # Push realtime changes to all connected clients
+    return turbo.stream([
+        page_task_add_clear(), # Clears add task input after adding a task 
+        page_task_list_refresh() # Refresh task list so that newly added task will show up
+    ])
+    
+@app.route('/task/sprint/<int:sprint_number>/task/remove/<int:task_id>', methods=['POST'])
+def sprint_task_remove(sprint_number, task_id):
+    task = Task.query.get_or_404(task_id) # Get task to be deleted by id
+    task.in_sprint = False
+    sprint = Sprint.query.get_or_404(sprint_number) # Get task to be deleted by id
+    sprint.tasks.remove(task) # Add task to sprint's tasks
+    db.session.commit() # Commit database changes
+    live_task_list_refresh() # Push realtime changes to all connected clients
+    return turbo.stream([
+        page_task_add_clear(), # Clears add task input after adding a task 
+        page_task_list_refresh() # Refresh task list so that newly added task will show up
+    ])
+         
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegisterForm()
+
+    if form.validate_on_submit():
+        new_user = User(name=form.name.data, phone_number=form.phone_number.data, email=form.email.data, password=form.password.data)
+        db.session.add(new_user)
+        db.session.commit()
+        return redirect(url_for('login'))
+
+    return render_template('register.html', form=form)
+
+    return turbo.stream([
+        page_task_panel_show(), # Show task panel
+        page_task_edit_show(task), # 3Show edit task on task panel
+        page_task_list_refresh() # Refresh task list
+    ])
+    
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
