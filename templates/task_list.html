@@ -1,5 +1,5 @@
 <div id="task_list_{{tasks_show_edit}}">
-    <h2>Tasks</h2>
+    <h2>Backlog</h2>
     <!-- HTML table to display all tasks  -->
     <table class="table table-responsive">
         <thead>
@@ -36,11 +36,7 @@
                         </td>
                     {% if tasks_show_edit == True %}
                         <td>
-                            {% if tasks[i].in_sprint == False %}
-                                <a href="/task/sprint/{{sprint_number}}/task/add/{{ tasks[i].id }}" data-turbo-method="post" class="btn btn-primary">Add to sprint</a>
-                            {% else %}
-                                <a href="/task/sprint/{{sprint_number}}/task/remove/{{ tasks[i].id }}" data-turbo-method="post" class="btn btn-primary">Remove from sprint</a>
-                            {% endif %}
+                            <a href="/task/sprint/{{sprint_number}}/task/add/{{ tasks[i].id }}" data-turbo-method="post" class="btn btn-primary">Add to sprint</a>
                             <a href="/task/edit/view/{{ tasks[i].id }}" data-turbo-method="post" class="btn btn-success">Edit</a>
                             <a href="/task/remove/{{ tasks[i].id }}" data-turbo-method="post" class="btn btn-danger">Remove</a>
                         </td>

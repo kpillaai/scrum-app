@@ -35,6 +35,7 @@ with app.app_context():
         db.session.add(user2)
         db.session.commit()
         
+        # Temp Sprint1 
         sprint1 = Sprint(name="Sprint 1", number=1)
         db.session.add(sprint1)
         db.session.commit()
@@ -66,24 +67,30 @@ def load_user(user_id):
 def live_task_list_refresh(): # Push realtime task list changes to all connected clients
     turbo.push([
         page_task_list_refresh(tasks_show_edit=True), # Backlog page
-        page_task_list_refresh(tasks_show_edit=False) # Index page
+        page_task_list_refresh(tasks_show_edit=False), # Index page
+        page_sprint_task_list_refresh()
     ]) 
     
 def page_task_list_refresh(tasks_show_edit=True):
     tasks = Task.query.filter_by(in_sprint=False).all() # Get all Tasks in database (query)
     return turbo.replace(render_template('task_list.html', tasks=tasks, tasks_show_edit=tasks_show_edit, TaskStatus=TaskStatus, users = User.query.all(), sprint_number=1), target=f'task_list_{tasks_show_edit}')
 
+def page_sprint_task_list_refresh():
+    sprint_number = 1
+    sprint = Sprint.query.get_or_404(sprint_number)
+    return turbo.replace(render_template('sprint_area.html', sprint_tasks=sprint.tasks, sprint_name=sprint.name, TaskStatus=TaskStatus, users = User.query.all(), sprint_number=1), target='sprint_area')
+
 def page_task_add_clear():
     return turbo.replace(render_template('task_add.html'), target='task_add') # target = id of html element to replace with html from file
 
 def page_task_panel_show():
-    return turbo.replace(render_template('task_area.html', tasks_show_edit=True, show_task_panel=True), target="task_area")
+    return turbo.replace(render_template('backlog.html', tasks_show_edit=True, show_task_panel=True), target="page_content")
 
 def page_task_panel_hide():
-    return turbo.replace(render_template('task_area.html', tasks_show_edit=True, show_task_panel=False), target="task_area")
+    return turbo.replace(render_template('backlog.html', tasks_show_edit=True, show_task_panel=False), target="page_content")
 
 def page_task_edit_show(task):
-    return turbo.replace(render_template('task_edit.html', task=task, TaskStatus=TaskStatus, users = User.query.all()), target="task_panel")
+    return turbo.replace(render_template('task_edit.html', task=task, TaskStatus=TaskStatus, users=User.query.all()), target="task_panel")
 
 
 # Routes
@@ -94,20 +101,15 @@ def index():
         if session['loggedin'] == True:
             print('User Logged In: ' + session['username'])
     tasks = Task.query.filter_by(in_sprint=False).all() # Get all Tasks in database (query)
-    return render_template('index.html', tasks=tasks, tasks_show_edit=False, TaskStatus=TaskStatus, users = User.query.all(), sprint_number=1)
+    return render_template('index.html', tasks=tasks, tasks_show_edit=False, TaskStatus=TaskStatus, users = User.query.all())
 
 @app.route('/backlog', methods=['POST'])
 @login_required
 def backlog():
     tasks = Task.query.filter_by(in_sprint=False).all() # Get all Tasks in database (query)
-    return turbo.stream(turbo.replace(render_template('backlog.html', tasks=tasks, tasks_show_edit=True, TaskStatus=TaskStatus, users = User.query.all(), sprint_number=1), target='page_content'))
-
-@app.route('/sprint', methods=['POST'])
-@login_required
-def sprint():
     sprint_number = 1
     sprint = Sprint.query.get_or_404(sprint_number) 
-    return turbo.stream(turbo.replace(render_template('sprint.html', tasks=sprint.tasks, tasks_show_edit=True, TaskStatus=TaskStatus, users = User.query.all(), sprint_number=1), target='page_content'))
+    return turbo.stream(turbo.replace(render_template('backlog.html', tasks=tasks, tasks_show_edit=True, TaskStatus=TaskStatus, users = User.query.all(), sprint_tasks=sprint.tasks, sprint_name=sprint.name, sprint_number=1), target='page_content'))
 
 @app.route('/task/add/', methods=['POST'])
 def task_add():
@@ -117,7 +119,8 @@ def task_add():
     live_task_list_refresh() # Push realtime changes to all connected clients
     return turbo.stream([
         page_task_add_clear(), # Clears add task input after adding a task 
-        page_task_list_refresh() # Refresh task list so that newly added task will show up
+        page_task_list_refresh(), # Refresh task list so that newly added task will show up
+        page_sprint_task_list_refresh()
     ])
         
 @app.route('/task/remove/<int:id>', methods=['POST'])
@@ -128,7 +131,8 @@ def task_remove(id):
     live_task_list_refresh() # Push realtime changes to all connected clients
     return turbo.stream([
         page_task_panel_hide(), # Hide the task panel
-        page_task_list_refresh() # Refresh task list
+        page_task_list_refresh(), # Refresh task list
+        page_sprint_task_list_refresh()
     ])
     
 @app.route('/task/edit/view/<int:id>', methods=['POST'])
@@ -137,7 +141,8 @@ def task_edit_view(id):
     return turbo.stream([
         page_task_panel_show(), # Show task panel
         page_task_edit_show(task), # 3Show edit task on task panel
-        page_task_list_refresh() # Refresh task list
+        page_task_list_refresh(), # Refresh task list
+        page_sprint_task_list_refresh()
     ])
 
 @app.route('/task/edit/<int:id>', methods=['POST'])
@@ -158,14 +163,16 @@ def task_edit(id):
     live_task_list_refresh() # Push realtime changes to all connected clients
     return turbo.stream([
         page_task_panel_hide(), # Hide task panel
-        page_task_list_refresh() # Refresh task list
+        page_task_list_refresh(), # Refresh task list
+        page_sprint_task_list_refresh()
     ])
 
 @app.route('/task/panel/hide/', methods=['POST'])
 def task_panel_hide():
     return turbo.stream([
         page_task_panel_hide(), # Hide task panel
-        page_task_list_refresh() # Refresh task list
+        page_task_list_refresh(), # Refresh task list
+        page_sprint_task_list_refresh()
     ])
 
 @app.route('/task/sprint/<int:sprint_number>/task/add/<int:task_id>', methods=['POST'])
@@ -177,7 +184,7 @@ def sprint_task_add(sprint_number, task_id):
     db.session.commit() # Commit database changes
     live_task_list_refresh() # Push realtime changes to all connected clients
     return turbo.stream([
-        page_task_add_clear(), # Clears add task input after adding a task 
+        page_sprint_task_list_refresh(),
         page_task_list_refresh() # Refresh task list so that newly added task will show up
     ])
     
@@ -190,9 +197,10 @@ def sprint_task_remove(sprint_number, task_id):
     db.session.commit() # Commit database changes
     live_task_list_refresh() # Push realtime changes to all connected clients
     return turbo.stream([
-        page_task_add_clear(), # Clears add task input after adding a task 
+        page_sprint_task_list_refresh(), #
         page_task_list_refresh() # Refresh task list so that newly added task will show up
     ])
+    
          
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -205,12 +213,6 @@ def register():
         return redirect(url_for('login'))
 
     return render_template('register.html', form=form)
-
-    return turbo.stream([
-        page_task_panel_show(), # Show task panel
-        page_task_edit_show(task), # 3Show edit task on task panel
-        page_task_list_refresh() # Refresh task list
-    ])
     
 @app.route('/login', methods=['GET', 'POST'])
 def login():
