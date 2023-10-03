@@ -1,11 +1,4 @@
 # Modules
-<<<<<<< HEAD
-from flask import Flask, render_template, request, session, redirect, url_for,jsonify
-from models.task import Task, db # Import Task database
-from models.user import User, RoleType 
-from models.team import Team 
-from sqlalchemy import func
-=======
 from flask import Flask, render_template, request, session, redirect, url_for, make_response
 from flask_wtf import FlaskForm
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
@@ -17,7 +10,6 @@ from models.user import User, RoleType
 from models.sprint import Sprint # Import Sprint database
 from datetime import datetime
 
->>>>>>> sprint2_merge
 
 # Server Configuration
 app = Flask(__name__)
@@ -32,16 +24,6 @@ login_manager.login_view = "login"
 with app.app_context():
     db.drop_all() #CURRENTLY ADDING 2 USERS EACH TIME, ENABLE THIS LINE TO CLEAR THEM
     db.create_all() # Create table schemas in the database if not exist
-<<<<<<< HEAD
-    # # temporarily creating users in the database
-    user1 = User(name="admin1", role=RoleType.ADMIN, email="admin1email@email.com", phone_number="01234567890", password="admin")
-    db.session.add(user1)
-    db.session.commit()
-
-    user2 = User(name="admin2", role=RoleType.ADMIN, email="admin2email@email.com", phone_number="0123456789", password="admin2")
-    db.session.add(user2)
-    db.session.commit()
-=======
     # temporarily creating users in the database
     users = User.query.all()
     if (len(users) == 0):
@@ -116,7 +98,6 @@ def page_task_edit_show(task):
 def page_sprint_edit_show(sprint_number):
     sprint = Sprint.query.get_or_404(sprint_number)
     return turbo.replace(render_template('sprint_edit.html', sprint=sprint, TaskStatus=TaskStatus), target="task_panel")
->>>>>>> sprint2_merge
 
 
 # Routes
@@ -311,80 +292,5 @@ def set_theme(theme="light"):
 def not_found(error):
     return render_template('404.html', error=error)
 
-<<<<<<< HEAD
-@app.route('/task/sprint/')
-def sprint():
-    tasks = Task.query.all() # Get all Tasks in database (query)
-    max_sprint_id = db.session.query(func.max(Task.sprint_id)).scalar()
-    if max_sprint_id is None:
-        max_sprint_id = 0
-    return render_template('sprint.html', tasks=tasks,max_id=max_sprint_id)
-
-@app.route('/teams/')
-def teams():
-    teams = Team.query.all() # Get all Tasks in database (query)
-    users = User.query.all()
-    return render_template('teams.html', teams=teams, users=users)
-
-@app.route('/teams/delete/<int:id>', methods=['POST'])
-def teams_delete(id):
-    team = Team.query.get_or_404(id) 
-    db.session.delete(team) 
-    teams = Team.query.all() # Get all Tasks in database (query)
-    users = User.query.all()
-    db.session.commit()
-    return render_template('teams.html', teams=teams, users=users)
-
-@app.route('/teams/move/<int:user_id>', methods=['POST'])
-def move_user(user_id):
-    if request.method == 'POST':
-        #team = Team.query.filter_by(id=request.form['team_name']).first()
-        team = Team.query.filter_by(name=request.form.get("teams_select")).first()
-        user = User.query.filter_by(id=user_id).first()
-        #user = User.query.filter_by(id=request.form['users'][0]).first()
-        if team is not None and user is not None:
-            exists = False
-            for team_user in team.users:
-                if user == team_user:
-                    exists = True
-            if not exists:
-                team.users.append(user)
-        db.session.commit() # Commit database changes
-    return redirect(url_for('teams'))
-
-@app.route('/teams/remove/<int:user_id>', methods=['POST'])
-def remove_user(user_id):
-    if request.method == 'POST':
-        team = Team.query.filter_by(id=1).first()
-        user = User.query.filter_by(id=user_id).first()
-        #user = User.query.filter_by(id=request.form['users'][0]).first()
-        if team is not None and user is not None:
-            exists = False
-            for team_user in team.users:
-                if user == team_user:
-                    exists = True
-            if exists:
-                team.users.remove(user)
-        db.session.commit() # Commit database changes
-    return redirect(url_for('teams'))
-
-@app.route('/teams/add/', methods=['POST'])
-def add_team():
-    if request.method == 'POST':
-        team = Team(name=request.form['team'], users=[])
-        db.session.add(team) #  Task to database
-        db.session.commit() # Commit database changes
-    return redirect(url_for('teams'))
-
-@app.route('/api/tasks/<int:task_id>/sprint/<int:id>', methods=['PUT'])
-def add_task(task_id, id):
-    task = Task.query.get(task_id)
-    task.sprint_id = id
-    db.session.commit()
-    return "Task added to sprint"
-    
-=======
-
->>>>>>> sprint2_merge
 if __name__ == "__main__":
     app.run(debug=True)

@@ -17,11 +17,7 @@ class Task(db.Model):
     estimated_effort = db.Column(db.Integer)
     start_date = db.Column(db.DateTime(timezone=True))
     due_date = db.Column(db.DateTime(timezone=True))
-    assignee =  db.Column(db.Integer, db.ForeignKey('user.id')) # ForeignKey = reference to another db table (id)
+    assignee =  db.Column(db.Integer, db.ForeignKey('a_user.id')) # ForeignKey = reference to another db table (id)
     hours_taken = db.Column(db.Integer)
-<<<<<<< HEAD
-    sprint_id = db.Column(db.Integer)
-=======
     in_sprint = db.Column(db.Boolean, default=False)
->>>>>>> sprint2_merge
     
