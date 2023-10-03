@@ -7,7 +7,7 @@ class RoleType(Enum):
     MEMBER = 'Member'
     
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True, nullable=False) # unique id for each user
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False) # unique id for each user
     name = db.Column(db.String)
     role = db.Column(db.Enum(RoleType), default=RoleType.MEMBER)  # from RoleType, either Admin or Member
     email = db.Column(db.String, unique=True)

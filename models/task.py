@@ -10,7 +10,7 @@ class TaskStatus(Enum):
     DONE = 'Done'
     
 class Task(db.Model):
-    id = db.Column(db.Integer, primary_key=True, nullable=False) # unique id for each task
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False) # unique id for each task
     name = db.Column(db.String)
     description = db.Column(db.String)
     priority = db.Column(db.Integer, unique=True)
