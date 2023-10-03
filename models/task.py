@@ -20,4 +20,5 @@ class Task(db.Model):
     due_date = db.Column(db.DateTime(timezone=True))
     assignee = db.Column(db.String) # just one User per task or multiple?
     hours_taken = db.Column(db.Integer)
+    sprint_id = db.Column(db.Integer)
     

@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, session, redirect, url_for,js
 from models.task import Task, db # Import Task database
 from models.user import User, RoleType 
 from models.team import Team 
+from sqlalchemy import func
 
 # Server Configuration
 app = Flask(__name__)
@@ -110,7 +111,10 @@ def not_found(error):
 @app.route('/task/sprint/')
 def sprint():
     tasks = Task.query.all() # Get all Tasks in database (query)
-    return render_template('sprint.html', tasks=tasks)
+    max_sprint_id = db.session.query(func.max(Task.sprint_id)).scalar()
+    if max_sprint_id is None:
+        max_sprint_id = 0
+    return render_template('sprint.html', tasks=tasks,max_id=max_sprint_id)
 
 @app.route('/teams/')
 def teams():
@@ -126,16 +130,12 @@ def add_team():
         db.session.commit() # Commit database changes
     return redirect(url_for('teams'))
     
-@app.route('/update_positions', methods=['POST'])
-def update_positions():
-    new_positions = request.json['positions']
-    update_item_positions(new_positions)
-    return jsonify({'message': 'Positions updated successfully'})
-
-def update_item_positions(item_positions):
-    # Update item positions in the database
-    # Replace this with the actual database update logic
-    pass
+@app.route('/api/tasks/<int:task_id>/sprint/<int:id>', methods=['PUT'])
+def add_task(task_id, id):
+    task = Task.query.get(task_id)
+    task.sprint_id = id
+    db.session.commit()
+    return "Task added to sprint"
     
 if __name__ == "__main__":
     app.run(debug=True)
