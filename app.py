@@ -77,24 +77,30 @@ def live_task_list_refresh(): # Push realtime task list changes to all connected
     
 def page_task_list_refresh(tasks_show_edit=True):
     tasks = Task.query.filter_by(in_sprint=False).all() # Get all Tasks in database (query)
-    return turbo.replace(render_template('task_list.html', tasks=tasks, tasks_show_edit=tasks_show_edit, TaskStatus=TaskStatus, users = User.query.all(), sprint_number=1), target=f'task_list_{tasks_show_edit}')
+    sprint = Sprint.query.get_or_404(1)
+    return turbo.replace(render_template('task_list.html', tasks=tasks, tasks_show_edit=tasks_show_edit, TaskStatus=TaskStatus, users = User.query.all(), sprint=sprint), target=f'task_list_{tasks_show_edit}')
 
 def page_sprint_task_list_refresh():
-    sprint_number = 1
-    sprint = Sprint.query.get_or_404(sprint_number)
-    return turbo.replace(render_template('sprint_area.html', sprint_tasks=sprint.tasks, sprint_name=sprint.name, TaskStatus=TaskStatus, users = User.query.all(), sprint_number=1), target='sprint_area')
+    sprint = Sprint.query.get_or_404(1)
+    return turbo.replace(render_template('sprint_area.html', sprint=sprint, TaskStatus=TaskStatus), target='sprint_area')
 
 def page_task_add_clear():
     return turbo.replace(render_template('task_add.html'), target='task_add') # target = id of html element to replace with html from file
 
 def page_task_panel_show():
-    return turbo.replace(render_template('backlog.html', tasks_show_edit=True, show_task_panel=True), target="page_content")
+    sprint = Sprint.query.get_or_404(1)
+    return turbo.replace(render_template('backlog.html', tasks_show_edit=True, show_task_panel=True, TaskStatus=TaskStatus, sprint=sprint), target="page_content")
 
 def page_task_panel_hide():
-    return turbo.replace(render_template('backlog.html', tasks_show_edit=True, show_task_panel=False), target="page_content")
+    sprint = Sprint.query.get_or_404(1)
+    return turbo.replace(render_template('backlog.html', tasks_show_edit=True, show_task_panel=False, TaskStatus=TaskStatus, sprint=sprint), target="page_content")
 
 def page_task_edit_show(task):
     return turbo.replace(render_template('task_edit.html', task=task, TaskStatus=TaskStatus, users=User.query.all()), target="task_panel")
+
+def page_sprint_edit_show(sprint_number):
+    sprint = Sprint.query.get_or_404(sprint_number)
+    return turbo.replace(render_template('sprint_edit.html', sprint=sprint, TaskStatus=TaskStatus), target="task_panel")
 
 
 # Routes
@@ -111,9 +117,8 @@ def index():
 @login_required
 def backlog():
     tasks = Task.query.filter_by(in_sprint=False).all() # Get all Tasks in database (query)
-    sprint_number = 1
-    sprint = Sprint.query.get_or_404(sprint_number) 
-    return turbo.stream(turbo.replace(render_template('backlog.html', tasks=tasks, tasks_show_edit=True, TaskStatus=TaskStatus, users = User.query.all(), sprint_tasks=sprint.tasks, sprint_name=sprint.name, sprint_number=1), target='page_content'))
+    sprint = Sprint.query.get_or_404(1) 
+    return turbo.stream(turbo.replace(render_template('backlog.html', tasks=tasks, tasks_show_edit=True, TaskStatus=TaskStatus, users = User.query.all(), sprint=sprint), target='page_content'))
 
 @app.route('/task/add/', methods=['POST'])
 def task_add():
@@ -181,9 +186,9 @@ def task_panel_hide():
 
 @app.route('/task/sprint/<int:sprint_number>/task/add/<int:task_id>', methods=['POST'])
 def sprint_task_add(sprint_number, task_id):
-    task = Task.query.get_or_404(task_id) # Get task to be deleted by id
+    task = Task.query.get_or_404(task_id) 
     task.in_sprint = True
-    sprint = Sprint.query.get_or_404(sprint_number) # Get task to be deleted by id
+    sprint = Sprint.query.get_or_404(sprint_number) 
     sprint.tasks.append(task) # Add task to sprint's tasks
     db.session.commit() # Commit database changes
     live_task_list_refresh() # Push realtime changes to all connected clients
@@ -194,9 +199,9 @@ def sprint_task_add(sprint_number, task_id):
     
 @app.route('/task/sprint/<int:sprint_number>/task/remove/<int:task_id>', methods=['POST'])
 def sprint_task_remove(sprint_number, task_id):
-    task = Task.query.get_or_404(task_id) # Get task to be deleted by id
+    task = Task.query.get_or_404(task_id) 
     task.in_sprint = False
-    sprint = Sprint.query.get_or_404(sprint_number) # Get task to be deleted by id
+    sprint = Sprint.query.get_or_404(sprint_number) 
     sprint.tasks.remove(task) # Add task to sprint's tasks
     db.session.commit() # Commit database changes
     live_task_list_refresh() # Push realtime changes to all connected clients
@@ -205,6 +210,32 @@ def sprint_task_remove(sprint_number, task_id):
         page_task_list_refresh() # Refresh task list so that newly added task will show up
     ])
     
+@app.route('/sprint/edit/view/<int:sprint_number>', methods=['POST'])
+def sprint_edit_view(sprint_number):
+    return turbo.stream([
+        page_task_panel_show(), # Show task panel
+        page_sprint_edit_show(sprint_number),
+        page_task_list_refresh(), # Refresh task list
+        page_sprint_task_list_refresh()
+    ])
+    
+@app.route('/sprint/edit/<int:sprint_number>', methods=['POST'])
+def sprint_edit(sprint_number):
+    sprint = Sprint.query.get_or_404(sprint_number)
+    sprint.name = request.form['sprint_name'] # Edit name
+    sprint.description = request.form['sprint_description'] # Edit description
+    sprint.status = request.form['sprint_status'] # Edit status
+    if request.form['sprint_start_date'] != "": # Ignore empty value
+        sprint.start_date = datetime.strptime(request.form['sprint_start_date'], '%Y-%m-%dT%H:%M') # Edit start date
+    if request.form['sprint_due_date'] != "": # Ignore empty value
+        sprint.due_date = datetime.strptime(request.form['sprint_due_date'], '%Y-%m-%dT%H:%M') # Edit due date
+    db.session.commit() # Save database changes
+    live_task_list_refresh() # Push realtime changes to all connected clients
+    return turbo.stream([
+        page_task_panel_hide(), # Hide task panel
+        page_task_list_refresh(), # Refresh task list
+        page_sprint_task_list_refresh()
+    ])
          
 @app.route('/register', methods=['GET', 'POST'])
 def register():

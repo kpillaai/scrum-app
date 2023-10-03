@@ -33,7 +33,6 @@
             <option value="{{user.id}}" {% if task.assignee == user.id %} selected {% endif %}>{{user.name}}</option>
         {% endfor %}
       </select>
-      <!-- <input type="text" name="task_assignee" class="form-control" value="{{task.assignee}}"/> -->
       <label for="task_hours_taken" class="form-label">Hours Taken:</label>
       <input type="number" name="task_hours_taken" class="form-control" value="{{task.hours_taken}}" min="0"/>
       <button type="submit" class="btn btn-success">Update</button>
