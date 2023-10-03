@@ -5,10 +5,7 @@
         <tr>
             <th>ID</th>
             <th>Name</th>
-            <th>Role</th>
-            {% if show_edit == True %}
-                <th>Action</th>
-            {% endif %}
+            <th>Team Selection</th>
         </tr>
     </thead>
     <tbody>
@@ -16,7 +13,17 @@
             <tr img id="drag1" draggable="true" ondragstart="drag(event)">
                 <td>{{users[i].id}}</td>
                 <td>{{users[i].name}}</td>
-                <td>{{users[i].role}}</td>
+                <form class="form-inline" action="/teams/move/{{users[i].id}}" method="POST">
+                <td><label for="teams_select"></label> 
+                    <select name="teams_select" class="selectpicker form-control" id="teams_select"> 
+                        <option value="" selected disabled hidden></option>
+                        {% for i in range(teams|length): %}
+                        <option value="{{teams[i].name}}">{{teams[i].name}}</option> 
+                        {% endfor %}
+                    </select></td>
+                
+                <td><button class="btn btn-primary" type="submit">Add to Team</button></td>
+            </form>
             </tr>
         {% endfor %}
     </tbody>

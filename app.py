@@ -122,22 +122,53 @@ def teams():
     users = User.query.all()
     return render_template('teams.html', teams=teams, users=users)
 
-@app.route('/teams/move/', methods=['POST'])
-def move_user():
+@app.route('/teams/delete/<int:id>', methods=['POST'])
+def teams_delete(id):
+    team = Team.query.get_or_404(id) 
+    db.session.delete(team) 
+    teams = Team.query.all() # Get all Tasks in database (query)
+    users = User.query.all()
+    db.session.commit()
+    return render_template('teams.html', teams=teams, users=users)
+
+@app.route('/teams/move/<int:user_id>', methods=['POST'])
+def move_user(user_id):
     if request.method == 'POST':
-        team = Team.query.filter_by(id=request.form['team_id']).first()
-        user = User.query.filter_by(id=request.form['users'][0]).first()
-        team.users = user
-        db.session.merge(team) # Commit database changes
+        #team = Team.query.filter_by(id=request.form['team_name']).first()
+        team = Team.query.filter_by(name=request.form.get("teams_select")).first()
+        user = User.query.filter_by(id=user_id).first()
+        #user = User.query.filter_by(id=request.form['users'][0]).first()
+        if team is not None and user is not None:
+            exists = False
+            for team_user in team.users:
+                if user == team_user:
+                    exists = True
+            if not exists:
+                team.users.append(user)
+        db.session.commit() # Commit database changes
+    return redirect(url_for('teams'))
+
+@app.route('/teams/remove/<int:user_id>', methods=['POST'])
+def remove_user(user_id):
+    if request.method == 'POST':
+        team = Team.query.filter_by(id=1).first()
+        user = User.query.filter_by(id=user_id).first()
+        #user = User.query.filter_by(id=request.form['users'][0]).first()
+        if team is not None and user is not None:
+            exists = False
+            for team_user in team.users:
+                if user == team_user:
+                    exists = True
+            if exists:
+                team.users.remove(user)
         db.session.commit() # Commit database changes
     return redirect(url_for('teams'))
 
 @app.route('/teams/add/', methods=['POST'])
 def add_team():
     if request.method == 'POST':
-        team = Team(name=request.form['team'])
+        team = Team(name=request.form['team'], users=[])
         db.session.add(team) #  Task to database
-        
         db.session.commit() # Commit database changes
     return redirect(url_for('teams'))
 

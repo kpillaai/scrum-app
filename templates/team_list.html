@@ -30,12 +30,24 @@
     <tbody>
         {% for i in range(teams|length): %}
             <tr>
-                <form action="/teams/move/" method="POST">
-                <td><input method="POST" type="hidden" class="form-control" name="team_id" value="{{teams[i].id}}"/>{{teams[i].id}}</td>
+        
+                <td>{{teams[i].id}}</td>
                 <td>{{teams[i].name}}</td>
-                <td ondrop="drop(event, 'input{{ teams[i].id }}')" ondragover="allowDrop(event)"><input method="POST" name="users" id="input{{ teams[i].id }}" value="{{teams[i].users}}"/>{% if teams[i].users != None %} {{teams[i].users}} {%- endif %} </td>
-                <td><button class="btn btn-primary">Update Users</button></td>
-            </form>
+                
+                <td>{% if teams[i].users != [] %} 
+                    {% for j in range(teams[i].users|length): %}
+                    <form class="form-inline" action="/teams/remove/{{teams[i].users[j].id}}" method="POST">
+                    <div>{{teams[i].users[j].name}}
+                    <button class="deletebtn" type="submit"><i class="material-icons">delete</i></button>
+                    </div>
+                    </form>
+                    {% endfor %}
+                    {%- endif %} 
+                </td>
+
+                <form class="form-inline" action="/teams/delete/{{teams[i].id}}" method="POST">
+                <td><button type="submit"><i class="material-icons">delete</i></button></td>
+                </form>
             </tr>
         {% endfor %}
     </tbody>
