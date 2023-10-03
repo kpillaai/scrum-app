@@ -18,14 +18,7 @@ db.init_app(app) # Initialize the app with the extension
 with app.app_context():
     # db.drop_all() #CURRENTLY ADDING 2 USERS EACH TIME, ENABLE THIS LINE TO CLEAR THEM
     db.create_all() # Create table schemas in the database if not exist
-    # # temporarily creating users in the database
-    # user1 = User(name="admin1", role=RoleType.ADMIN, email="admin1email@email.com", phone_number="01234567890", password="admin")
-    # db.session.add(user1)
-    # db.session.commit()
 
-    # user2 = User(name="admin2", role=RoleType.ADMIN, email="admin2email@email.com", phone_number="0123456789", password="admin2")
-    # db.session.add(user2)
-    # db.session.commit()
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -61,16 +54,10 @@ class LoginForm(FlaskForm):
 
     submit = SubmitField("Login")
 
-    # temporarily creating users in the database
-    # users = User.query.all()
-    # if (len(users) == 0):
-    #     user1 = User(name="admin1", role=RoleType.ADMIN, email="admin1email@email.com", phone_number="01234567890", password="admin")
-    #     db.session.add(user1)
-    #     db.session.commit()
+class UserForm(FlaskForm):
+    password = StringField(validators=[InputRequired()], render_kw={"placeholder": "New Password"})
 
-    #     user2 = User(name="admin2", role=RoleType.ADMIN, email="admin2email@email.com", phone_number="0123456789", password="admin2")
-    #     db.session.add(user2)
-    #     db.session.commit()
+    submit = SubmitField("Change Password")
 
  
 # Adaptive Page functions
@@ -197,9 +184,26 @@ def login():
 @login_required
 def logout():
     logout_user()
+    session['loggedin'] = False
     return redirect(url_for('login'))
     # session['loggedin'] = False
     # return render_template('login.html')
+
+@app.route('/account', methods=['GET','POST'])
+@login_required
+def account():
+    form = UserForm()
+    id = current_user.id
+    if form.validate_on_submit():
+        user_to_update = User.query.get_or_404(id)
+        user_to_update.password = form.password.data
+        db.session.commit()
+        return redirect(url_for('account'))
+
+    return render_template('account.html', form=form)
+
+    
+
 
 @app.errorhandler(404)
 def not_found(error):
