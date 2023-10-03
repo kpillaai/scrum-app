@@ -84,9 +84,6 @@ def page_sprint_task_list_refresh():
     sprint = Sprint.query.get_or_404(1)
     return turbo.replace(render_template('sprint_area.html', sprint=sprint, TaskStatus=TaskStatus), target='sprint_area')
 
-def page_task_add_clear():
-    return turbo.replace(render_template('task_add.html'), target='task_add') # target = id of html element to replace with html from file
-
 def page_task_panel_show():
     sprint = Sprint.query.get_or_404(1)
     return turbo.replace(render_template('backlog.html', tasks_show_edit=True, show_task_panel=True, TaskStatus=TaskStatus, sprint=sprint), target="page_content")
@@ -127,7 +124,6 @@ def task_add():
     db.session.commit() # Commit database changes
     live_task_list_refresh() # Push realtime changes to all connected clients
     return turbo.stream([
-        page_task_add_clear(), # Clears add task input after adding a task 
         page_task_list_refresh(), # Refresh task list so that newly added task will show up
         page_sprint_task_list_refresh()
     ])
@@ -138,8 +134,8 @@ def task_remove(id):
     db.session.delete(task) # Delete task from Task database
     db.session.commit() # Save database changes
     live_task_list_refresh() # Push realtime changes to all connected clients
+    turbo.push(turbo.replace("<div class='alert alert-danger'>Task removed</div>",target=f'task_{task.id}')) # Remove task opened in edit view for all clients
     return turbo.stream([
-        page_task_panel_hide(), # Hide the task panel
         page_task_list_refresh(), # Refresh task list
         page_sprint_task_list_refresh()
     ])
@@ -171,7 +167,6 @@ def task_edit(id):
     db.session.commit() # Save database changes
     live_task_list_refresh() # Push realtime changes to all connected clients
     return turbo.stream([
-        page_task_panel_hide(), # Hide task panel
         page_task_list_refresh(), # Refresh task list
         page_sprint_task_list_refresh()
     ])
@@ -232,7 +227,6 @@ def sprint_edit(sprint_number):
     db.session.commit() # Save database changes
     live_task_list_refresh() # Push realtime changes to all connected clients
     return turbo.stream([
-        page_task_panel_hide(), # Hide task panel
         page_task_list_refresh(), # Refresh task list
         page_sprint_task_list_refresh()
     ])
