@@ -5,6 +5,7 @@
 {% block header %}{% endblock %}
 
 {% block content %}
+<div id="page_content">
     <h1>Account Details</h1><br/>
     <strong>Name:</strong>
 	{{ current_user.name }}<br/><br/>
@@ -13,7 +14,7 @@
 	{{ current_user.id }}<br/><br/>
 
     <strong>Role:</strong>
-	{{ current_user.role }}<br/><br/>
+	{{ current_user.role.value }}<br/><br/>
 
     <strong>Phone Number:</strong>
 	{{ current_user.phone_number }}<br/><br/>
@@ -31,7 +32,7 @@
         {{ form.submit}}
     </form>
 
-    </div>
+</div>
 
     
 {% endblock %}
