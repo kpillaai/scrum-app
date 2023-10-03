@@ -27,10 +27,12 @@
     
     <form method="POST" action="">
         {{ form.hidden_tag() }}
-        {{ form.email}}
         {{ form.password}}
         {{ form.submit}}
-    </form>
+    </form><br/><br/>
+
+    <button onclick="location.href='/set/main'">Main</button><br/><br/>
+    <button onclick="location.href='/set/light'">Light</button>
 
 </div>
 
