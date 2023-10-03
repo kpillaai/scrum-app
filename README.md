@@ -37,7 +37,7 @@ This git repository contains the project code for our spike.
 3. Install flask to python environment (one time):
 
    ```shell
-   pip install Flask Flask-SQLAlchemy turbo-flask
+   pip install Flask Flask-SQLAlchemy turbo-flask flask-login Flask-WTF
    ```
 
 4. Start the server:

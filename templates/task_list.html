@@ -1,11 +1,12 @@
 <div id="task_list_{{tasks_show_edit}}">
-    <h1>Tasks</h1>
+    <h2>Backlog</h2>
     <!-- HTML table to display all tasks  -->
     <table class="table table-responsive">
         <thead>
             <tr>
                 <th>No.</th>
                 <th>Task</th>
+                <th>Status</th>
                 {% if tasks_show_edit == True %}
                     <th>Action</th>
                 {% endif %}
@@ -15,15 +16,29 @@
             {% for i in range(tasks|length): %}
                 <tr>
                     <td>{{i+1}}.</td>
-                    <td>{{ tasks[i].description }}</td>
+                        <td>
+                            {% if tasks[i].status ==  TaskStatus.DONE %}
+                                <del>
+                            {% endif %}
+                                {% if tasks_show_edit == True %}
+                                    <a href="/task/edit/view/{{ tasks[i].id }}" data-turbo-method="post" style="text-decoration: none">
+                                        {{ tasks[i].name }}
+                                    </a>
+                                {% else %}
+                                    {{ tasks[i].name }}
+                                {% endif %}
+                            {% if tasks[i].status ==  TaskStatus.DONE %}
+                                </del>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ tasks[i].status.value }}
+                        </td>
                     {% if tasks_show_edit == True %}
                         <td>
-                            <form action="/task/edit/view/{{ tasks[i].id }}" method="POST" style="display: inline;">
-                                <button type="submit" class="btn btn-success">Edit</button>
-                            </form>
-                            <form action="/task/remove/{{ tasks[i].id }}" method="POST" style="display: inline;">
-                                <button type="submit" class="btn btn-danger">Remove</button>
-                            </form>
+                            <a href="/task/sprint/{{sprint_number}}/task/add/{{ tasks[i].id }}" data-turbo-method="post" class="btn btn-primary">Add to sprint</a>
+                            <a href="/task/edit/view/{{ tasks[i].id }}" data-turbo-method="post" class="btn btn-success">Edit</a>
+                            <a href="/task/remove/{{ tasks[i].id }}" data-turbo-method="post" class="btn btn-danger">Remove</a>
                         </td>
                     {% endif %}
             {% endfor %}
