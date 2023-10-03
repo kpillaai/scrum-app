@@ -1,5 +1,9 @@
 <div id="sprint_area">
-    <h2>{{sprint_name}}</h2>
+    <h2>
+        <a href="/sprint/edit/view/{{ sprint.number }}" data-turbo-method="post" style="text-decoration: none">
+            {{sprint.name}}
+        </a>
+    </h2>
     <!-- HTML table to display all tasks  -->
     <table class="table table-responsive">
         <thead>
@@ -11,27 +15,27 @@
             </tr>
         </thead>
         <tbody>
-            {% for i in range(sprint_tasks|length): %}
+            {% for i in range(sprint.tasks|length): %}
                 <tr>
                     <td>{{i+1}}.</td>
                         <td>
-                            {% if sprint_tasks[i].status ==  TaskStatus.DONE %}
+                            {% if sprint.tasks[i].status ==  TaskStatus.DONE %}
                                 <del>
                             {% endif %}
-                            <a href="/task/edit/view/{{ sprint_tasks[i].id }}" data-turbo-method="post" style="text-decoration: none">
-                                {{ sprint_tasks[i].name }}
+                            <a href="/task/edit/view/{{ sprint.tasks[i].id }}" data-turbo-method="post" style="text-decoration: none">
+                                {{ sprint.tasks[i].name }}
                             </a>
-                            {% if sprint_tasks[i].status ==  TaskStatus.DONE %}
+                            {% if sprint.tasks[i].status ==  TaskStatus.DONE %}
                                 </del>
                             {% endif %}
                         </td>
                         <td>
-                            {{ sprint_tasks[i].status.value }}
+                            {{ sprint.tasks[i].status.value }}
                         </td>
                         <td>
-                            <a href="/task/sprint/{{sprint_number}}/task/remove/{{ sprint_tasks[i].id }}" data-turbo-method="post" class="btn btn-primary">Remove from sprint</a>
-                            <a href="/task/edit/view/{{ sprint_tasks[i].id }}" data-turbo-method="post" class="btn btn-success">Edit</a>
-                            <a href="/task/remove/{{ sprint_tasks[i].id }}" data-turbo-method="post" class="btn btn-danger">Remove</a>
+                            <a href="/task/sprint/{{sprint.number}}/task/remove/{{ sprint.tasks[i].id }}" data-turbo-method="post" class="btn btn-primary">Remove from sprint</a>
+                            <a href="/task/edit/view/{{ sprint.tasks[i].id }}" data-turbo-method="post" class="btn btn-success">Edit</a>
+                            <a href="/task/remove/{{ sprint.tasks[i].id }}" data-turbo-method="post" class="btn btn-danger">Remove</a>
                         </td>
             {% endfor %}
         </tbody>

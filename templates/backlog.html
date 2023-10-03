@@ -1,16 +1,16 @@
 <div id="page_content">
-    {% if (show_task_panel): %}
-        <div class="row">
-            <div class="col-7">
+    <div class="row" style="height: 90vh">
+        {% if (show_task_panel): %}
+            <div class="col-9" style="height: 100%; overflow-y: scroll;">
                 {% include 'task_area.html' %}
             </div>
-            <div class="col-3">
+            <div class="col-3" style="height: 110%; overflow-y: scroll;">
                 <div id="task_panel"></div>
             </div>
-        </div>
-    {% else %}
-        <div class="row">
-            {% include 'task_area.html' %}
-        </div>
-    {% endif %}
+        {% else %}
+            <div class="col" style="height: 110%; overflow-y: scroll;">
+                {% include 'task_area.html' %}
+            </div>
+        {% endif %}
+    </div>
 </div>
