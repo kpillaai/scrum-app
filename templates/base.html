@@ -3,13 +3,8 @@
 
 <head>
     <title>{% block title %}{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css')}}">
-<<<<<<< HEAD
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
-        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">        
-    </head>
-=======
     {% if request.cookies.get("theme") %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/' + request.cookies.get('theme') + '.css')}}">
     {% else %}
@@ -19,20 +14,12 @@
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     {{ turbo() }}
 </head>
->>>>>>> sprint2_merge
 
 <header>
     <!-- Navigation/menu bar -->
     <nav class="nav-container">
         <ul class="right-side">
-<<<<<<< HEAD
-            <li> <a href="{{url_for('index') }}">Home</a></li>
-            <li> <a href="{{url_for('backlog') }}">Backlog</a></li>
-            <li> <a href="{{url_for('sprint') }}">Sprint</a></li>
-            <li> <a href="{{url_for('teams') }}">Teams</a></li>
-=======
             <li> <a href="{{url_for('index') }}">Agility App</a></li>
->>>>>>> sprint2_merge
         </ul>
 
         <ul class="left-side">
@@ -59,6 +46,10 @@
                         <li>
                             <a href="{{url_for('backlog') }}" data-turbo-method="post" class="nav-link px-0 align-middle">
                                 <span>Backlog</span> </a>
+                        </li>
+                        <li>
+                            <a href="{{url_for('teams') }}" data-turbo-method="post" class="nav-link px-0 align-middle">
+                                <span>Teams</span> </a>
                         </li>
                     </ul>
                 </div>
