@@ -1,5 +1,5 @@
 # Modules
-from flask import Flask, render_template, request, session, redirect, url_for
+from flask import Flask, render_template, request, session, redirect, url_for, make_response
 from flask_wtf import FlaskForm
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from wtforms import StringField, PasswordField, SubmitField
@@ -280,7 +280,12 @@ def account():
 
     return render_template('account.html', form=form)
 
-    
+@app.route('/set')
+@app.route('/set/<theme>')
+def set_theme(theme="light"):
+  res = make_response(redirect(url_for('account')))
+  res.set_cookie("theme", theme)
+  return res  
 
 
 @app.errorhandler(404)
