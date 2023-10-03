@@ -63,6 +63,9 @@ class UserForm(FlaskForm):
 
     submit = SubmitField("Change Password")
 
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 # Adaptive Page functions
 def live_task_list_refresh(): # Push realtime task list changes to all connected clients
