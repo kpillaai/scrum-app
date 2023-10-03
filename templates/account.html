@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Agility App{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block content %}
+<div id="page_content">
+    <h1>Account Details</h1><br/>
+    <strong>Name:</strong>
+	{{ current_user.name }}<br/><br/>
+
+	<strong>User ID:</strong>
+	{{ current_user.id }}<br/><br/>
+
+    <strong>Role:</strong>
+	{{ current_user.role.value }}<br/><br/>
+
+    <strong>Phone Number:</strong>
+	{{ current_user.phone_number }}<br/><br/>
+
+	<strong>Email:</strong>
+	{{ current_user.email }}<br/><br/>
+
+    <strong>Password:</strong>
+	{{ current_user.password }}<br/><br/>
+    
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        {{ form.password}}
+        {{ form.submit}}
+    </form><br/><br/>
+
+    <button onclick="location.href='/set/main'">Main</button><br/><br/>
+    <button onclick="location.href='/set/light'">Light</button>
+
+</div>
+
+    
+{% endblock %}
