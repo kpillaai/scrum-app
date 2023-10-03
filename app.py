@@ -295,7 +295,7 @@ def teams_delete(id):
     teams = Team.query.all() # Get all Tasks in database (query)
     users = User.query.all()
     db.session.commit()
-    return render_template('teams.html', teams=teams, users=users)
+    return turbo.stream(turbo.replace(render_template('teams.html', teams=teams, users=users),target='page_content'))
 
 @app.route('/teams/move/<int:user_id>', methods=['POST'])
 def move_user(user_id):
@@ -312,7 +312,7 @@ def move_user(user_id):
             if not exists:
                 team.users.append(user)
         db.session.commit() # Commit database changes
-    return render_template('teams.html')
+    return turbo.stream(turbo.replace(render_template('teams.html'),target='page_content'))
 
 @app.route('/teams/remove/<int:user_id>', methods=['POST'])
 def remove_user(user_id):
@@ -328,11 +328,11 @@ def remove_user(user_id):
             if exists:
                 team.users.remove(user)
         db.session.commit() # Commit database changes
-    return render_template('teams.html')
+    return turbo.stream(turbo.replace(render_template('teams.html'),target='page_content'))
 
 @app.route('/teams', methods=['GET', 'POST'])
 def teams():
-    return render_template('teams.html')
+    return turbo.stream(turbo.replace(render_template('teams.html'),target='page_content'))
 
 @app.route('/teams/add/', methods=['GET', 'POST'])
 def teams_add():
@@ -341,7 +341,7 @@ def teams_add():
         db.session.add(team) #  Task to database
         
         db.session.commit() # Commit database changes
-    return render_template('teams.html')
+    return turbo.stream(turbo.replace(render_template('teams.html'),target='page_content'))
 
 
 @app.errorhandler(404)
