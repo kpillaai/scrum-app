@@ -16,7 +16,12 @@
             {{ form.password}}
             {{ form.submit}}
         </form>
-
+        {% if (isWrongPassword): %}
+            <p>Wrong Password!</p>
+        {% endif %}
+        {% if (userNotFound): %}
+            <p>User not found!</p>
+        {% endif %}
         <a href="{{url_for('register')}}">Don't have an account? Sign up!</a>
     </div>
     </center>

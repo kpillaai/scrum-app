@@ -227,7 +227,10 @@ def login():
             if user.password == form.password.data:
                 login_user(user)
                 return redirect(url_for('index'))
-
+            else:
+                return render_template('login.html', form=form, isWrongPassword=True)
+        else:
+            return render_template('login.html', form=form, userNotFound=True)
     return render_template('login.html', form=form)
 
 @app.route('/logout', methods=['GET','POST'])
