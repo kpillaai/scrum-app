@@ -36,9 +36,9 @@
                 
                 <td>{% if teams[i].users != [] %} 
                     {% for j in range(teams[i].users|length): %}
-                    <form class="form-inline" action="/teams/remove/{{teams[i].users[j].id}}" method="POST">
+                    <form class="form-inline" action="/teams/remove/{{teams[i].users[j].id}}" method="POST" onchange="this.requestSubmit()">
                     <div>{{teams[i].users[j].name}}
-                    <button class="deletebtn" type="submit"><i class="material-icons">delete</i></button>
+                        <td><a href="/teams/remove/{{teams[i].users[j].id}}" data-turbo-method="post" class="btn btn-primary"><i class="material-icons">delete</i></a></td>
                     </div>
                     </form>
                     {% endfor %}
@@ -46,7 +46,8 @@
                 </td>
 
                 <form class="form-inline" action="/teams/delete/{{teams[i].id}}" method="POST">
-                <td><button type="submit"><i class="material-icons">delete</i></button></td>
+                <td><a href="/teams/delete/{{teams[i].id}}" data-turbo-method="post" class="btn btn-primary"><i class="material-icons">delete</i></a></td>
+                
                 </form>
             </tr>
         {% endfor %}

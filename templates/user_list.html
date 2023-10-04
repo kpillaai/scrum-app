@@ -10,20 +10,20 @@
     </thead>
     <tbody>
         {% for i in range(users|length): %}
-            <tr img id="drag1" draggable="true" ondragstart="drag(event)">
+            <tr>
                 <td>{{users[i].id}}</td>
                 <td>{{users[i].name}}</td>
-                <form class="form-inline" action="/teams/move/{{users[i].id}}" method="POST">
-                <td><label for="teams_select"></label> 
-                    <select name="teams_select" class="selectpicker form-control" id="teams_select"> 
-                        <option value="" selected disabled hidden></option>
+                <form class="mb-1 mt-1" action="/teams/move/{{users[i].id}}" method="POST" onchange="this.requestSubmit()">
+                <td><label class="form-label" for="teams_select" ></label> 
+                    <select name="teams_select" class="form-select"> 
+                        <option value="1" selected disabled hidden></option>
                         {% for i in range(teams|length): %}
                         <option value="{{teams[i].name}}">{{teams[i].name}}</option> 
                         {% endfor %}
                     </select></td>
                 
-                <td><button class="btn btn-primary" type="submit">Add to Team</button></td>
-            </form>
+                    <td><a href="/teams/move/{{users[i].id}}" data-turbo-method="post" class="btn btn-primary">Add To Team</a></td>
+                </form>
             </tr>
         {% endfor %}
     </tbody>

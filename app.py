@@ -37,9 +37,9 @@ with app.app_context():
         db.session.commit()
         
         # Temp Sprint1 
-        #sprint1 = Sprint(name="Sprint 1", number=1)
-        #db.session.add(sprint1)
-        #db.session.commit()
+        sprint1 = Sprint(name="Sprint 1", number=1)
+        db.session.add(sprint1)
+        db.session.commit()
 
 # Register class
 class RegisterForm(FlaskForm):
@@ -81,6 +81,7 @@ def page_task_list_refresh(tasks_show_edit=True):
     sprint = Sprint.query.get_or_404(1)
     return turbo.replace(render_template('task_list.html', tasks=tasks, tasks_show_edit=tasks_show_edit, TaskStatus=TaskStatus, users = User.query.all(), sprint=sprint), target=f'task_list_{tasks_show_edit}')
 
+
 def page_sprint_task_list_refresh():
     sprint = Sprint.query.get_or_404(1)
     return turbo.replace(render_template('sprint_area.html', sprint=sprint, TaskStatus=TaskStatus), target='sprint_area')
@@ -100,6 +101,8 @@ def page_sprint_edit_show(sprint_number):
     sprint = Sprint.query.get_or_404(sprint_number)
     return turbo.replace(render_template('sprint_edit.html', sprint=sprint, TaskStatus=TaskStatus), target="task_panel")
 
+def page_team_refresh():
+    return turbo.replace(render_template('teams.html', teams=Team.query.all(), users = User.query.all()), target="page_content")
 
 # Routes
 @app.route('/', methods=['GET'])
@@ -288,21 +291,23 @@ def set_theme(theme="light"):
   res.set_cookie("theme", theme)
   return res  
 
-@app.route('/teams/delete/<int:id>', methods=['POST'])
+@app.route('/teams/delete/<int:id>', methods=['GET', 'POST'])
 def teams_delete(id):
     team = Team.query.get_or_404(id) 
     db.session.delete(team) 
-    teams = Team.query.all() # Get all Tasks in database (query)
-    users = User.query.all()
     db.session.commit()
-    return turbo.stream(turbo.replace(render_template('teams.html', teams=teams, users=users),target='page_content'))
+    return turbo.stream(page_team_refresh())
 
-@app.route('/teams/move/<int:user_id>', methods=['POST'])
+@app.route('/teams/move/<int:user_id>', methods=['GET', 'POST'])
 def move_user(user_id):
     if request.method == 'POST':
+        team_name=request.form.get("teams_select")
+        print(team_name)
         #team = Team.query.filter_by(id=request.form['team_name']).first()
-        team = Team.query.filter_by(name=request.form.get("teams_select")).first()
+        team = Team.query.filter_by(name=team_name).first()
+        print(team)
         user = User.query.filter_by(id=user_id).first()
+        print(user)
         #user = User.query.filter_by(id=request.form['users'][0]).first()
         if team is not None and user is not None:
             exists = False
@@ -312,7 +317,7 @@ def move_user(user_id):
             if not exists:
                 team.users.append(user)
         db.session.commit() # Commit database changes
-    return turbo.stream(turbo.replace(render_template('teams.html'),target='page_content'))
+    return turbo.stream(page_team_refresh())
 
 @app.route('/teams/remove/<int:user_id>', methods=['POST'])
 def remove_user(user_id):
@@ -328,20 +333,19 @@ def remove_user(user_id):
             if exists:
                 team.users.remove(user)
         db.session.commit() # Commit database changes
-    return turbo.stream(turbo.replace(render_template('teams.html'),target='page_content'))
+    return turbo.stream(page_team_refresh())
 
 @app.route('/teams', methods=['GET', 'POST'])
 def teams():
-    return turbo.stream(turbo.replace(render_template('teams.html'),target='page_content'))
+    return turbo.stream(page_team_refresh())
 
 @app.route('/teams/add/', methods=['GET', 'POST'])
 def teams_add():
     if request.method == 'POST':
         team = Team(name=request.form['team'], users=[])
-        db.session.add(team) #  Task to database
-        
+        db.session.add(team) #  Team to database
         db.session.commit() # Commit database changes
-    return turbo.stream(turbo.replace(render_template('teams.html'),target='page_content'))
+    return turbo.stream(page_team_refresh())
 
 
 @app.errorhandler(404)
