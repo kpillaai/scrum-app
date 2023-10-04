@@ -410,7 +410,6 @@ def move_user(user_id):
                 team.users.append(user)
         
         db.session.commit() # Commit database changes
-    print("this runs")
     return turbo.stream([page_team_refresh(),page_team_list_show(),page_user_list_show()])
 
 @app.route('/teams/remove/<int:team_id>/<int:user_id>', methods=['POST'])
