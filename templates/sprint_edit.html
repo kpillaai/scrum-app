@@ -7,22 +7,24 @@
       </form>
     </h3>
   </h2>
-  <form class="mb-1 mt-1" action="/sprint/edit/{{ sprint.number }}" method="POST" onchange="this.requestSubmit()">
-      <label for="sprint_name" class="form-label">Name:</label>
-      <input type="text" name="sprint_name" class="form-control" required="true" value="{{sprint.name}}"/>
-      <label for="sprint_description" class="form-label">Description:</label>
-      <input type="text" name="sprint_description" class="form-control" value="{{sprint.description}}"/>
-     <label for="sprint_status" class="form-label">Status:</label>
-      <select class="form-select" name="sprint_status">
-        {% for status in TaskStatus: %}
-            <option value="{{status.name}}" {% if sprint.status == status %} selected {% endif %}>{{status.value}}</option>
-        {% endfor %}
-      </select>
-      <label for="sprint_start_date" class="form-label">Start Date:</label>
-      <input type="datetime-local" name="sprint_start_date" class="form-control" value="{{sprint.start_date}}"/>
-      <label for="sprint_due_date" class="form-label">End Date:</label>
-      <input type="datetime-local" name="sprint_due_date" class="form-control" value="{{sprint.due_date}}"/>
-      <a class="btn btn-custom-success" href="/task/panel/hide/" data-turbo-method="post">Update</a>
-      <a href="/sprint/remove/{{ sprint.number }}" data-turbo-method="post" class="btn btn-custom-danger {% if sprint.number <= 1 %} disabled {% endif %}">Remove</a>
-  </form>
+  <div id="sprint_{{sprint.number}}">
+    <form class="mb-1 mt-1" action="/sprint/edit/{{ sprint.number }}" method="POST" onchange="this.requestSubmit()">
+        <label for="sprint_name" class="form-label">Name:</label>
+        <input type="text" name="sprint_name" class="form-control" required="true" value="{{sprint.name}}"/>
+        <label for="sprint_description" class="form-label">Description:</label>
+        <input type="text" name="sprint_description" class="form-control" value="{{sprint.description}}"/>
+      <label for="sprint_status" class="form-label">Status:</label>
+        <select class="form-select" name="sprint_status">
+          {% for status in TaskStatus: %}
+              <option value="{{status.name}}" {% if sprint.status == status %} selected {% endif %}>{{status.value}}</option>
+          {% endfor %}
+        </select>
+        <label for="sprint_start_date" class="form-label">Start Date:</label>
+        <input type="datetime-local" name="sprint_start_date" class="form-control" value="{{sprint.start_date}}"/>
+        <label for="sprint_due_date" class="form-label">End Date:</label>
+        <input type="datetime-local" name="sprint_due_date" class="form-control" value="{{sprint.due_date}}"/>
+        <a class="btn btn-custom-success" href="/task/panel/hide/" data-turbo-method="post">Update</a>
+        <a href="/sprint/remove/{{ sprint.number }}" data-turbo-method="post" class="btn btn-custom-danger {% if sprint.number <= 1 %} disabled {% endif %}">Remove</a>
+    </form>
+  </div>
 </div>
