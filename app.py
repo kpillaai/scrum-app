@@ -279,7 +279,11 @@ def sprint_add():
     user = User.query.get_or_404(session['user_ref'])
     user.current_sprint = sprint_num
     db.session.commit()
-    turbo.push([page_sprint_task_list_refresh()]) 
+    turbo.push([ 
+        page_task_panel_show(), # Show task panel
+        page_sprint_edit_show(user.current_sprint),
+        page_sprint_task_list_refresh()
+        ]) 
     return turbo.stream([
         page_task_panel_show(), # Show task panel
         page_sprint_edit_show(user.current_sprint),
@@ -298,8 +302,9 @@ def sprint_remove(sprint_number):
     user = User.query.get_or_404(session['user_ref'])
     user.current_sprint -= 1
     db.session.commit()
-    turbo.push([
-        turbo.replace("<div class='alert alert-danger'>Sprint removed</div>",target=f'sprint_{sprint_number}'), 
+    turbo.push([ 
+        page_task_panel_show(), # Show task panel
+        page_sprint_edit_show(user.current_sprint),
         page_sprint_task_list_refresh()
         ]) 
     return turbo.stream([
