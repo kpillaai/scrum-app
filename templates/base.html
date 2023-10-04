@@ -35,20 +35,20 @@
     <div class="container-fluid">
         <div class="row flex-nowrap">
             <div class="col-auto col-md-3 col-xl-1 px-sm-1 px-0 bg-light">
-                <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
+                <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 min-vh-100">
                     <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
                         id="menu">
                         <li class="nav-item">
-                            <a href="{{url_for('index') }}" data-turbo-action="replace" class="nav-link align-middle px-0">
+                            <a href="{{url_for('index') }}" data-turbo-action="replace" class="nav-link align-middle px-0 dashboard-link">
                                 <span>Dashboard</span>
                             </a>
                         </li>
                         <li>
-                            <a href="{{url_for('backlog') }}" data-turbo-method="post" class="nav-link px-0 align-middle">
+                            <a href="{{url_for('backlog') }}" data-turbo-method="post" class="nav-link px-0 align-middle backlog-link">
                                 <span>Backlog</span> </a>
                         </li>
                         <li>
-                            <a href="{{url_for('teams') }}" data-turbo-method="post" class="nav-link px-0 align-middle">
+                            <a href="{{url_for('teams') }}" data-turbo-method="post" class="nav-link px-0 align-middle teams-link">
                                 <span>Teams</span> </a>
                         </li>
                     </ul>
