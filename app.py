@@ -23,18 +23,18 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 with app.app_context():
-    # db.drop_all() #CURRENTLY ADDING 2 USERS EACH TIME, ENABLE THIS LINE TO CLEAR THEM
+    #db.drop_all() #CURRENTLY ADDING 2 USERS EACH TIME, ENABLE THIS LINE TO CLEAR THEM
     db.create_all() # Create table schemas in the database if not exist
     # temporarily creating users in the database
     users = User.query.all()
     if (len(users) == 0):
-        user1 = User(name="admin1", role=RoleType.ADMIN, email="admin1email@email.com", phone_number="01234567890", password="admin")
-        db.session.add(user1)
-        db.session.commit()
+        #user1 = User(name="admin1", role=RoleType.ADMIN, email="admin1email@email.com", phone_number="01234567890", password="admin")
+        #db.session.add(user1)
+        #db.session.commit()
 
-        user2 = User(name="admin2", role=RoleType.ADMIN, email="admin2email@email.com", phone_number="0123456789", password="admin2")
-        db.session.add(user2)
-        db.session.commit()
+        #user2 = User(name="admin2", role=RoleType.ADMIN, email="admin2email@email.com", phone_number="0123456789", password="admin2")
+        #db.session.add(user2)
+        #db.session.commit()
         
         # Temp Sprint1 
         sprint1 = Sprint(name="Sprint 1", number=1)
@@ -321,6 +321,7 @@ def move_user(user_id):
                 team.users.append(user)
         
         db.session.commit() # Commit database changes
+    print("this runs")
     return turbo.stream([page_team_refresh(),page_team_list_show(),page_user_list_show()])
 
 @app.route('/teams/remove/<int:team_id>/<int:user_id>', methods=['POST'])

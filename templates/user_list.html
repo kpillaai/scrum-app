@@ -27,9 +27,10 @@
                         <option value="{{teams[i].name}}">{{teams[i].name}}</option> 
                         {% endfor %}
                     </select>
-                    </td>
-                    <td><button class="btn btn-custom-primary" onclick="document.querySelector('#move_user').submit()">Add to Team</button></td>
-                </form>
+                    
+                    <td><button class="btn btn-custom-primary" onclick="document.querySelector('#move_user').requestSubmit()">Add to Team</button></td>
+                    </form>
+                </td>
                 
             </tr>
         {% endfor %}
