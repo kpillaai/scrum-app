@@ -1,5 +1,5 @@
 header {
-    background: #2EBA79
+    background: #FF9E00
 }
 
 .nav-container {
@@ -10,7 +10,7 @@ header {
 }
 
 nav li {
-    color: #1E88E5;
+    color: black;
     display: inline-block;
     margin-left: 0px;
     margin-right: 30px;
@@ -19,7 +19,7 @@ nav li {
 }
 
 nav a {
-    color: #000;
+    color: black;
     text-decoration: none;
     text-transform: uppercase;
     font-size: 17px;
@@ -44,17 +44,31 @@ nav a {
     width: 100%;
 }
 
+.dashboard-link {
+    color: black;
+}
+
+/* Define styles for the Backlog link */
+.backlog-link {
+    color: black;
+}
+
+/* Define styles for the Teams link */
+.teams-link {
+    color: black;
+}
+
 .btn-custom-primary {
-    background-color: #0d6efd !important; /* Change the primary button background color */
+    background-color: #7817A0 !important; /* Change the primary button background color */
     color: #fff !important; /* Change the text color for the primary button */
 }
 
 .btn-custom-success {
-    background-color: green !important; /* Change the success button background color */
+    background-color: #5BA5FE !important; /* Change the success button background color */
     color: #fff !important; /* Change the text color for the success button */
 }
 
 .btn-custom-danger {
-    background-color: red !important; /* Change the danger button background color */
+    background-color: #CF6696 !important; /* Change the danger button background color */
     color: white !important; /* Change the text color for the danger button */
 }

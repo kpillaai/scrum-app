@@ -1,0 +1,58 @@
+<div id="team_list">
+<h1>Teams</h1>
+<table class="table">
+    <thead class="table-secondary">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Users</th>
+            {% if show_edit == True %}
+                <th>Action</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <script>
+        function allowDrop(ev) {
+          ev.preventDefault();
+        }
+        
+        function drag(ev) {
+          ev.dataTransfer.setData("text", ev.target.id);
+        }
+        
+        function drop(ev, teamid) {
+          ev.preventDefault();
+          var data = ev.dataTransfer.getData("text");
+          ev.target.appendChild(document.getElementById(data));
+          document.getElementById(teamid).innerHTML = data 
+        }
+        </script>
+    <tbody>
+        {% for i in range(teams|length): %}
+            <tr>
+        
+                <td>{{teams[i].id}}</td>
+                <td>{{teams[i].name}}</td>
+                
+                <td>{% if teams[i].users != [] %} 
+                    {% for j in range(teams[i].users|length): %}
+                    <form class="form-inline" action="/teams/remove/{{teams[i].users[j].id}}" method="POST" onchange="this.requestSubmit()">
+                    <div>
+                        <td>{{teams[i].users[j].name}}</td>
+                        <td>{{teams[i].users[j].email}}</td>
+                        <td><a href="/teams/remove/{{teams[i].id}}/{{teams[i].users[j].id}}" data-turbo-method="post" class="btn btn-custom-primary">Remove User</a></td>
+                    </div>
+                    </form>
+                    {% endfor %}
+                    {%- endif %} 
+                </td>
+
+                <form class="form-inline" action="/teams/delete/{{teams[i].id}}" method="POST">
+                <td><a href="/teams/delete/{{teams[i].id}}" data-turbo-method="post" class="btn btn-custom-primary"><i class="material-icons">delete</i> Delete Team</a></td>
+                
+                </form>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>

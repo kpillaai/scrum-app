@@ -1,0 +1,46 @@
+<div id="sprint_area">
+    <h2>
+        <a href="/sprint/edit/view/{{ sprint.number }}" data-turbo-method="post" style="text-decoration: none">
+            {{sprint.name}}
+        </a>
+        <a class="btn btn-secondary {% if sprint.number <= 1 %} disabled {% endif %}" href="/sprint/prev/" data-turbo-method="post"> < </a>
+        <a class="btn btn-secondary {% if sprint.number >= sprint_count %} disabled {% endif %}" href="/sprint/next/" data-turbo-method="post"> > </a>
+        #{{sprint.number}}
+    </h2>
+    <!-- HTML table to display all tasks  -->
+    <table class="table table-responsive">
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>Task</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in range(sprint.tasks|length): %}
+                <tr>
+                    <td>{{i+1}}.</td>
+                        <td>
+                            {% if sprint.tasks[i].status ==  TaskStatus.DONE %}
+                                <del>
+                            {% endif %}
+                            <a href="/task/edit/view/{{ sprint.tasks[i].id }}" data-turbo-method="post" style="text-decoration: none">
+                                {{ sprint.tasks[i].name }}
+                            </a>
+                            {% if sprint.tasks[i].status ==  TaskStatus.DONE %}
+                                </del>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ sprint.tasks[i].status.value }}
+                        </td>
+                        <td>
+                            <a href="/task/sprint/{{sprint.number}}/task/remove/{{ sprint.tasks[i].id }}" data-turbo-method="post" class="btn btn-custom-primary">Remove from sprint</a>
+                            <a href="/task/edit/view/{{ sprint.tasks[i].id }}" data-turbo-method="post" class="btn btn-custom-success">Edit</a>
+                            <a href="/task/remove/{{ sprint.tasks[i].id }}" data-turbo-method="post" class="btn btn-custom-danger">Remove</a>
+                        </td>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
