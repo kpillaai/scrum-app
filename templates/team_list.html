@@ -38,7 +38,7 @@
                     {% for j in range(teams[i].users|length): %}
                     <form class="form-inline" action="/teams/remove/{{teams[i].users[j].id}}" method="POST" onchange="this.requestSubmit()">
                     <div>{{teams[i].users[j].name}}
-                        <td><a href="/teams/remove/{{teams[i].users[j].id}}" data-turbo-method="post" class="btn btn-primary"><i class="material-icons">delete</i></a></td>
+                        <td><a href="/teams/remove/{{teams[i]}}/{{teams[i].users[j].id}}" data-turbo-method="post" class="btn btn-primary"><i class="material-icons">delete</i></a></td>
                     </div>
                     </form>
                     {% endfor %}

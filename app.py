@@ -319,10 +319,10 @@ def move_user(user_id):
         db.session.commit() # Commit database changes
     return turbo.stream(page_team_refresh())
 
-@app.route('/teams/remove/<int:user_id>', methods=['POST'])
-def remove_user(user_id):
+@app.route('/teams/remove/<int:team_id>/<int:user_id>', methods=['POST'])
+def remove_user(team_id, user_id):
     if request.method == 'POST':
-        team = Team.query.filter_by(id=1).first()
+        team = Team.query.filter_by(id=team_id).first()
         user = User.query.filter_by(id=user_id).first()
         #user = User.query.filter_by(id=request.form['users'][0]).first()
         if team is not None and user is not None:

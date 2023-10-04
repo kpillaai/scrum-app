@@ -16,7 +16,7 @@
                 <form class="mb-1 mt-1" action="/teams/move/{{users[i].id}}" method="POST" onchange="this.requestSubmit()">
                 <td><label class="form-label" for="teams_select" ></label> 
                     <select name="teams_select" class="form-select"> 
-                        <option value="1" selected disabled hidden></option>
+                        <option value="" selected disabled hidden></option>
                         {% for i in range(teams|length): %}
                         <option value="{{teams[i].name}}">{{teams[i].name}}</option> 
                         {% endfor %}
