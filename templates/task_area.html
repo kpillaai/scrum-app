@@ -4,7 +4,7 @@
         <form action="/sprint/add/" id="form_sprint_add" method="POST" onsubmit="this.requestSubmit(); setTimeout(()=>{document.getElementById('form_sprint_add').reset()}, 1);">
             <label for="sprint_name" class="form-label"><h5>Add Sprint:</h5></label>
             <input method="POST" type="text" name="sprint_name" class="form-control" required="true" placeholder="Enter new sprint name" />
-            <button type="submit" class="btn btn-primary" style="display:inline">Add</button>
+            <button type="submit" class="btn btn-custom-primary" style="display:inline">Add</button>
         </form>
     </div>
     {% include 'task_list.html' %}
@@ -13,7 +13,7 @@
         <form action="/task/add/" id="form_task_add" method="POST" onsubmit="this.requestSubmit(); setTimeout(()=>{document.getElementById('form_task_add').reset()}, 1);">
             <label for="task_name" class="form-label"><h5>Add Task:</h5></label>
             <input method="POST" type="text" name="task_name" class="form-control" required="true" placeholder="Enter task name" />
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-custom-primary">Submit</button>
         </form>
     </div>
 </div>
