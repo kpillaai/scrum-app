@@ -399,7 +399,8 @@ def teams_delete(id):
 @app.route('/teams/move/<user_id>', methods=['POST'])
 def move_user(user_id):
     if request.method == 'POST':
-        team = Team.query.filter_by(name=request.form.get('teams_select')).first()
+        form_name = 'teams_select_' + user_id
+        team = Team.query.filter_by(name=request.form.get(form_name)).first()
         user = User.query.filter_by(id=user_id).first()
         if team is not None and user is not None:
             exists = False
@@ -408,7 +409,6 @@ def move_user(user_id):
                     exists = True
             if not exists:
                 team.users.append(user)
-        
         db.session.commit() # Commit database changes
     return turbo.stream([page_team_refresh(),page_team_list_show(),page_user_list_show()])
 
