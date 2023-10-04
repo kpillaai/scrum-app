@@ -28,13 +28,13 @@ with app.app_context():
     # temporarily creating users in the database
     users = User.query.all()
     if (len(users) == 0):
-        user1 = User(name="admin1", role=RoleType.ADMIN, email="admin1email@email.com", phone_number="01234567890", password="admin")
-        db.session.add(user1)
-        db.session.commit()
+        #user1 = User(name="admin1", role=RoleType.ADMIN, email="admin1email@email.com", phone_number="01234567890", password="admin")
+        #db.session.add(user1)
+        #db.session.commit()
 
-        user2 = User(name="admin2", role=RoleType.ADMIN, email="admin2email@email.com", phone_number="0123456789", password="admin2")
-        db.session.add(user2)
-        db.session.commit()
+        #user2 = User(name="admin2", role=RoleType.ADMIN, email="admin2email@email.com", phone_number="0123456789", password="admin2")
+        #db.session.add(user2)
+        #db.session.commit()
         
         # Temp Sprint1 
         sprint1 = Sprint(name="Sprint 1", number=1)
@@ -58,6 +58,10 @@ class LoginForm(FlaskForm):
     email = StringField(validators=[InputRequired()], render_kw={"placeholder": "Email"})
     password = StringField(validators=[InputRequired()], render_kw={"placeholder": "Password"})
     submit = SubmitField("Login")
+
+class TeamForm(FlaskForm):
+    team_id = StringField(validators=[InputRequired()], render_kw={"placeholder": "team_id"})
+    user_id = StringField(validators=[InputRequired()], render_kw={"placeholder": "user_id"})
 
 class UserForm(FlaskForm):
     password = StringField(validators=[InputRequired()], render_kw={"placeholder": "New Password"})
@@ -104,6 +108,11 @@ def page_sprint_edit_show(sprint_number):
 def page_team_refresh():
     return turbo.replace(render_template('teams.html', teams=Team.query.all(), users = User.query.all()), target="page_content")
 
+def page_team_list_show():
+    return turbo.replace(render_template('team_list.html', users=User.query.all(),teams=Team.query.all()), target="team_list")
+
+def page_user_list_show():
+    return turbo.replace(render_template('user_list.html', teams=Team.query.all(), users=User.query.all()), target="user_list")
 # Routes
 @app.route('/', methods=['GET'])
 @login_required
@@ -296,19 +305,13 @@ def teams_delete(id):
     team = Team.query.get_or_404(id) 
     db.session.delete(team) 
     db.session.commit()
-    return turbo.stream(page_team_refresh())
+    return turbo.stream([page_team_refresh(),page_team_list_show(),page_user_list_show()])
 
-@app.route('/teams/move/<int:user_id>', methods=['GET', 'POST'])
+@app.route('/teams/move/<user_id>', methods=['POST'])
 def move_user(user_id):
     if request.method == 'POST':
-        team_name=request.form.get("teams_select")
-        print(team_name)
-        #team = Team.query.filter_by(id=request.form['team_name']).first()
-        team = Team.query.filter_by(name=team_name).first()
-        print(team)
+        team = Team.query.filter_by(name=request.form.get('teams_select')).first()
         user = User.query.filter_by(id=user_id).first()
-        print(user)
-        #user = User.query.filter_by(id=request.form['users'][0]).first()
         if team is not None and user is not None:
             exists = False
             for team_user in team.users:
@@ -316,8 +319,9 @@ def move_user(user_id):
                     exists = True
             if not exists:
                 team.users.append(user)
+        
         db.session.commit() # Commit database changes
-    return turbo.stream(page_team_refresh())
+    return turbo.stream([page_team_refresh(),page_team_list_show(),page_user_list_show()])
 
 @app.route('/teams/remove/<int:team_id>/<int:user_id>', methods=['POST'])
 def remove_user(team_id, user_id):
@@ -333,11 +337,11 @@ def remove_user(team_id, user_id):
             if exists:
                 team.users.remove(user)
         db.session.commit() # Commit database changes
-    return turbo.stream(page_team_refresh())
+    return turbo.stream([page_team_refresh(),page_team_list_show(),page_user_list_show()])
 
 @app.route('/teams', methods=['GET', 'POST'])
 def teams():
-    return turbo.stream(page_team_refresh())
+    return turbo.stream([page_team_refresh(),page_team_list_show(),page_user_list_show()])
 
 @app.route('/teams/add/', methods=['GET', 'POST'])
 def teams_add():
@@ -345,7 +349,7 @@ def teams_add():
         team = Team(name=request.form['team'], users=[])
         db.session.add(team) #  Team to database
         db.session.commit() # Commit database changes
-    return turbo.stream(page_team_refresh())
+    return turbo.stream([page_team_refresh(),page_team_list_show(),page_user_list_show()])
 
 
 @app.errorhandler(404)
