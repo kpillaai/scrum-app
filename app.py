@@ -7,6 +7,7 @@ from wtforms.validators import InputRequired, ValidationError
 from turbo_flask import Turbo
 from models.task import Task, TaskStatus, db # Import Task database
 from models.user import User, RoleType 
+from models.team import Team
 from models.sprint import Sprint # Import Sprint database
 from models.project import Project # Import Project database
 
@@ -66,6 +67,10 @@ class LoginForm(FlaskForm):
     password = StringField(validators=[InputRequired()], render_kw={"placeholder": "Password"})
     submit = SubmitField("Login")
 
+class TeamForm(FlaskForm):
+    team_id = StringField(validators=[InputRequired()], render_kw={"placeholder": "team_id"})
+    user_id = StringField(validators=[InputRequired()], render_kw={"placeholder": "user_id"})
+
 class UserForm(FlaskForm):
     password = StringField(validators=[InputRequired()], render_kw={"placeholder": "New Password"})
 
@@ -90,6 +95,7 @@ def page_task_list_refresh(tasks_show_edit=True):
     project1 = Project.query.get_or_404(1)
     sprint_count = len(project1.sprints)
     return turbo.replace(render_template('task_list.html', tasks=tasks, tasks_show_edit=tasks_show_edit, TaskStatus=TaskStatus, users = User.query.all(), sprint=sprint, sprint_count=sprint_count), target=f'task_list_{tasks_show_edit}')
+
 
 def page_sprint_task_list_refresh():
     user = User.query.get_or_404(session['user_ref'])
@@ -121,7 +127,14 @@ def page_sprint_edit_show(sprint_number):
     sprint_count = len(project1.sprints)
     return turbo.replace(render_template('sprint_edit.html', sprint=sprint, TaskStatus=TaskStatus, sprint_count=sprint_count), target="task_panel")
 
+def page_team_refresh():
+    return turbo.replace(render_template('teams.html', teams=Team.query.all(), users = User.query.all()), target="page_content")
 
+def page_team_list_show():
+    return turbo.replace(render_template('team_list.html', users=User.query.all(),teams=Team.query.all()), target="team_list")
+
+def page_user_list_show():
+    return turbo.replace(render_template('user_list.html', teams=Team.query.all(), users=User.query.all()), target="user_list")
 # Routes
 @app.route('/', methods=['GET'])
 @login_required
@@ -238,7 +251,7 @@ def sprint_edit_view(sprint_number):
         page_task_list_refresh(), # Refresh task list
         page_sprint_task_list_refresh()
     ])
-    
+
 @app.route('/sprint/edit/<int:sprint_number>', methods=['POST'])
 def sprint_edit(sprint_number):
     sprint = Sprint.query.filter_by(number=sprint_number).first()
@@ -376,11 +389,61 @@ def set_theme(theme="light"):
   res.set_cookie("theme", theme)
   return res  
 
+@app.route('/teams/delete/<int:id>', methods=['GET', 'POST'])
+def teams_delete(id):
+    team = Team.query.get_or_404(id) 
+    db.session.delete(team) 
+    db.session.commit()
+    return turbo.stream([page_team_refresh(),page_team_list_show(),page_user_list_show()])
+
+@app.route('/teams/move/<user_id>', methods=['POST'])
+def move_user(user_id):
+    if request.method == 'POST':
+        team = Team.query.filter_by(name=request.form.get('teams_select')).first()
+        user = User.query.filter_by(id=user_id).first()
+        if team is not None and user is not None:
+            exists = False
+            for team_user in team.users:
+                if user == team_user:
+                    exists = True
+            if not exists:
+                team.users.append(user)
+        
+        db.session.commit() # Commit database changes
+    return turbo.stream([page_team_refresh(),page_team_list_show(),page_user_list_show()])
+
+@app.route('/teams/remove/<int:team_id>/<int:user_id>', methods=['POST'])
+def remove_user(team_id, user_id):
+    if request.method == 'POST':
+        team = Team.query.filter_by(id=team_id).first()
+        user = User.query.filter_by(id=user_id).first()
+        #user = User.query.filter_by(id=request.form['users'][0]).first()
+        if team is not None and user is not None:
+            exists = False
+            for team_user in team.users:
+                if user == team_user:
+                    exists = True
+            if exists:
+                team.users.remove(user)
+        db.session.commit() # Commit database changes
+    return turbo.stream([page_team_refresh(),page_team_list_show(),page_user_list_show()])
+
+@app.route('/teams', methods=['GET', 'POST'])
+def teams():
+    return turbo.stream([page_team_refresh(),page_team_list_show(),page_user_list_show()])
+
+@app.route('/teams/add/', methods=['GET', 'POST'])
+def teams_add():
+    if request.method == 'POST':
+        team = Team(name=request.form['team'], users=[])
+        db.session.add(team) #  Team to database
+        db.session.commit() # Commit database changes
+    return turbo.stream([page_team_refresh(),page_team_list_show(),page_user_list_show()])
+
 
 @app.errorhandler(404)
 def not_found(error):
     return render_template('404.html', error=error)
-
 
 if __name__ == "__main__":
     app.run(debug=True)

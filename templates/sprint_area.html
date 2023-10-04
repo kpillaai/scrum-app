@@ -36,9 +36,9 @@
                             {{ sprint.tasks[i].status.value }}
                         </td>
                         <td>
-                            <a href="/task/sprint/{{sprint.number}}/task/remove/{{ sprint.tasks[i].id }}" data-turbo-method="post" class="btn btn-primary">Remove from sprint</a>
-                            <a href="/task/edit/view/{{ sprint.tasks[i].id }}" data-turbo-method="post" class="btn btn-success">Edit</a>
-                            <a href="/task/remove/{{ sprint.tasks[i].id }}" data-turbo-method="post" class="btn btn-danger">Remove</a>
+                            <a href="/task/sprint/{{sprint.number}}/task/remove/{{ sprint.tasks[i].id }}" data-turbo-method="post" class="btn btn-custom-primary">Remove from sprint</a>
+                            <a href="/task/edit/view/{{ sprint.tasks[i].id }}" data-turbo-method="post" class="btn btn-custom-success">Edit</a>
+                            <a href="/task/remove/{{ sprint.tasks[i].id }}" data-turbo-method="post" class="btn btn-custom-danger">Remove</a>
                         </td>
             {% endfor %}
         </tbody>

@@ -8,8 +8,10 @@ class RoleType(Enum):
     MEMBER = 'Member'
     
 class User(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True) # unique id for each user
+    __tablename__ = 'a_user'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False) # unique id for each user
     name = db.Column(db.String, nullable=False)
+
     role = db.Column(db.Enum(RoleType), default=RoleType.MEMBER)  # from RoleType, either Admin or Member
     email = db.Column(db.String, unique=True, nullable=False)
     phone_number = db.Column(db.String, unique=True)

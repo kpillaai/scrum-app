@@ -9,7 +9,7 @@ class TaskStatus(Enum):
     DONE = 'Done'
     
 class Task(db.Model):
-    id = db.Column(db.Integer, primary_key=True, nullable=False) # unique id for each task
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False) # unique id for each task
     name = db.Column(db.String)
     description = db.Column(db.String, default="")
     priority = db.Column(db.Integer, unique=False)
@@ -17,7 +17,7 @@ class Task(db.Model):
     estimated_effort = db.Column(db.Integer)
     start_date = db.Column(db.DateTime(timezone=True))
     due_date = db.Column(db.DateTime(timezone=True))
-    assignee =  db.Column(db.Integer, db.ForeignKey('user.id')) # ForeignKey = reference to another db table (id)
+    assignee =  db.Column(db.Integer, db.ForeignKey('a_user.id')) # ForeignKey = reference to another db table (id)
     hours_taken = db.Column(db.Integer)
     in_sprint = db.Column(db.Boolean, default=False)
     

@@ -1,0 +1,39 @@
+<div id="user_list">
+<h1>Users</h1>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+
+</script>
+<table class="table">
+    <thead class="table-secondary">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Team Selection</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in range(users|length): %}
+            <tr>
+                <td>{{users[i].id}}</td>
+                <td>{{users[i].name}}</td>
+                
+                <td>
+                    <form action="/teams/move/{{users[i].id}}" method="POST" id="move_user">
+                        <label class="form-label" for="teams_select" ></label>
+                    <select id="teams_select" name="teams_select" class="form-select"> 
+                        <option value="" selected disabled hidden></option>
+                        {% for i in range(teams|length): %}
+                        <option value="{{teams[i].name}}">{{teams[i].name}}</option> 
+                        {% endfor %}
+                    </select>
+                    </td>
+                    <td><button class="btn btn-custom-primary" onclick="document.querySelector('#move_user').submit()">Add to Team</button></td>
+                </form>
+                
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+

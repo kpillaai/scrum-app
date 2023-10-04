@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}Sprint{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block content %}
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+<button id="generate-table" class="btn btn-primary">Generate Table</button>
+<div id="table-container"></div>
+<input type="hidden" id="max-id" value="{{ max_id }}">
+
+{% if max_id != 0: %}
+    {% for x in range(max_id): %}
+    <div class="container">
+        <div class="title">
+            <h3>Sprint {{ x+1 }}</h3>
+            <button data-tableid="{{ x+1 }}"class="remove-table btn btn-custom-danger">Remove Sprint</button>
+        </div>
+        <table class="table" id="tasktable" data-tableid="{{ x+1 }}">
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Task</th>
+                </tr>
+            </thead>
+            <tbody class="row-position">
+                {% for task in tasks if task.sprint_id == x+1 %}
+                        <tr class="draggable" data-task-id="{{ task.id }}">
+                            <td>{{task.id}}.</td>
+                            <td>{{ task.description }}</td>
+                        </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endfor %}
+{% endif%}
+<div class="container">
+    <table class="table" id="tasktable" data-tableid="{{ 0 }}">
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>Task</th>
+            </tr>
+        </thead>
+        <tbody class="row-position">
+            {% for i in range(tasks|length): %}
+                {% if tasks[i].sprint_id is none %}
+                    <tr class="draggable" data-task-id="{{ tasks[i].id }}">
+                        <td>{{i+1}}.</td>
+                        <td>{{ tasks[i].description }}</td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script>
+    const max_id = parseInt($('#max-id').val())
+    let tableCounter = max_id +1;
+
+    function initializeSortable() {
+    // Select all tables with class "table"
+    $('table.table tbody').sortable({
+        items: "> tr",
+        connectWith: "table.table tbody",
+        dropOnEmpty: true,
+        receive: function(event, ui) {
+            $(this).find('.droppable-area').remove();
+            const taskId = $(ui.item).data('task-id');
+            const table = $(ui.item).closest('table');
+            const newSprintId = table.data("tableid");
+
+            $.ajax({
+                type: 'PUT',
+            url: `/api/tasks/${taskId}/sprint/${newSprintId-1}`,
+            });
+        }
+    }).disableSelection();
+}
+
+    function addDroppableArea(table) {
+        if ($(table).find('tbody').children().length === 0) {
+            $(table).find('tbody').append('<tr class="draggable droppable-area"><td colspan="2">Droppable Area</td></tr>');
+        }
+    }
+
+    $(document).ready(function() {
+        initializeSortable('table');
+
+        $('#generate-table').click(function() {
+            tableCounter++;
+            const newTableId = `generated-table-${tableCounter}`;
+
+            const newTableHTML = `
+            <div>
+                <div class="title">
+                    <h3>Sprint ${tableCounter-1}</h3>
+                    <button data-tableid="${tableCounter}" class="remove-table btn btn-danger">Remove Sprint</button>
+                </div>
+                    <table data-tableid="${tableCounter}" class="table" id="tasktable">
+                        <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>Task</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="draggable droppable-area">
+                                <td colspan="2">Droppable Area</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            $('#table-container').after(newTableHTML);
+
+            // Initialize sortable for the new table
+            initializeSortable(`#generated-table-${tableCounter}`);
+            addDroppableArea(`#generated-table-${tableCounter}`);
+            
+
+        });
+        $('#table-container').on('click', '.remove-table', function() {
+            const table = $(this).closest('table');
+            console.log(this)
+            const tableIdToRemove = $(table).data('tableid');
+            $('#generated-table-${tableIdToRemove}').closest('div').remove();
+        });
+    });
+    </script>
+{% endblock %}

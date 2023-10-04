@@ -36,9 +36,9 @@
                         </td>
                     {% if tasks_show_edit == True %}
                         <td>
-                            <a href="/task/sprint/{{sprint.number}}/task/add/{{ tasks[i].id }}" data-turbo-method="post" class="btn btn-primary">Add to sprint</a>
-                            <a href="/task/edit/view/{{ tasks[i].id }}" data-turbo-method="post" class="btn btn-success">Edit</a>
-                            <a href="/task/remove/{{ tasks[i].id }}" data-turbo-method="post" class="btn btn-danger">Remove</a>
+                            <a href="/task/sprint/{{sprint.number}}/task/add/{{ tasks[i].id }}" data-turbo-method="post" class="btn btn-custom-primary">Add to sprint</a>
+                            <a href="/task/edit/view/{{ tasks[i].id }}" data-turbo-method="post" class="btn btn-custom-success">Edit</a>
+                            <a href="/task/remove/{{ tasks[i].id }}" data-turbo-method="post" class="btn btn-custom-danger">Remove</a>
                         </td>
                     {% endif %}
             {% endfor %}

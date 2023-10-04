@@ -22,7 +22,7 @@
       <input type="datetime-local" name="sprint_start_date" class="form-control" value="{{sprint.start_date}}"/>
       <label for="sprint_due_date" class="form-label">End Date:</label>
       <input type="datetime-local" name="sprint_due_date" class="form-control" value="{{sprint.due_date}}"/>
-      <a class="btn btn-success" href="/task/panel/hide/" data-turbo-method="post">Update</a>
-      <a href="/sprint/remove/{{ sprint.number }}" data-turbo-method="post" class="btn btn-danger {% if sprint.number <= 1 %} disabled {% endif %}">Remove</a>
+      <a class="btn btn-custom-success" href="/task/panel/hide/" data-turbo-method="post">Update</a>
+      <a href="/sprint/remove/{{ sprint.number }}" data-turbo-method="post" class="btn btn-custom-danger {% if sprint.number <= 1 %} disabled {% endif %}">Remove</a>
   </form>
 </div>
