@@ -3,6 +3,9 @@
         <a href="/sprint/edit/view/{{ sprint.number }}" data-turbo-method="post" style="text-decoration: none">
             {{sprint.name}}
         </a>
+        <a class="btn btn-secondary {% if sprint.number <= 1 %} disabled {% endif %}" href="/sprint/prev/" data-turbo-method="post"> < </a>
+        <a class="btn btn-secondary {% if sprint.number >= sprint_count %} disabled {% endif %}" href="/sprint/next/" data-turbo-method="post"> > </a>
+        #{{sprint.number}}
     </h2>
     <!-- HTML table to display all tasks  -->
     <table class="table table-responsive">

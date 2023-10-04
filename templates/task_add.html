@@ -1,9 +1,0 @@
-<div id="task_add">
-    <h2>Add task</h2>
-    <!-- HTML form to add tasks  -->
-    <form action="/task/add/" id="form_task_add" method="POST" onsubmit="this.requestSubmit(); setTimeout(()=>{document.getElementById('form_task_add').reset()}, 1);">
-        <label for="task_name" class="form-label">Task:</label>
-        <input method="POST" type="text" name="task_name" class="form-control" required="true" placeholder="Enter task name" />
-        <button type="submit" class="btn btn-custom-primary">Submit</button>
-    </form>
-</div>
