@@ -19,16 +19,16 @@
                 <td>{{users[i].name}}</td>
                 
                 <td>
-                    <form action="/teams/move/{{users[i].id}}" method="POST" id="move_user">
-                        <label class="form-label" for="teams_select" ></label>
-                    <select id="teams_select" name="teams_select" class="form-select"> 
+                    <form action="/teams/move/{{users[i].id}}" method="POST" id="move_user_{{users[i].id}}">
+                        <label class="form-label" for="teams_select_{{users[i].id}}" ></label>
+                    <select id="teams_select_{{users[i].id}}" name="teams_select_{{users[i].id}}" class="form-select"> 
                         <option value="" selected disabled hidden></option>
                         {% for i in range(teams|length): %}
                         <option value="{{teams[i].name}}">{{teams[i].name}}</option> 
                         {% endfor %}
                     </select>
                     
-                    <td><button class="btn btn-custom-primary" onclick="document.querySelector('#move_user').requestSubmit()">Add to Team</button></td>
+                    <td><button class="btn btn-custom-primary" onclick="document.querySelector('#move_user_{{users[i].id}}').requestSubmit()">Add to Team</button></td>
                     </form>
                 </td>
                 
