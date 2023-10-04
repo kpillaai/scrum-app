@@ -55,6 +55,6 @@ nav a {
 }
 
 .btn-custom-danger {
-    background-color: red !important; /* Change the danger button background color */
+    background-color: orange !important; /* Change the danger button background color */
     color: white !important; /* Change the text color for the danger button */
 }
