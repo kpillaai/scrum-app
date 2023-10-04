@@ -14,4 +14,5 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String, unique=True, nullable=False)
     phone_number = db.Column(db.String, unique=True)
     password = db.Column(db.String, nullable=False)
+    current_sprint =  db.Column(db.Integer, db.ForeignKey('sprint.id'), default=1) # ForeignKey = reference to another db table (id)
     # what tasks are assigned to the user
