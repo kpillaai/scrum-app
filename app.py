@@ -450,6 +450,22 @@ def teams_add():
         db.session.commit() # Commit database changes
     return turbo.stream([page_team_refresh(),page_team_list_show(),page_user_list_show()])
 
+@app.route('/myteams', methods=['POST'])
+@login_required
+def myteams():
+    id = current_user.id
+    teams = Team.query.all()
+    my_teams = []
+    print(teams)
+    for team in teams:
+        for user in team.users:
+            if user.id == id:
+                print('true')
+                my_teams.append(team)
+    
+    return turbo.stream([turbo.replace(render_template('myteams.html'), target="page_content"), \
+        turbo.replace(render_template('team_list.html', users=User.query.all(),teams=my_teams), target="team_list")])
+
 
 @app.errorhandler(404)
 def not_found(error):

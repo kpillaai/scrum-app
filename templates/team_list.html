@@ -1,5 +1,4 @@
 <div id="team_list">
-<h1>Teams</h1>
 <table class="table">
     <thead class="table-secondary">
         <tr>
@@ -35,16 +34,21 @@
                 <td>{{teams[i].name}}</td>
                 
                 <td>{% if teams[i].users != [] %} 
-                    {% for j in range(teams[i].users|length): %}
-                    <form class="form-inline" action="/teams/remove/{{teams[i].users[j].id}}" method="POST" onchange="this.requestSubmit()">
-                    <div>
-                        <td>{{teams[i].users[j].name}}</td>
-                        <td>{{teams[i].users[j].email}}</td>
-                        <td><a href="/teams/remove/{{teams[i].id}}/{{teams[i].users[j].id}}" data-turbo-method="post" class="btn btn-custom-primary">Remove User</a></td>
-                    </div>
-                    </form>
-                    {% endfor %}
-                    {%- endif %} 
+                    <table class="table">
+                        </thead>
+                        {% for j in range(teams[i].users|length): %}
+                        <tr>
+                            <form class="form-inline" action="/teams/remove/{{teams[i].users[j].id}}" method="POST" onchange="this.requestSubmit()">
+                                <div>
+                                    <td>{{teams[i].users[j].name}}</td>
+                                    <td><a href="/teams/remove/{{teams[i].id}}/{{teams[i].users[j].id}}" data-turbo-method="post" class="btn btn-custom-primary">Remove User</a></td>
+                                </div>
+                                </form>
+                        </tr>
+                        
+                        {% endfor %}
+                        {%- endif %} 
+                    </table>
                 </td>
 
                 <form class="form-inline" action="/teams/delete/{{teams[i].id}}" method="POST">
