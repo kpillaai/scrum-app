@@ -1,0 +1,30 @@
+<div id="burndown">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.min.js"></script>
+
+    <canvas id="lineChart"></canvas>
+    <script>
+        var ctx =  document.getElementById("lineChart").getContext("2d");
+        var lineChart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: {{ labels | safe }},
+                datasets: [
+                    {
+                        label: "Data points",
+                        data: {{ values | safe }},
+                        fill: false,
+                        lineTension: 0.1
+                    }
+                ]
+            },
+            options: {
+                responsive: true
+            }
+        });
+
+    </script>
+
+
+
+
+</div>

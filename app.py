@@ -135,6 +135,13 @@ def page_team_list_show():
 
 def page_user_list_show():
     return turbo.replace(render_template('user_list.html', teams=Team.query.all(), users=User.query.all()), target="user_list")
+
+def page_burndown_show(sprint_id, labels, values):
+    sprint = Sprint.query.filter_by(id=sprint_id).first()
+    print(sprint_id, values, labels)
+    return turbo.replace(render_template('burndown.html', labels=labels, values=values), target="page_content")
+    
+    
 # Routes
 @app.route('/', methods=['GET'])
 @login_required
@@ -465,6 +472,12 @@ def myteams():
     
     return turbo.stream([turbo.replace(render_template('myteams.html'), target="page_content"), \
         turbo.replace(render_template('team_list.html', users=User.query.all(),teams=my_teams), target="team_list")])
+
+@app.route('/burndown/<int:sprint_id>', methods=['POST'])
+def burndown(sprint_id):
+    labels = ['1', '2', '3', '4', '5'] # all the days within the sprint
+    values = [100, 75, 50, 25, 0]
+    return turbo.stream([page_burndown_show(sprint_id, labels, values)])
 
 
 @app.errorhandler(404)
