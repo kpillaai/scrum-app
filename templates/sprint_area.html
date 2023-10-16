@@ -3,6 +3,13 @@
         <a href="/sprint/edit/view/{{ sprint.number }}" data-turbo-method="post" style="text-decoration: none">
             {{sprint.name}}
         </a>
+        {% if (sprint.status ==  TaskStatus.TODO) %}
+            <a class="btn btn-custom-primary" href="/sprint/start/{{ sprint.number }}" data-turbo-method="post">Start Sprint</a>
+        {% elif (sprint.status ==  TaskStatus.IN_PROGRESS) %}
+            <a class="btn btn-custom-primary" href="/sprint/stop/{{ sprint.number }}" data-turbo-method="post">Complete Sprint</a>
+        {% elif (sprint.status ==  TaskStatus.DONE) %}
+            <a class="btn btn-custom-primary disabled" data-turbo-method="post">Sprint Completed</a>
+        {% endif %}
         <a class="btn btn-secondary {% if sprint.number <= 1 %} disabled {% endif %}" href="/sprint/prev/" data-turbo-method="post"> < </a>
         <a class="btn btn-secondary {% if sprint.number >= sprint_count %} disabled {% endif %}" href="/sprint/next/" data-turbo-method="post"> > </a>
         #{{sprint.number}}
