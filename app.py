@@ -11,7 +11,7 @@ from models.team import Team
 from models.sprint import Sprint # Import Sprint database
 from models.project import Project # Import Project database
 
-from datetime import datetime
+from datetime import datetime, date, timedelta
 
 
 # Server Configuration
@@ -136,10 +136,10 @@ def page_team_list_show():
 def page_user_list_show():
     return turbo.replace(render_template('user_list.html', teams=Team.query.all(), users=User.query.all()), target="user_list")
 
-def page_burndown_show(sprint_id, labels, values):
+def page_burndown_show(sprint_id, labels, values, optimal):
     sprint = Sprint.query.filter_by(id=sprint_id).first()
     print(sprint_id, values, labels)
-    return turbo.replace(render_template('burndown.html', labels=labels, values=values), target="page_content")
+    return turbo.replace(render_template('burndown.html', labels=labels, values=values, optimal=optimal), target="page_content")
     
     
 # Routes
@@ -481,9 +481,26 @@ def myteams():
 
 @app.route('/burndown/<int:sprint_id>', methods=['POST'])
 def burndown(sprint_id):
-    labels = ['1', '2', '3', '4', '5'] # all the days within the sprint
-    values = [100, 75, 50, 25, 0]
-    return turbo.stream([page_burndown_show(sprint_id, labels, values)])
+    curr_sprint = Sprint.query.filter_by(number=sprint_id).first()
+    start_date = curr_sprint.start_date
+    end_date = curr_sprint.due_date
+    delta = timedelta(days=1)
+    curr_date = start_date
+    labels = []
+    while curr_date <= end_date:
+        labels.append(curr_date.strftime("%d") + "/" + curr_date.strftime("%m"))
+        curr_date += delta
+        
+    step = 100 / (len(labels) - 1)
+    optimal = [100 - i * step for i in range(len(labels))]
+
+    values = [100] * len(labels)
+
+    
+    
+    
+    
+    return turbo.stream([page_burndown_show(sprint_id, labels, values, optimal)])
 
 @app.errorhandler(404)
 def not_found(error):

@@ -13,8 +13,14 @@
                 labels: {{ labels | safe }},
                 datasets: [
                     {
-                        label: "Data points",
+                        label: "Actual Progression",
                         data: {{ values | safe }},
+                        fill: false,
+                        lineTension: 0.1
+                    },
+                    {
+                        label: "Optimal Progression",
+                        data: {{ optimal | safe }},
                         fill: false,
                         lineTension: 0.1
                     }
