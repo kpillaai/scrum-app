@@ -1,5 +1,10 @@
-<div id="burndown">
-    <div><canvas id="lineChart"></canvas></div>
+<div id="page_content">
+    <div>
+        <form action="/backlog" method="POST" style="display: inline;">
+            <button type="submit" class="btn-close">&nbsp;</button>
+        </form>
+        <canvas id="lineChart"></canvas>
+    </div>
     <script>
         var ctx =  document.getElementById("lineChart").getContext("2d");
         var lineChart = new Chart(ctx, {

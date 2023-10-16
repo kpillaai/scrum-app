@@ -201,6 +201,12 @@ def task_edit(id):
     task.name = request.form['task_name'] # Edit name
     task.description = request.form['task_description'] # Edit description
     task.priority = request.form['task_priority'] # Edit priority
+    
+    if task.status != request.form['task_status']:
+        date_modified = datetime.today().strftime('%m-%d')
+        new_status = request.form['task_status']
+        task.status_date_modified = date_modified+new_status
+    
     task.status = request.form['task_status'] # Edit status
     task.estimated_effort = request.form['task_estimated_effort'] # Edit estimated effort
     if request.form['task_start_date'] != "": # Ignore empty value
@@ -478,7 +484,6 @@ def burndown(sprint_id):
     labels = ['1', '2', '3', '4', '5'] # all the days within the sprint
     values = [100, 75, 50, 25, 0]
     return turbo.stream([page_burndown_show(sprint_id, labels, values)])
-
 
 @app.errorhandler(404)
 def not_found(error):

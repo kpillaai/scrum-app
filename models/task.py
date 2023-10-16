@@ -20,4 +20,5 @@ class Task(db.Model):
     assignee =  db.Column(db.Integer, db.ForeignKey('a_user.id')) # ForeignKey = reference to another db table (id)
     hours_taken = db.Column(db.Integer)
     in_sprint = db.Column(db.Boolean, default=False)
+    status_date_modified = db.Column(db.String)
     
