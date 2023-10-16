@@ -262,6 +262,8 @@ def sprint_edit(sprint_number):
         sprint.start_date = datetime.strptime(request.form['sprint_start_date'], '%Y-%m-%dT%H:%M') # Edit start date
     if request.form['sprint_due_date'] != "": # Ignore empty value
         sprint.due_date = datetime.strptime(request.form['sprint_due_date'], '%Y-%m-%dT%H:%M') # Edit due date
+    if request.form['sprint_end_date'] != "": # Ignore empty value
+        sprint.end_date = datetime.strptime(request.form['sprint_end_date'], '%Y-%m-%dT%H:%M') # Edit end date
     db.session.commit() # Save database changes
     live_task_list_refresh() # Push realtime changes to all connected clients
     return turbo.stream([
@@ -312,6 +314,36 @@ def sprint_remove(sprint_number):
         page_sprint_edit_show(user.current_sprint),
         page_sprint_task_list_refresh(),
         page_task_list_refresh() # Refresh task list so that newly added task will show up
+    ])
+
+@app.route('/sprint/start/<int:sprint_number>', methods=['POST'])
+def sprint_start(sprint_number):
+    sprint = Sprint.query.filter_by(number=sprint_number).first()
+    sprint.status = TaskStatus.IN_PROGRESS
+    sprint.start_date = datetime.now().replace(second=0, microsecond=0) # Set start date to current datetime
+    print(sprint.start_date)
+    db.session.commit() # Save database changes
+    live_task_list_refresh() # Push realtime changes to all connected clients
+    return turbo.stream([
+        page_task_panel_show(),
+        page_task_list_refresh(), # Refresh task list
+        page_sprint_edit_show(sprint_number),
+        page_sprint_task_list_refresh()
+    ])
+        
+@app.route('/sprint/stop/<int:sprint_number>', methods=['POST'])
+def sprint_stop(sprint_number):
+    sprint = Sprint.query.filter_by(number=sprint_number).first()
+    sprint.status = TaskStatus.DONE
+    sprint.end_date = datetime.now().replace(second=0, microsecond=0) # Set start date to current datetime
+    print(sprint.due_date)
+    db.session.commit() # Save database changes
+    live_task_list_refresh() # Push realtime changes to all connected clients
+    return turbo.stream([
+        page_task_panel_show(),
+        page_task_list_refresh(), # Refresh task list
+        page_sprint_edit_show(sprint_number),
+        page_sprint_task_list_refresh()
     ])
     
 @app.route('/sprint/prev/', methods=['POST'])
