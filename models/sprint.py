@@ -15,5 +15,5 @@ class Sprint(db.Model):
     start_date = db.Column(db.DateTime(timezone=True))
     due_date = db.Column(db.DateTime(timezone=True))
     tasks = db.relationship('Task', secondary=sprint_task, backref='sprints')
-    
+    burndown_tracking = db.Column(db.String) 
     
