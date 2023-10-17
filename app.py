@@ -192,12 +192,28 @@ def task_edit(id):
     task.priority = request.form['task_priority'] # Edit priority
     task.status = request.form['task_status'] # Edit status
     task.estimated_effort = request.form['task_estimated_effort'] # Edit estimated effort
+    task.assignee = request.form['task_assignee'] # Edit assignee
     if request.form['task_start_date'] != "": # Ignore empty value
         task.start_date = datetime.strptime(request.form['task_start_date'], '%Y-%m-%dT%H:%M') # Edit start date
     if request.form['task_due_date'] != "": # Ignore empty value
         task.due_date = datetime.strptime(request.form['task_due_date'], '%Y-%m-%dT%H:%M') # Edit due date
-    task.assignee = request.form['task_assignee'] # Edit assignee
     task.hours_taken = request.form['task_hours_taken'] # Edit hours taken
+    db.session.commit() # Save database changes
+    # Overide user current sprint to task's sprint number in case it desyncs from other users' realtime changes
+    if (len(task.sprint) >= 1):
+        User.query.get_or_404(session['user_ref']).current_sprint = task.sprint[0].number
+    sync_current_sprint() # Sync all user's current_sprint to same number
+    turbo.push([ # Push realtime changes to all connected clients
+        page_sprint_area_refresh(),
+        page_task_list_refresh(tasks_show_edit=True), # Backlog page
+        page_task_list_refresh(tasks_show_edit=False), # Index page
+    ])
+    return ('', NO_CONTENT)
+
+@app.route('/task/<int:id>/status/<string:status>', methods=['POST'])
+def task_status(id, status):
+    task = Task.query.get_or_404(id)
+    task.status = TaskStatus[status] # Edit status
     db.session.commit() # Save database changes
     # Overide user current sprint to task's sprint number in case it desyncs from other users' realtime changes
     if (len(task.sprint) >= 1):
@@ -257,7 +273,7 @@ def sprint_edit_view(sprint_number):
 def sprint_edit(sprint_number):
     sprint = Sprint.query.filter_by(number=sprint_number).first()
     sprint.name = request.form['sprint_name'] # Edit name
-    sprint.description = request.form['sprint_description'] # Edit description
+    sprint.goal = request.form['sprint_goal'] # Edit description
     sprint.status = request.form['sprint_status'] # Edit status
     if request.form['sprint_start_date'] != "": # Ignore empty value
         sprint.start_date = datetime.strptime(request.form['sprint_start_date'], '%Y-%m-%dT%H:%M') # Edit start date
@@ -277,7 +293,7 @@ def sprint_edit(sprint_number):
 @app.route('/sprint/add/', methods=['POST'])
 def sprint_add():
     sprint_num = len(Sprint.query.all()) + 1
-    newSprint = Sprint(name=request.form['sprint_name'], number=sprint_num)
+    newSprint = Sprint(name=f"Sprint {sprint_num}", number=sprint_num)
     db.session.add(newSprint)
     project1 = Project.query.get_or_404(1)
     project1.sprints.append(newSprint)

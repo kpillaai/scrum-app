@@ -1,47 +1,74 @@
 <div id="task_list_{{tasks_show_edit}}">
-    <h2>Backlog</h2>
-    <!-- HTML table to display all tasks  -->
-    <table class="table table-responsive">
-        <thead>
-            <tr>
-                <th>No.</th>
-                <th>Task</th>
-                <th>Status</th>
-                {% if tasks_show_edit == True %}
-                    <th>Action</th>
-                {% endif %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for i in range(tasks|length): %}
-                <tr>
-                    <td>{{i+1}}.</td>
-                        <td>
-                            {% if tasks[i].status ==  TaskStatus.DONE %}
-                                <del>
+    <h2 class="mb-2 mt-2">Backlog</h2>
+    <!-- Card to display tasks  -->
+    {% for i in range(tasks|length): %}
+        <div class="card border" style="border: 1px solid lightgrey;border-radius: 3px">
+            <div class="card-body px-3 py-2">
+                <div class="row">
+                    <div class="col col-sm">
+                        {% if tasks[i].status ==  TaskStatus.DONE %}
+                            <del>
+                        {% endif %}
+                            {% if tasks_show_edit == True %}
+                                <a href="/task/edit/view/{{ tasks[i].id }}" data-turbo-method="post" style="text-decoration: none;" class="text-muted stretched-link">
+                                    ST-{{tasks[i].id}}
+                                </a>
+                            {% else %}
+                                ST-{{tasks[i].id}}
                             {% endif %}
-                                {% if tasks_show_edit == True %}
-                                    <a href="/task/edit/view/{{ tasks[i].id }}" data-turbo-method="post" style="text-decoration: none">
-                                        {{ tasks[i].name }}
+                        {% if tasks[i].status ==  TaskStatus.DONE %}
+                            </del>
+                        {% endif %}
+                        &nbsp;
+                        {{ tasks[i].name }}
+                    </div>
+                    <div class="col col-sm-auto">
+                        <div class="dropdown">                    
+                            {% if tasks[i].status ==  TaskStatus.TODO %}
+                                <span class="btn badge bg-secondary" data-bs-toggle="dropdown" aria-expanded="false" style="z-index:3; position:relative;">TO DO</span>
+                            {% elif tasks[i].status ==  TaskStatus.IN_PROGRESS %}
+                                <span class="btn badge bg-warning" data-bs-toggle="dropdown" aria-expanded="false" style="z-index:3; position:relative;">IN PROGRESS</span>
+                            {% elif tasks[i].status ==  TaskStatus.DONE %}
+                                <span class="btn badge bg-success" data-bs-toggle="dropdown" aria-expanded="false" style="z-index:3; position:relative;">DONE</span>
+                            {% endif %}
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="/task/{{tasks[i].id}}/status/TODO" data-turbo-method="post">
+                                        <span class="badge bg-secondary">TO DO</span>
                                     </a>
-                                {% else %}
-                                    {{ tasks[i].name }}
-                                {% endif %}
-                            {% if tasks[i].status ==  TaskStatus.DONE %}
-                                </del>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {{ tasks[i].status.value }}
-                        </td>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="/task/{{tasks[i].id}}/status/IN_PROGRESS" data-turbo-method="post">
+                                        <span class="btn badge bg-warning">IN PROGRESS</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="/task/{{tasks[i].id}}/status/DONE" data-turbo-method="post"> 
+                                        <span class="btn badge bg-success">DONE</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                     {% if tasks_show_edit == True %}
-                        <td>
-                            <a href="/task/sprint/{{sprint.number}}/task/add/{{ tasks[i].id }}" data-turbo-method="post" class="btn btn-custom-primary">Add to sprint</a>
-                            <a href="/task/edit/view/{{ tasks[i].id }}" data-turbo-method="post" class="btn btn-custom-success">Edit</a>
-                            <a href="/task/remove/{{ tasks[i].id }}" data-turbo-method="post" class="btn btn-custom-danger">Remove</a>
-                        </td>
+                        <div class="col col-sm-auto">
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="z-index:3; position:relative;">
+                                    <svg width="20" height="20" fill="currentColor" class="bi bi-three-dots" viewBox="0 0 16 16">
+                                        <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
+                                    </svg>
+                                </button>
+                                <ul class="dropdown-menu">
+                                  <li><a class="dropdown-item" href="/task/sprint/{{sprint.number}}/task/add/{{ tasks[i].id }}" data-turbo-method="post">Add to sprint</a></li>
+                                  <li><a class="dropdown-item" href="/task/edit/view/{{ tasks[i].id }}" data-turbo-method="post">Edit</a></li>
+                                  <li><hr class="dropdown-divider"></li>
+                                  <li><a class="dropdown-item" href="/task/remove/{{ tasks[i].id }}" data-turbo-method="post">Delete</a></li>
+                                </ul>
+                            </div>
+                        </div>
                     {% endif %}
-            {% endfor %}
-        </tbody>
-    </table>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
 </div>
