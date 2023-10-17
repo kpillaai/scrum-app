@@ -15,6 +15,6 @@ class Sprint(db.Model):
     start_date = db.Column(db.DateTime(timezone=True))
     due_date = db.Column(db.DateTime(timezone=True))
     end_date = db.Column(db.DateTime(timezone=True))
-    tasks = db.relationship('Task', secondary=sprint_task, backref='sprints')
+    tasks = db.relationship('Task', secondary=sprint_task, backref='sprint', lazy='joined')
     
     
