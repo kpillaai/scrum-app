@@ -2,7 +2,7 @@
 from flask import Flask, render_template, request, session, redirect, url_for, make_response
 from flask_wtf import FlaskForm
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import InputRequired, ValidationError
 from turbo_flask import Turbo
 from models.task import Task, TaskStatus, db # Import Task database
@@ -55,7 +55,9 @@ class RegisterForm(FlaskForm):
     phone_number = StringField(render_kw={"placeholder": "Phone Number (Optional)"})
     email = StringField(validators=[InputRequired()], render_kw={"placeholder": "Email"})
     password = StringField(validators=[InputRequired()], render_kw={"placeholder": "Password"})
+    admin = BooleanField()
     submit = SubmitField("Register")
+    
 
     def validate_email(self, email):
         existing_user_email = User.query.filter_by(email=email.data).first()
@@ -128,13 +130,26 @@ def page_sprint_edit_show(sprint_number):
     return turbo.replace(render_template('sprint_edit.html', sprint=sprint, TaskStatus=TaskStatus, sprint_count=sprint_count), target="task_panel")
 
 def page_team_refresh():
-    return turbo.replace(render_template('teams.html', teams=Team.query.all(), users = User.query.all()), target="page_content")
+    print(current_user.role)
+    if current_user.role == RoleType.ADMIN:
+        admin = True
+    else:
+        admin = False
+    return turbo.replace(render_template('teams.html', teams=Team.query.all(), users = User.query.all(), admin=admin), target="page_content") 
 
 def page_team_list_show():
-    return turbo.replace(render_template('team_list.html', users=User.query.all(),teams=Team.query.all()), target="team_list")
+    if current_user.role == RoleType.ADMIN:
+        admin = True
+    else:
+        admin = False
+    return turbo.replace(render_template('team_list.html', users=User.query.all(),teams=Team.query.all(), admin=admin), target="team_list")
 
 def page_user_list_show():
-    return turbo.replace(render_template('user_list.html', teams=Team.query.all(), users=User.query.all()), target="user_list")
+    if current_user.role == RoleType.ADMIN:
+        admin = True
+    else:
+        admin = False
+    return turbo.replace(render_template('user_list.html', teams=Team.query.all(), users=User.query.all(), admin=admin), target="user_list")
 # Routes
 @app.route('/', methods=['GET'])
 @login_required
@@ -379,7 +394,12 @@ def register():
     form = RegisterForm()
 
     if form.validate_on_submit():
-        new_user = User(name=form.name.data, phone_number=form.phone_number.data, email=form.email.data, password=form.password.data)
+        if form.admin.data:
+            user_role = RoleType.ADMIN
+        else:
+            user_role = RoleType.MEMBER
+
+        new_user = User(name=form.name.data, phone_number=form.phone_number.data, email=form.email.data, password=form.password.data, role=user_role)
         db.session.add(new_user)
         db.session.commit()
         return redirect(url_for('login'))
