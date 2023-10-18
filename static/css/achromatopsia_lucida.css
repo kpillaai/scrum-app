@@ -1,0 +1,81 @@
+header {
+    background: #000000
+}
+
+body {
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif !important;
+}
+
+.nav-container {
+    width: 100%;
+    margin: 0px;
+    display: flex;
+    justify-content: space-between;
+}
+
+nav li {
+    color: #1E88E5;
+    display: inline-block;
+    margin-left: 0px;
+    margin-right: 30px;
+    padding-top: 20px;
+    padding-bottom: 10px;
+}
+
+nav a {
+    color: #FFFFFF !important;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 17px;
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+.container{
+    width: 100%;
+    min-height: 10vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.draggable{
+    cursor: move;
+}
+.container th, .container td {
+    text-align: left;
+}
+#accordion {
+    width: 100%;
+}
+
+.btn-custom-primary {
+    background-color: #000000 !important; /* Change the primary button background color */
+    color: #fff !important; /* Change the text color for the primary button */
+}
+
+.btn-custom-success {
+    background-color: #000000 !important; /* Change the success button background color */
+    color: #fff !important; /* Change the text color for the success button */
+}
+
+.btn-custom-danger {
+    background-color: #000000 !important; /* Change the danger button background color */
+    color: white !important; /* Change the text color for the danger button */
+}
+
+.dashboard-link {
+    color: #000 !important;
+}
+
+.backlog-link {
+    color: #000 !important;
+}
+
+.teams-link {
+    color: #000 !important;
+}
+
+a {
+    color: black !important;
+    text-decoration: underline !important;
+}
