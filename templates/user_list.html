@@ -9,7 +9,9 @@
         <tr>
             <th>ID</th>
             <th>Name</th>
+            {% if admin %} 
             <th>Team Selection</th>
+            {%- endif %} 
         </tr>
     </thead>
     <tbody>
@@ -18,7 +20,7 @@
                 <td>{{users[i].id}}</td>
                 <td>{{users[i].name}}</td>
                 
-                <td>
+                <td>{% if admin %} 
                     <form action="/teams/move/{{users[i].id}}" method="POST" id="move_user_{{users[i].id}}">
                         <label class="form-label" for="teams_select_{{users[i].id}}" ></label>
                     <select id="teams_select_{{users[i].id}}" name="teams_select_{{users[i].id}}" class="form-select"> 
@@ -30,6 +32,7 @@
                     
                     <td><button class="btn btn-custom-primary" onclick="document.querySelector('#move_user_{{users[i].id}}').requestSubmit()">Add to Team</button></td>
                     </form>
+                    {%- endif %} 
                 </td>
                 
             </tr>
