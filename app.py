@@ -139,6 +139,12 @@ def index():
     tasks = Task.query.filter_by(in_sprint=False).all() # Get all Tasks in database (query)
     return render_template('index.html', tasks=tasks, tasks_show_edit=False, TaskStatus=TaskStatus, users = User.query.all())
 
+@app.route('/dashboard', methods=['POST'])
+@login_required
+def dashboard():
+    tasks = Task.query.filter_by(in_sprint=False).all() # Get all Tasks in database (query)
+    return turbo.stream(turbo.replace(render_template('dashboard.html', tasks=tasks, tasks_show_edit=False, TaskStatus=TaskStatus, users = User.query.all()), target='page_content'))
+
 @app.route('/backlog', methods=['POST'])
 @login_required
 def backlog():
@@ -213,6 +219,12 @@ def task_edit(id):
 @app.route('/task/<int:id>/status/<string:status>', methods=['POST'])
 def task_status(id, status):
     task = Task.query.get_or_404(id)
+    if (status == "checkbox"):
+        if task.status != TaskStatus.DONE:
+            task.status_prev = task.status
+            status = "DONE"
+        else:
+            status = task.status_prev.name  
     task.status = TaskStatus[status] # Edit status
     db.session.commit() # Save database changes
     # Overide user current sprint to task's sprint number in case it desyncs from other users' realtime changes
