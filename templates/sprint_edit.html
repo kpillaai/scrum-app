@@ -5,14 +5,14 @@
     </h2>
     &nbsp;&nbsp;
     <h3 style="display: inline;">
-      <form action="/task/panel/hide/" method="POST" style="display: inline;">
-        <button type="submit" class="btn-close">&nbsp;</button>
-      </form>
-      <form action="/burndown/{{sprint.id}}" method="POST" style="display: inline;">
-        <button type="submit">Burndown</button>
-      </form>
       <span class="badge bg-secondary">#{{sprint.number}}</span>
     </h3>
+    &nbsp;&nbsp;&nbsp;
+    <a href="/burndown/{{sprint.id}}" data-turbo-method="post">
+      <svg width="31" height="31" class="bi bi-graph-down-arrow" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0Zm10 11.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 0-1 0v2.6l-3.613-4.417a.5.5 0 0 0-.74-.037L7.06 8.233 3.404 3.206a.5.5 0 0 0-.808.588l4 5.5a.5.5 0 0 0 .758.06l2.609-2.61L13.445 11H10.5a.5.5 0 0 0-.5.5Z"/>
+      </svg>
+    </a>
     <div class="col text-end align-items-center">
       <a href="/task/panel/hide/" data-turbo-method="post">
         <svg width="64" height="64" class="bi bi-x" viewBox="0 0 16 16">
