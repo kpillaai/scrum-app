@@ -2,6 +2,7 @@
 <html>
 
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css')}}">
@@ -25,7 +26,9 @@
     <!-- Navigation/menu bar -->
     <nav class="nav-container">
         <ul class="right-side">
-            <img src="{{url_for('static',filename='logo.png')}}" width="55" height="55"/>
+        <div class="image-container">
+            <a href="{{url_for('index') }}"><img src="{{url_for('static',filename='logo.png')}}" width="80" height="80"/></a>
+        </div>
         </ul>
 
         <ul class="left-side">

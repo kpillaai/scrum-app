@@ -250,17 +250,16 @@ def task_reorder(task_type):
     tasks = Task.query.all() # Get all Tasks (backlog) in database (query)
     user = User.query.get_or_404(session['user_ref'])
     sprint = Sprint.query.filter_by(number=user.current_sprint).first()
-    
     for i in range(len(sort_order)):
         for task in tasks:
             if int(task.id) == int(sort_order[i]):
                 if (task_type == "backlog") and (task.in_sprint == True): # Remove from sprint if in sprint
                     sprint_task_remove(sprint.number, task.id, refresh=False)
-                elif (task_type == "sprint") and (task.in_sprint == False):
+                elif (task_type == "sprint") and (task.in_sprint == False): # Add to sprint if in backlog
                     sprint_task_add(sprint.number, task.id, refresh=False)
                 task.order = i+1
                 break
-    db.session.commit()
+    db.session.commit() # Save changes to db
     # Overide user current sprint to task's sprint number in case it desyncs from other users' realtime changes
     if (len(task.sprint) >= 1):
         User.query.get_or_404(session['user_ref']).current_sprint = task.sprint[0].number
