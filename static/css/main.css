@@ -67,3 +67,6 @@ nav a {
     background-color: rgb(251, 251, 251);
     opacity: 0.85;
 }
+/* ::-webkit-scrollbar {
+    display: none;
+} */
