@@ -360,6 +360,8 @@ def sprint_add():
 @app.route('/sprint/remove/<int:sprint_number>', methods=['POST'])
 def sprint_remove(sprint_number):
     sprint = Sprint.query.filter_by(number=sprint_number).first()
+    for task in sprint.tasks: # Delete all tasks in the sprint
+        db.session.delete(task) # Delete task from Task database
     db.session.delete(sprint) # Delete task from Task database
     project1 = Project.query.get_or_404(1)
     db.session.commit()
