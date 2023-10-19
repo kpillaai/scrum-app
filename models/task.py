@@ -10,6 +10,7 @@ class TaskStatus(Enum):
     
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False) # unique id for each task
+    order = db.Column(db.Integer) # Used to track the order of displaying tasks
     name = db.Column(db.String)
     description = db.Column(db.String, default="")
     priority = db.Column(db.Integer, unique=False)
