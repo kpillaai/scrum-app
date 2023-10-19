@@ -1,6 +1,9 @@
 <div id="task_edit">
-  <h2 style="display: inline;">
-    Edit Sprint #{{sprint.number}}
+  <div class="col d-flex align-items-center">
+    <h2 style="display: inline;">
+      Sprint 
+    </h2>
+    &nbsp;&nbsp;
     <h3 style="display: inline;">
       <form action="/task/panel/hide/" method="POST" style="display: inline;">
         <button type="submit" class="btn-close">&nbsp;</button>
@@ -8,26 +11,49 @@
       <form action="/burndown/{{sprint.id}}" method="POST" style="display: inline;">
         <button type="submit">Burndown</button>
       </form>
+      <span class="badge bg-secondary">#{{sprint.number}}</span>
     </h3>
-  </h2>
+    <div class="col text-end align-items-center">
+      <a href="/task/panel/hide/" data-turbo-method="post">
+        <svg width="64" height="64" class="bi bi-x" viewBox="0 0 16 16">
+          <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+        </svg>
+      </a>
+    </div>
+  </div>  
   <div id="sprint_{{sprint.number}}">
     <form class="mb-1 mt-1" action="/sprint/edit/{{ sprint.number }}" method="POST" onchange="this.requestSubmit()">
-        <label for="sprint_name" class="form-label">Name:</label>
+      <div class="mb-2">
+        <label for="sprint_name" class="form-label"><b>Name:</b></label>
         <input type="text" name="sprint_name" class="form-control" required="true" value="{{sprint.name}}"/>
-        <label for="sprint_description" class="form-label">Description:</label>
-        <input type="text" name="sprint_description" class="form-control" value="{{sprint.description}}"/>
-      <label for="sprint_status" class="form-label">Status:</label>
+      </div>
+      <div class="mb-2">
+        <label for="sprint_goal" class="form-label"><b>Sprint Goal:</b></label>
+        <textarea type="text" name="sprint_goal" class="form-control">{{sprint.goal}}</textarea>
+      </div>
+      <div class="mb-2">
+        <label for="sprint_status" class="form-label"><b>Status:</b></label>
         <select class="form-select" name="sprint_status">
           {% for status in TaskStatus: %}
               <option value="{{status.name}}" {% if sprint.status == status %} selected {% endif %}>{{status.value}}</option>
           {% endfor %}
         </select>
-        <label for="sprint_start_date" class="form-label">Start Date:</label>
+      </div>
+      <div class="mb-2">
+        <label for="sprint_start_date" class="form-label"><b>Start Date:</b></label>
         <input type="datetime-local" name="sprint_start_date" class="form-control" value="{{sprint.start_date}}"/>
-        <label for="sprint_due_date" class="form-label">End Date:</label>
+      </div>
+      <div class="mb-2">
+        <label for="sprint_due_date" class="form-label"><b>Due Date:</b></label>
         <input type="datetime-local" name="sprint_due_date" class="form-control" value="{{sprint.due_date}}"/>
-        <a class="btn btn-custom-success" href="/task/panel/hide/" data-turbo-method="post">Update</a>
-        <a href="/sprint/remove/{{ sprint.number }}" data-turbo-method="post" class="btn btn-custom-danger {% if sprint.number <= 1 %} disabled {% endif %}">Remove</a>
+      </div>
+      <div class="mb-2">
+        <label for="sprint_end_date" class="form-label"><b>End Date:</b></label>
+        <input type="datetime-local" name="sprint_end_date" class="form-control" value="{{sprint.end_date}}"/>
+      </div>
+      <br />
+      <a class="btn btn-custom-success" href="/task/panel/hide/" data-turbo-method="post"><b>Update</b></a>
+      <a class="btn btn-custom-danger {% if sprint.number <= 1 %} disabled {% endif %}" href="/sprint/remove/{{ sprint.number }}" data-turbo-method="post"><b>Remove</b></a>
     </form>
   </div>
 </div>

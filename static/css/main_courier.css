@@ -2,6 +2,10 @@ header {
     background: #2EBA79
 }
 
+body {
+    font-family: 'Courier New', Courier, monospace !important;
+}
+
 .nav-container {
     width: 100%;
     margin: 0px;
@@ -64,15 +68,3 @@ nav a {
     background-color: red !important; /* Change the danger button background color */
     color: white !important; /* Change the text color for the danger button */
 }
-
-
-.hover-effect:hover {
-    background-color: rgb(253, 253, 253);
-}
-.hover-effect-checkbox:hover {
-    background-color: rgb(251, 251, 251);
-    opacity: 0.85;
-}
-/* ::-webkit-scrollbar {
-    display: none;
-} */

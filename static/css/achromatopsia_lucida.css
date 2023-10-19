@@ -1,5 +1,9 @@
 header {
-    background: #2EBA79
+    background: #000000
+}
+
+body {
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif !important;
 }
 
 .nav-container {
@@ -25,7 +29,7 @@ nav li {
 }
 
 nav a {
-    color: #000;
+    color: #FFFFFF !important;
     text-decoration: none;
     text-transform: uppercase;
     font-size: 17px;
@@ -51,28 +55,33 @@ nav a {
 }
 
 .btn-custom-primary {
-    background-color: #0d6efd !important; /* Change the primary button background color */
+    background-color: #000000 !important; /* Change the primary button background color */
     color: #fff !important; /* Change the text color for the primary button */
 }
 
 .btn-custom-success {
-    background-color: green !important; /* Change the success button background color */
+    background-color: #000000 !important; /* Change the success button background color */
     color: #fff !important; /* Change the text color for the success button */
 }
 
 .btn-custom-danger {
-    background-color: red !important; /* Change the danger button background color */
+    background-color: #000000 !important; /* Change the danger button background color */
     color: white !important; /* Change the text color for the danger button */
 }
 
+.dashboard-link {
+    color: #000 !important;
+}
 
-.hover-effect:hover {
-    background-color: rgb(253, 253, 253);
+.backlog-link {
+    color: #000 !important;
 }
-.hover-effect-checkbox:hover {
-    background-color: rgb(251, 251, 251);
-    opacity: 0.85;
+
+.teams-link {
+    color: #000 !important;
 }
-/* ::-webkit-scrollbar {
-    display: none;
-} */
+
+a {
+    color: black !important;
+    text-decoration: underline !important;
+}

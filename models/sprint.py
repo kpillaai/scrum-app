@@ -9,11 +9,14 @@ sprint_task = db.Table('sprint_task',
 class Sprint(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False) # unique id for each sprint
     name = db.Column(db.String)
-    description = db.Column(db.String, default="")
+    goal = db.Column(db.String, default="")
     number = db.Column(db.Integer, unique=False)
     status = db.Column(db.Enum(TaskStatus), default=TaskStatus.TODO) # from TaskStatus, either TODO, IN_PROGRESS or DONE
     start_date = db.Column(db.DateTime(timezone=True))
     due_date = db.Column(db.DateTime(timezone=True))
-    tasks = db.relationship('Task', secondary=sprint_task, backref='sprints')
     burndown_tracking = db.Column(db.String) 
+    end_date = db.Column(db.DateTime(timezone=True))
+    tasks = db.relationship('Task', secondary=sprint_task, backref='sprint', lazy='joined')
+    
+>>>>>>> models/sprint.py
     
