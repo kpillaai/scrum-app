@@ -10,8 +10,9 @@ from models.user import User, RoleType
 from models.team import Team
 from models.sprint import Sprint # Import Sprint database
 from models.project import Project # Import Project database
-from datetime import datetime
-import time
+import json
+
+from datetime import datetime, date, timedelta
 
 # Variables 
 NO_CONTENT = 204 # Status Code
@@ -131,6 +132,12 @@ def page_team_list_show():
 def page_user_list_show():
     return turbo.replace(render_template('user_list.html', teams=Team.query.all(), users=User.query.all()), target="user_list")
 
+def page_burndown_show(sprint_id, labels, values, optimal):
+    sprint = Sprint.query.filter_by(id=sprint_id).first()
+    print(sprint_id, values, labels)
+    return turbo.replace(render_template('burndown.html', labels=labels, values=values, optimal=optimal), target="page_content")
+    
+    
 # Routes
 @app.route('/', methods=['GET'])
 @login_required
@@ -202,6 +209,40 @@ def task_edit(id):
     task.name = request.form['task_name'] # Edit name
     task.description = request.form['task_description'] # Edit description
     task.priority = request.form['task_priority'] # Edit priority
+    
+    # If a task is edited in a sprint, update sprint tracking for burndown
+    sprints = Sprint.query.all()
+    curr_sprint = None
+    for sprint in sprints:
+        if task in sprint.tasks:
+            curr_sprint = sprint
+    status_before = None
+    status_after = None
+    if task.status != request.form['task_status']:
+        date_modified = datetime.today().strftime('%m-%d')
+        if str(task.status) == str("TaskStatus.TODO"):
+            status_before = 1
+        elif str(task.status) == str("TaskStatus.IN_PROGRESS"):
+            status_before = 0.5
+        elif str(task.status) == str("TaskStatus.DONE"):
+            status_before = 0
+        
+        if str(request.form['task_status']) == str("TODO"):
+            status_after = 1
+        elif str(request.form['task_status']) == str("IN_PROGRESS"):
+            status_after = 0.5
+        elif str(request.form['task_status']) == str("DONE"):
+            status_after = 0          
+        
+        if curr_sprint is not None:
+            if curr_sprint.burndown_tracking is not None:
+                nested_array = json.loads(curr_sprint.burndown_tracking)
+                nested_array.append([date_modified, status_before, status_after])
+                curr_sprint.burndown_tracking = json.dumps(nested_array)
+            else:
+                curr_sprint.burndown_tracking = json.dumps([[date_modified, status_before, status_after]])
+        
+    
     task.status = request.form['task_status'] # Edit status
     task.estimated_effort = request.form['task_estimated_effort'] # Edit estimated effort
     task.assignee = request.form['task_assignee'] # Edit assignee
@@ -563,6 +604,42 @@ def myteams():
     return turbo.stream([turbo.replace(render_template('myteams.html'), target="page_content"), \
         turbo.replace(render_template('team_list.html', users=User.query.all(),teams=my_teams), target="team_list")])
 
+@app.route('/burndown/<int:sprint_id>', methods=['POST'])
+def burndown(sprint_id):
+    curr_sprint = Sprint.query.filter_by(number=sprint_id).first()
+    start_date = curr_sprint.start_date
+    end_date = curr_sprint.due_date
+    delta = timedelta(days=1)
+    curr_date = start_date
+    labels = []
+    if curr_date == None or end_date == None or start_date == None:
+        return turbo.stream([page_burndown_show(sprint_id, ["No start or end dates"], [100], [100])])
+    while curr_date <= end_date:
+        labels.append(curr_date.strftime("%m") + "-" + curr_date.strftime("%d"))
+        curr_date += delta
+        
+    step = 100 / (len(labels) - 1)
+    optimal = [100 - i * step for i in range(len(labels))]
+    actual = [100] * len(labels)
+    
+
+    if curr_sprint.burndown_tracking is None:
+        return turbo.stream([page_burndown_show(sprint_id, labels, [100] * len(labels), optimal)])
+    
+    total_tasks = len(curr_sprint.tasks)
+    task_history = json.loads(curr_sprint.burndown_tracking)
+    actual_raw = [total_tasks] * len(labels)
+    for tasks in task_history:
+        edit_date = tasks[0]
+        burndown_change = tasks[1] - tasks[2]
+        index = labels.index(edit_date)
+        for i in range(index, len(labels)):
+            actual_raw[i] = actual_raw[i] - burndown_change
+    
+    for j in range(len(actual_raw)):
+        actual[j] = actual_raw[j] * 100 / total_tasks
+    
+    return turbo.stream([page_burndown_show(sprint_id, labels, actual, optimal)])
 
 @app.errorhandler(404)
 def not_found(error):
