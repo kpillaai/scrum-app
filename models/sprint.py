@@ -18,5 +18,4 @@ class Sprint(db.Model):
     end_date = db.Column(db.DateTime(timezone=True))
     tasks = db.relationship('Task', secondary=sprint_task, backref='sprint', lazy='joined')
     
->>>>>>> models/sprint.py
     
