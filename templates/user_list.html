@@ -45,8 +45,19 @@
                     </td>
                     {%- endif %} 
                     {% if notaccountpage == False %}
-                    <td>{{users[i].email}}</td>
-                    <td>{{users[i].phone_number}}</td>
+                    <td>{{users[i].email}}
+                        <form method="POST" action="/users/edit/{{users[i].id}}/1">
+                            <label for="email_change"></label>
+                            <input type="text" id="email_change" name="email_change">
+                            
+                            <button method="post">Change Email</button>
+                        </form></td>
+                    <td>{{users[i].phone_number}}
+                        <form method="POST" action="/users/edit/{{users[i].id}}/2">
+                            <label for="phone_change"></label>
+                            <input type="text" id="phone_change" name="phone_change">
+                            <button method="post">Change Phone Number</button>
+                        </form></td>
                     <td>
                         <form class="form-inline" action="/users/delete/{{users[i].id}}" method="POST">
                              

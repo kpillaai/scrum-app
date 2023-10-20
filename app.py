@@ -75,8 +75,16 @@ class TeamForm(FlaskForm):
 
 class UserForm(FlaskForm):
     password = StringField(validators=[InputRequired()], render_kw={"placeholder": "New Password"})
-
     submit = SubmitField("Change Password")
+
+class UserEditForm1(FlaskForm):
+    email = StringField(validators=[InputRequired()], render_kw={"placeholder": "New Email"})
+    submit = SubmitField("Change Email")
+
+class UserEditForm2(FlaskForm):
+    phone_number = StringField(validators=[InputRequired()], render_kw={"placeholder": "New Phone Number"})
+
+    submit = SubmitField("Change Phone Number")
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -149,7 +157,10 @@ def page_user_list_show():
         admin = True
     else:
         admin = False
+
     return turbo.replace(render_template('user_list.html', teams=Team.query.all(), users=User.query.all(), admin=admin, notaccountpage=True), target="user_list")
+
+
 # Routes
 @app.route('/', methods=['GET'])
 @login_required
@@ -450,7 +461,7 @@ def account():
         user_to_update.password = form.password.data
         db.session.commit()
         return redirect(url_for('account'))
-
+    
     return render_template('account.html', form=form, admin=admin, notaccountpage=False, users=User.query.all())
 
 @app.route('/set')
@@ -473,10 +484,7 @@ def users_delete(id):
     db.session.delete(user) 
     db.session.commit()
     if isinstance(current_user, User):
-        if current_user.role == RoleType.ADMIN:
-            admin = True
-        else:
-            admin = False
+        pass
     else:
         return redirect(url_for('login'))
     form = UserForm()
@@ -484,6 +492,36 @@ def users_delete(id):
     if form.validate_on_submit():
         user_to_update = User.query.get_or_404(id)
         user_to_update.password = form.password.data
+        db.session.commit()
+        return redirect(url_for('account'))
+    
+    return redirect(url_for('account'))
+
+@app.route('/users/edit/<int:id>/<int:val>', methods=['GET', 'POST'])
+def users_edit(id, val):
+    if isinstance(current_user, User):
+        if current_user.role == RoleType.ADMIN:
+            admin = True
+        else:
+            admin = False
+    else:
+        return redirect(url_for('login'))
+    form = UserForm()
+    id2 = current_user.id
+    if form.validate_on_submit():
+        user_to_update = User.query.get_or_404(id2)
+        user_to_update.password = form.password.data
+        db.session.commit()
+        return redirect(url_for('account'))
+    if val == 1:
+        user_to_update = User.query.get_or_404(id)
+        print(request.form.get("email_change"))
+        user_to_update.email = request.form.get("email_change")
+        db.session.commit()
+        return redirect(url_for('account'))
+    if val == 2:
+        user_to_update = User.query.get_or_404(id)
+        user_to_update.phone_number = request.form.get("phone_change")
         db.session.commit()
         return redirect(url_for('account'))
     return turbo.stream([page_user_list_show(), turbo.replace(render_template('account.html', form=form, admin=admin, notaccountpage=False, users=User.query.all()),target="page_content")])
