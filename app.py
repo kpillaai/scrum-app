@@ -276,7 +276,7 @@ def task_edit(id):
     if request.form['task_start_date'] != "": # Ignore empty value
         task.start_date = datetime.strptime(request.form['task_start_date'], '%Y-%m-%dT%H:%M') # Edit start date
     if request.form['task_end_date'] != "": # Ignore empty value
-        task.end_date = datetime.strptime(request.form['task_end_date'], '%Y-%m-%dT%H:%M') # Edit due date
+        task.end_date = datetime.strptime(request.form['task_end_date'], '%Y-%m-%dT%H:%M') # Edit end date
     task.hours_taken = request.form['task_hours_taken'] # Edit hours taken
     db.session.commit() # Save database changes
     # Overide user current sprint to task's sprint number in case it desyncs from other users' realtime changes
@@ -476,8 +476,6 @@ def sprint_edit(sprint_number):
     sprint.status = request.form['sprint_status'] # Edit status
     if request.form['sprint_start_date'] != "": # Ignore empty value
         sprint.start_date = datetime.strptime(request.form['sprint_start_date'], '%Y-%m-%dT%H:%M') # Edit start date
-    if request.form['sprint_end_date'] != "": # Ignore empty value
-        sprint.end_date = datetime.strptime(request.form['sprint_end_date'], '%Y-%m-%dT%H:%M') # Edit due date
     if request.form['sprint_end_date'] != "": # Ignore empty value
         sprint.end_date = datetime.strptime(request.form['sprint_end_date'], '%Y-%m-%dT%H:%M') # Edit end date
     db.session.commit() # Save database changes
