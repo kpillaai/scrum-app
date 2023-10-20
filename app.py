@@ -732,6 +732,9 @@ def burndown(sprint_id):
         labels.append(curr_date.strftime("%m") + "-" + curr_date.strftime("%d"))
         curr_date += delta
         
+    if len(labels) <= 1:
+        return turbo.stream([page_burndown_show(sprint_id, ["Start and end dates are too close"], [100], [100])])
+    
     step = 100 / (len(labels) - 1)
     optimal = [100 - i * step for i in range(len(labels))]
     actual = [100] * len(labels)
