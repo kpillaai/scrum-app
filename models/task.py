@@ -16,7 +16,7 @@ class Task(db.Model):
     priority = db.Column(db.Integer, unique=False)
     status = db.Column(db.Enum(TaskStatus), default=TaskStatus.TODO) # from TaskStatus, either TODO, IN_PROGRESS or DONE
     status_prev = db.Column(db.Enum(TaskStatus), default=TaskStatus.TODO) # from TaskStatus, either TODO, IN_PROGRESS or DONE
-    estimated_effort = db.Column(db.Integer)
+    estimated_effort = db.Column(db.Integer, default=1)
     start_date = db.Column(db.DateTime(timezone=True))
     due_date = db.Column(db.DateTime(timezone=True))
     assignee =  db.Column(db.Integer, db.ForeignKey('a_user.id')) # ForeignKey = reference to another db table (id)

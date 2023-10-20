@@ -221,16 +221,16 @@ def task_edit(id):
     if task.status != request.form['task_status']:
         date_modified = datetime.today().strftime('%m-%d')
         if str(task.status) == str("TaskStatus.TODO"):
-            status_before = 1
+            status_before = task.estimated_effort
         elif str(task.status) == str("TaskStatus.IN_PROGRESS"):
-            status_before = 0.5
+            status_before = task.estimated_effort
         elif str(task.status) == str("TaskStatus.DONE"):
             status_before = 0
         
         if str(request.form['task_status']) == str("TODO"):
-            status_after = 1
+            status_after = task.estimated_effort
         elif str(request.form['task_status']) == str("IN_PROGRESS"):
-            status_after = 0.5
+            status_after = task.estimated_effort
         elif str(request.form['task_status']) == str("DONE"):
             status_after = 0          
         
@@ -266,6 +266,38 @@ def task_edit(id):
 @app.route('/task/<int:id>/status/<string:status>', methods=['POST'])
 def task_status(id, status):
     task = Task.query.get_or_404(id)
+    #Updates burndown tracking
+    sprints = Sprint.query.all()
+    curr_sprint = None
+    for sprint in sprints:
+        if task in sprint.tasks:
+            curr_sprint = sprint
+    status_before = None
+    status_after = None
+    if str(task.status) != "TaskStatus." + str(status):
+        date_modified = datetime.today().strftime('%m-%d')
+        if str(task.status) == str("TaskStatus.TODO"):
+            status_before = task.estimated_effort
+        elif str(task.status) == str("TaskStatus.IN_PROGRESS"):
+            status_before = task.estimated_effort
+        elif str(task.status) == str("TaskStatus.DONE"):
+            status_before = 0
+        
+        if str(status) == str("TODO"):
+            status_after = task.estimated_effort
+        elif str(status) == str("IN_PROGRESS"):
+            status_after = task.estimated_effort
+        elif str(status) == str("DONE"):
+            status_after = 0          
+        
+        if curr_sprint is not None:
+            if curr_sprint.burndown_tracking is not None:
+                nested_array = json.loads(curr_sprint.burndown_tracking)
+                nested_array.append([date_modified, status_before, status_after])
+                curr_sprint.burndown_tracking = json.dumps(nested_array)
+            else:
+                curr_sprint.burndown_tracking = json.dumps([[date_modified, status_before, status_after]])
+    
     if (status == "checkbox"):
         if task.status != TaskStatus.DONE:
             task.status_prev = task.status
@@ -626,9 +658,12 @@ def burndown(sprint_id):
     if curr_sprint.burndown_tracking is None:
         return turbo.stream([page_burndown_show(sprint_id, labels, [100] * len(labels), optimal)])
     
-    total_tasks = len(curr_sprint.tasks)
+    total_effort = 0
+    for task in curr_sprint.tasks:
+        total_effort = total_effort + task.estimated_effort
+    
     task_history = json.loads(curr_sprint.burndown_tracking)
-    actual_raw = [total_tasks] * len(labels)
+    actual_raw = [total_effort] * len(labels)
     for tasks in task_history:
         edit_date = tasks[0]
         burndown_change = tasks[1] - tasks[2]
@@ -637,7 +672,7 @@ def burndown(sprint_id):
             actual_raw[i] = actual_raw[i] - burndown_change
     
     for j in range(len(actual_raw)):
-        actual[j] = actual_raw[j] * 100 / total_tasks
+        actual[j] = actual_raw[j] * 100 / total_effort
     
     return turbo.stream([page_burndown_show(sprint_id, labels, actual, optimal)])
 
