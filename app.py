@@ -275,8 +275,8 @@ def task_edit(id):
     task.assignee = request.form['task_assignee'] # Edit assignee
     if request.form['task_start_date'] != "": # Ignore empty value
         task.start_date = datetime.strptime(request.form['task_start_date'], '%Y-%m-%dT%H:%M') # Edit start date
-    if request.form['task_due_date'] != "": # Ignore empty value
-        task.due_date = datetime.strptime(request.form['task_due_date'], '%Y-%m-%dT%H:%M') # Edit due date
+    if request.form['task_end_date'] != "": # Ignore empty value
+        task.end_date = datetime.strptime(request.form['task_end_date'], '%Y-%m-%dT%H:%M') # Edit end date
     task.hours_taken = request.form['task_hours_taken'] # Edit hours taken
     db.session.commit() # Save database changes
     # Overide user current sprint to task's sprint number in case it desyncs from other users' realtime changes
@@ -476,8 +476,6 @@ def sprint_edit(sprint_number):
     sprint.status = request.form['sprint_status'] # Edit status
     if request.form['sprint_start_date'] != "": # Ignore empty value
         sprint.start_date = datetime.strptime(request.form['sprint_start_date'], '%Y-%m-%dT%H:%M') # Edit start date
-    if request.form['sprint_due_date'] != "": # Ignore empty value
-        sprint.due_date = datetime.strptime(request.form['sprint_due_date'], '%Y-%m-%dT%H:%M') # Edit due date
     if request.form['sprint_end_date'] != "": # Ignore empty value
         sprint.end_date = datetime.strptime(request.form['sprint_end_date'], '%Y-%m-%dT%H:%M') # Edit end date
     db.session.commit() # Save database changes
@@ -537,7 +535,8 @@ def sprint_remove(sprint_number):
 def sprint_start(sprint_number):
     sprint = Sprint.query.filter_by(number=sprint_number).first()
     sprint.status = TaskStatus.IN_PROGRESS
-    sprint.start_date = datetime.now().replace(second=0, microsecond=0) # Set start date to current datetime
+    if (not sprint.start_date): # Ignore setting to current datetime if already been set
+        sprint.start_date = datetime.now().replace(second=0, microsecond=0) # Set start date to current datetime
     print(sprint.start_date)
     db.session.commit() # Save database changes
     sync_current_sprint() # Sync all user's current_sprint to same number    
@@ -553,8 +552,8 @@ def sprint_start(sprint_number):
 def sprint_stop(sprint_number):
     sprint = Sprint.query.filter_by(number=sprint_number).first()
     sprint.status = TaskStatus.DONE
-    sprint.end_date = datetime.now().replace(second=0, microsecond=0) # Set start date to current datetime
-    print(sprint.due_date)
+    if (not sprint.end_date): # Ignore setting to current datetime if already been set
+        sprint.end_date = datetime.now().replace(second=0, microsecond=0) # Set start date to current datetime
     db.session.commit() # Save database changes
     sync_current_sprint() # Sync all user's current_sprint to same number
     turbo.push([ # Push realtime changes to all connected clients
@@ -723,7 +722,7 @@ def myteams():
 def burndown(sprint_id):
     curr_sprint = Sprint.query.filter_by(number=sprint_id).first()
     start_date = curr_sprint.start_date
-    end_date = curr_sprint.due_date
+    end_date = curr_sprint.end_date
     delta = timedelta(days=1)
     curr_date = start_date
     labels = []
