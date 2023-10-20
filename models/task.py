@@ -18,7 +18,6 @@ class Task(db.Model):
     status_prev = db.Column(db.Enum(TaskStatus), default=TaskStatus.TODO) # from TaskStatus, either TODO, IN_PROGRESS or DONE
     status_order = db.Column(db.Integer, default=0) # Used to track the order of displaying tasks
     estimated_effort = db.Column(db.Integer, default=1)
-    estimated_effort = db.Column(db.Integer)
     start_date = db.Column(db.DateTime(timezone=True))
     due_date = db.Column(db.DateTime(timezone=True))
     assignee =  db.Column(db.Integer, db.ForeignKey('a_user.id')) # ForeignKey = reference to another db table (id)
