@@ -25,15 +25,16 @@
                 <div class="col text-end align-items-center">
                     <h6>
                         <a class="btn btn-sm btn-secondary {% if sprint.number <= 1 %} disabled {% endif %}" href="/sprint/prev/" data-turbo-method="post"><b> < </b></a>
+                        <span class="btn btn-sm btn-secondary disabled"><b>#{{sprint.number}}</b></span>
                         <a class="btn btn-sm btn-secondary {% if sprint.number >= sprint_count %} disabled {% endif %}" href="/sprint/next/" data-turbo-method="post"><b> > </b></a>
-                        <b>&nbsp;#{{sprint.number}}</b>
+                        <!-- <b>&nbsp;#{{sprint.number}}</b> -->
                     </h6>
                 </div>
             </div>
             <p class="text-secondary fst-light fs-6">{{sprint.goal}}</p>
             <!-- Card to display tasks  -->
             <div class="card border" style="border: 1px solid lightgrey;border-radius: 3px">
-                <ul id="tasks_sprint_sortable" class="list-group list-group-flush connectedSortable" style="min-height: 32px;">
+                <ul id="tasks_sprint_sortable" class="list-group list-group-flush tasksConnectedSortable" style="min-height: 32px;">
                     {% for i in range(sprint.tasks|length): %}
                         <li id="{{sprint.tasks[i].id}}" class="list-group-item px-3 py-2 hover-effect">
                             <div class="row">

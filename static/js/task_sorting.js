@@ -3,7 +3,7 @@
 // Connect tasks backlog area to taks sprint area
 $(function() {
     $( "#tasks_backlog_sortable, #tasks_sprint_sortable" ).sortable({
-        connectWith: ".connectedSortable"
+        connectWith: ".tasksConnectedSortable"
     }).disableSelection();
 } );
 
