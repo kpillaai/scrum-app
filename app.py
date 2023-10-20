@@ -662,9 +662,7 @@ def login():
 def logout():
     logout_user()
     session['loggedin'] = False
-    return redirect(url_for('login'))
-    # session['loggedin'] = False
-    # return render_template('login.html')
+    return redirect(url_for('login', r=''))
 
 @app.route('/account', methods=['GET','POST'])
 @login_required
