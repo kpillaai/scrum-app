@@ -41,6 +41,14 @@
                             <form class="form-inline" action="/teams/remove/{{teams[i].users[j].id}}" method="POST" onchange="this.requestSubmit()">
                                 <div>
                                     <td>{{teams[i].users[j].name}}</td>
+                                    <td>{% if myteams %}
+                                        {{teams[i].users[j].email}}
+                                        {%- endif %} 
+                                    </td>
+                                    <td>{% if myteams %}
+                                        {{teams[i].users[j].phone_number}}
+                                        {%- endif %} 
+                                    </td>
                                     <td>{% if admin %} 
                                         <a href="/teams/remove/{{teams[i].id}}/{{teams[i].users[j].id}}" data-turbo-method="post" class="btn btn-custom-primary">Remove User</a>
                                         {%- endif %} 

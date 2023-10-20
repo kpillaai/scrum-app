@@ -135,21 +135,21 @@ def page_team_refresh():
         admin = True
     else:
         admin = False
-    return turbo.replace(render_template('teams.html', teams=Team.query.all(), users = User.query.all(), admin=admin), target="page_content") 
+    return turbo.replace(render_template('teams.html', teams=Team.query.all(), users = User.query.all(), admin=admin, myteams=False, notaccountpage=True), target="page_content") 
 
 def page_team_list_show():
     if current_user.role == RoleType.ADMIN:
         admin = True
     else:
         admin = False
-    return turbo.replace(render_template('team_list.html', users=User.query.all(),teams=Team.query.all(), admin=admin), target="team_list")
+    return turbo.replace(render_template('team_list.html', users=User.query.all(),teams=Team.query.all(), admin=admin, myteams=False), target="team_list")
 
 def page_user_list_show():
     if current_user.role == RoleType.ADMIN:
         admin = True
     else:
         admin = False
-    return turbo.replace(render_template('user_list.html', teams=Team.query.all(), users=User.query.all(), admin=admin), target="user_list")
+    return turbo.replace(render_template('user_list.html', teams=Team.query.all(), users=User.query.all(), admin=admin, notaccountpage=True), target="user_list")
 # Routes
 @app.route('/', methods=['GET'])
 @login_required
@@ -434,6 +434,15 @@ def logout():
 @app.route('/account', methods=['GET','POST'])
 @login_required
 def account():
+    print(current_user)
+    print(type(current_user))
+    if isinstance(current_user, User):
+        if current_user.role == RoleType.ADMIN:
+            admin = True
+        else:
+            admin = False
+    else:
+        return redirect(url_for('login'))
     form = UserForm()
     id = current_user.id
     if form.validate_on_submit():
@@ -442,7 +451,7 @@ def account():
         db.session.commit()
         return redirect(url_for('account'))
 
-    return render_template('account.html', form=form)
+    return render_template('account.html', form=form, admin=admin, notaccountpage=False, users=User.query.all())
 
 @app.route('/set')
 @app.route('/set/<theme>')
@@ -457,6 +466,27 @@ def teams_delete(id):
     db.session.delete(team) 
     db.session.commit()
     return turbo.stream([page_team_refresh(),page_team_list_show(),page_user_list_show()])
+
+@app.route('/users/delete/<int:id>', methods=['GET', 'POST'])
+def users_delete(id):
+    user = User.query.get_or_404(id) 
+    db.session.delete(user) 
+    db.session.commit()
+    if isinstance(current_user, User):
+        if current_user.role == RoleType.ADMIN:
+            admin = True
+        else:
+            admin = False
+    else:
+        return redirect(url_for('login'))
+    form = UserForm()
+    id = current_user.id
+    if form.validate_on_submit():
+        user_to_update = User.query.get_or_404(id)
+        user_to_update.password = form.password.data
+        db.session.commit()
+        return redirect(url_for('account'))
+    return turbo.stream([page_user_list_show(), turbo.replace(render_template('account.html', form=form, admin=admin, notaccountpage=False, users=User.query.all()),target="page_content")])
 
 @app.route('/teams/move/<user_id>', methods=['POST'])
 def move_user(user_id):
@@ -516,7 +546,7 @@ def myteams():
                 my_teams.append(team)
     
     return turbo.stream([turbo.replace(render_template('myteams.html'), target="page_content"), \
-        turbo.replace(render_template('team_list.html', users=User.query.all(),teams=my_teams), target="team_list")])
+        turbo.replace(render_template('team_list.html', users=User.query.all(),teams=my_teams, myteams=True), target="team_list")])
 
 
 @app.errorhandler(404)
