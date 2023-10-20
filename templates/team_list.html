@@ -41,7 +41,18 @@
                             <form class="form-inline" action="/teams/remove/{{teams[i].users[j].id}}" method="POST" onchange="this.requestSubmit()">
                                 <div>
                                     <td>{{teams[i].users[j].name}}</td>
-                                    <td><a href="/teams/remove/{{teams[i].id}}/{{teams[i].users[j].id}}" data-turbo-method="post" class="btn btn-custom-primary">Remove User</a></td>
+                                    <td>{% if myteams %}
+                                        {{teams[i].users[j].email}}
+                                        {%- endif %} 
+                                    </td>
+                                    <td>{% if myteams %}
+                                        {{teams[i].users[j].phone_number}}
+                                        {%- endif %} 
+                                    </td>
+                                    <td>{% if admin %} 
+                                        <a href="/teams/remove/{{teams[i].id}}/{{teams[i].users[j].id}}" data-turbo-method="post" class="btn btn-custom-primary">Remove User</a>
+                                        {%- endif %} 
+                                    </td>
                                 </div>
                                 </form>
                         </tr>
@@ -52,7 +63,10 @@
                 </td>
 
                 <form class="form-inline" action="/teams/delete/{{teams[i].id}}" method="POST">
-                <td><a href="/teams/delete/{{teams[i].id}}" data-turbo-method="post" class="btn btn-custom-primary"><i class="material-icons">delete</i> Delete Team</a></td>
+                <td>{% if admin %} 
+                    <a href="/teams/delete/{{teams[i].id}}" data-turbo-method="post" class="btn btn-custom-primary"><i class="material-icons">delete</i> Delete Team</a>
+                    {%- endif %} 
+                </td>
                 
                 </form>
             </tr>

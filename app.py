@@ -2,7 +2,7 @@
 from flask import Flask, render_template, request, session, redirect, url_for, make_response
 from flask_wtf import FlaskForm
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import InputRequired, ValidationError
 from turbo_flask import Turbo
 from models.task import Task, TaskStatus, db # Import Task database
@@ -61,7 +61,9 @@ class RegisterForm(FlaskForm):
     phone_number = StringField(render_kw={"placeholder": "Phone Number (Optional)"})
     email = StringField(validators=[InputRequired()], render_kw={"placeholder": "Email"})
     password = StringField(validators=[InputRequired()], render_kw={"placeholder": "Password"})
+    admin = BooleanField()
     submit = SubmitField("Register")
+    
 
     def validate_email(self, email):
         existing_user_email = User.query.filter_by(email=email.data).first()
@@ -79,8 +81,16 @@ class TeamForm(FlaskForm):
 
 class UserForm(FlaskForm):
     password = StringField(validators=[InputRequired()], render_kw={"placeholder": "New Password"})
-
     submit = SubmitField("Change Password")
+
+class UserEditForm1(FlaskForm):
+    email = StringField(validators=[InputRequired()], render_kw={"placeholder": "New Email"})
+    submit = SubmitField("Change Email")
+
+class UserEditForm2(FlaskForm):
+    phone_number = StringField(validators=[InputRequired()], render_kw={"placeholder": "New Phone Number"})
+
+    submit = SubmitField("Change Phone Number")
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -129,13 +139,27 @@ def page_sprint_edit_show(sprint_number):
     return turbo.replace(render_template('sprint_edit.html', sprint=sprint, TaskStatus=TaskStatus), target="task_panel")
 
 def page_team_refresh():
-    return turbo.replace(render_template('teams.html', teams=Team.query.all(), users = User.query.all()), target="page_content")
+    print(current_user.role)
+    if current_user.role == RoleType.ADMIN:
+        admin = True
+    else:
+        admin = False
+    return turbo.replace(render_template('teams.html', teams=Team.query.all(), users = User.query.all(), admin=admin, myteams=False, notaccountpage=True), target="page_content") 
 
 def page_team_list_show():
-    return turbo.replace(render_template('team_list.html', users=User.query.all(),teams=Team.query.all()), target="team_list")
+    if current_user.role == RoleType.ADMIN:
+        admin = True
+    else:
+        admin = False
+    return turbo.replace(render_template('team_list.html', users=User.query.all(),teams=Team.query.all(), admin=admin, myteams=False), target="team_list")
 
 def page_user_list_show():
-    return turbo.replace(render_template('user_list.html', teams=Team.query.all(), users=User.query.all()), target="user_list")
+    if current_user.role == RoleType.ADMIN:
+        admin = True
+    else:
+        admin = False
+
+    return turbo.replace(render_template('user_list.html', teams=Team.query.all(), users=User.query.all(), admin=admin, notaccountpage=True), target="user_list")
 
 def page_burndown_show(sprint_id, labels, values, optimal):
     sprint = Sprint.query.filter_by(id=sprint_id).first()
@@ -164,6 +188,8 @@ def board_sprint():
     sprint.board.DONE = sorted(sprint.board.DONE, key=lambda task: task.status_order) # Sort sprint.tasks by task.status_order
     return sprint
 
+
+
 # Routes
 @app.route('/', methods=['GET'])
 @login_required
@@ -171,7 +197,7 @@ def index():
     # Handle account page loading at / when "page_redirect" in session is set to 'account'
     if ('page_redirect' in session and session['page_redirect'] == "account"): 
         session['page_redirect'] = None # Clear page_redirect value
-        return render_template('account.html', form=UserForm()) # Load account page html instead of index html
+        return render_template('account.html', form=UserForm(), notaccountpage=False, users=User.query.all()) # Load account page html instead of index html
     if 'loggedin' in session:
         if session['loggedin'] == True:
             print('User Logged In: ' + session['username'])
@@ -603,7 +629,12 @@ def register():
     form = RegisterForm()
 
     if form.validate_on_submit():
-        new_user = User(name=form.name.data, phone_number=form.phone_number.data, email=form.email.data, password=form.password.data)
+        if form.admin.data:
+            user_role = RoleType.ADMIN
+        else:
+            user_role = RoleType.MEMBER
+
+        new_user = User(name=form.name.data, phone_number=form.phone_number.data, email=form.email.data, password=form.password.data, role=user_role)
         db.session.add(new_user)
         db.session.commit()
         return redirect(url_for('login'))
@@ -638,6 +669,15 @@ def logout():
 @app.route('/account', methods=['GET','POST'])
 @login_required
 def account():
+    print(current_user)
+    print(type(current_user))
+    if isinstance(current_user, User):
+        if current_user.role == RoleType.ADMIN:
+            admin = True
+        else:
+            admin = False
+    else:
+        return redirect(url_for('login'))
     form = UserForm()
     id = current_user.id
     if form.validate_on_submit():
@@ -646,8 +686,8 @@ def account():
         db.session.commit()
         return redirect(url_for('account'))
     if request.method == 'POST':
-        return turbo.stream(turbo.replace(render_template('account.html', form=form, target="page_content"), target="page_content")) # the target="page_content" loads account.html page_content part only 
-    return render_template('account.html', form=form)
+        return turbo.stream(turbo.replace(render_template('account.html', form=form, notaccountpage=False, users=User.query.all(), target="page_content"), target="page_content")) # the target="page_content" loads account.html page_content part only     
+    return render_template('account.html', form=form, admin=admin, notaccountpage=False, users=User.query.all())
 
 @app.route('/set')
 @app.route('/set/<theme>')
@@ -663,6 +703,54 @@ def teams_delete(id):
     db.session.delete(team) 
     db.session.commit()
     return turbo.stream([page_team_refresh(),page_team_list_show(),page_user_list_show()])
+
+@app.route('/users/delete/<int:id>', methods=['GET', 'POST'])
+def users_delete(id):
+    user = User.query.get_or_404(id) 
+    db.session.delete(user) 
+    db.session.commit()
+    if isinstance(current_user, User):
+        pass
+    else:
+        return redirect(url_for('login'))
+    form = UserForm()
+    id = current_user.id
+    if form.validate_on_submit():
+        user_to_update = User.query.get_or_404(id)
+        user_to_update.password = form.password.data
+        db.session.commit()
+        return redirect(url_for('account'))
+    
+    return redirect(url_for('account'))
+
+@app.route('/users/edit/<int:id>/<int:val>', methods=['GET', 'POST'])
+def users_edit(id, val):
+    if isinstance(current_user, User):
+        if current_user.role == RoleType.ADMIN:
+            admin = True
+        else:
+            admin = False
+    else:
+        return redirect(url_for('login'))
+    form = UserForm()
+    id2 = current_user.id
+    if form.validate_on_submit():
+        user_to_update = User.query.get_or_404(id2)
+        user_to_update.password = form.password.data
+        db.session.commit()
+        return redirect(url_for('account'))
+    if val == 1:
+        user_to_update = User.query.get_or_404(id)
+        print(request.form.get("email_change"))
+        user_to_update.email = request.form.get("email_change")
+        db.session.commit()
+        return redirect(url_for('account'))
+    if val == 2:
+        user_to_update = User.query.get_or_404(id)
+        user_to_update.phone_number = request.form.get("phone_change")
+        db.session.commit()
+        return redirect(url_for('account'))
+    return turbo.stream([page_user_list_show(), turbo.replace(render_template('account.html', form=form, admin=admin, notaccountpage=False, users=User.query.all()),target="page_content")])
 
 @app.route('/teams/move/<user_id>', methods=['POST'])
 def move_user(user_id):
@@ -722,7 +810,7 @@ def myteams():
                 my_teams.append(team)
     
     return turbo.stream([turbo.replace(render_template('myteams.html'), target="page_content"), \
-        turbo.replace(render_template('team_list.html', users=User.query.all(),teams=my_teams), target="team_list")])
+        turbo.replace(render_template('team_list.html', users=User.query.all(),teams=my_teams, myteams=True), target="team_list")])
 
 @app.route('/burndown/<int:sprint_id>', methods=['POST'])
 def burndown(sprint_id):
