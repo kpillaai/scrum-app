@@ -47,12 +47,24 @@
                     <li><a class="dropdown-item" data-font='Courier New, monospace'>Courier New</a></li>
                 </ul>
             </div>
-
+            <p class="spacer">
             <h2>Colour Blind Options</h2><br/>
-            <button style="margin-right: 10px;" onclick="location.href='/set/protanopia'">Protanopia</button>
-            <button style="margin-right: 10px;" onclick="location.href='/set/deuteranopia'">Deuteranopia</button>
-            <button style="margin-right: 10px;" onclick="location.href='/set/tritanopia'">Tritanopia</button>
-            <button style="margin-right: 10px;" onclick="location.href='/set/achromatopsia'">Achromatopsia</button>        
+            <button type="button" class="btn btn-primary" style="margin-right: 10px;" onclick="location.href='/set/protanopia'">Protanopia</button>
+            <button type="button" class="btn btn-warning" style="margin-right: 10px;" onclick="location.href='/set/deuteranopia'">Deuteranopia</button>
+            <button type="button" class="btn btn-purple" style="margin-right: 10px;" onclick="location.href='/set/tritanopia'">Tritanopia</button>
+            <button type="button" class="btn btn-dark" style="margin-right: 10px;" onclick="location.href='/set/achromatopsia'">Achromatopsia</button>        
+            
+            <style>
+            .btn-purple {
+                background-color: #800080; 
+                color: #fff; 
+                border: none; 
+            }
+            .spacer {
+                margin-top: 20px;
+            }
+
+            </style>
 
             <script>
                 const colorPicker = document.getElementById("colorpicker");
