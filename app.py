@@ -11,7 +11,7 @@ from models.team import Team
 from models.sprint import Sprint # Import Sprint database
 from models.project import Project # Import Project database
 import json
-
+import time
 from datetime import datetime, date, timedelta
 
 # Variables 
@@ -94,13 +94,18 @@ def sync_current_sprint():
     for user in users:
         user.current_sprint = sprint_num # Sync all user's current_sprint to same number
     db.session.commit() # Save database changes
-        
-def page_task_list_refresh(tasks_show_edit=True):
+    
+def page_board_refresh():
+    tasks = Task.query.filter_by(in_sprint=False).order_by(Task.order).all() # Get all Tasks (backlog) in database (query)
+    sprint = board_sprint()
+    return turbo.replace(render_template('board.html', tasks=tasks, sprint=sprint, target='board'), target='board')
+
+def page_task_list_refresh():
     tasks = Task.query.filter_by(in_sprint=False).order_by(Task.order).all() # Get all Tasks (backlog) in database (query)
     user = User.query.get_or_404(session['user_ref'])
     sprint = Sprint.query.filter_by(number=user.current_sprint).first()
     sprint.tasks = sorted(sprint.tasks, key=lambda task: task.order) # Sort sprint.tasks by task.order 
-    return turbo.replace(render_template('task_list.html', tasks=tasks, tasks_show_edit=tasks_show_edit, TaskStatus=TaskStatus, sprint=sprint), target=f'task_list_{tasks_show_edit}')
+    return turbo.replace(render_template('task_list.html', tasks=tasks, sprint=sprint, TaskStatus=TaskStatus), target=f'task_list')
 
 def page_sprint_area_refresh():
     user = User.query.get_or_404(session['user_ref'])
@@ -137,7 +142,28 @@ def page_burndown_show(sprint_id, labels, values, optimal):
     print(sprint_id, values, labels)
     return turbo.replace(render_template('burndown.html', labels=labels, values=values, optimal=optimal), target="page_content")
     
-    
+def board_sprint():
+    user = User.query.get_or_404(session['user_ref'])
+    sprint = Sprint.query.filter_by(number=user.current_sprint).first()
+    sprint.count = len(Project.query.get_or_404(1).sprints) # set sprint count 
+    sprint.board = type('obj', (object,), {
+        'TODO' : [],
+        'IN_PROGRESS' : [],
+        'DONE': []
+    }) # Obj holding each status's tasks (list)
+    for task in sprint.tasks: # Sort task by status (todo, in progress, done) into sprint.board
+        if (task.status == TaskStatus.TODO):
+            sprint.board.TODO.append(task)
+        elif (task.status == TaskStatus.IN_PROGRESS):
+            sprint.board.IN_PROGRESS.append(task)
+        elif (task.status == TaskStatus.DONE):
+            sprint.board.DONE.append(task)
+    # Sort each task in each status by task's status_order
+    sprint.board.TODO = sorted(sprint.board.TODO, key=lambda task: task.status_order) # Sort sprint.tasks by task.status_order
+    sprint.board.IN_PROGRESS = sorted(sprint.board.IN_PROGRESS, key=lambda task: task.status_order) # Sort sprint.tasks by task.status_order
+    sprint.board.DONE = sorted(sprint.board.DONE, key=lambda task: task.status_order) # Sort sprint.tasks by task.status_order
+    return sprint
+
 # Routes
 @app.route('/', methods=['GET'])
 @login_required
@@ -146,13 +172,15 @@ def index():
         if session['loggedin'] == True:
             print('User Logged In: ' + session['username'])
     tasks = Task.query.filter_by(in_sprint=False).order_by(Task.order).all() # Get all Tasks (backlog) in database (query)
-    return render_template('index.html', tasks=tasks, tasks_show_edit=False, TaskStatus=TaskStatus, users = User.query.all())
+    sprint = board_sprint()
+    return render_template('index.html', tasks=tasks, sprint=sprint)
 
-@app.route('/dashboard', methods=['POST'])
+@app.route('/board', methods=['POST'])
 @login_required
-def dashboard():
+def board():
     tasks = Task.query.filter_by(in_sprint=False).order_by(Task.order).all() # Get all Tasks (backlog) in database (query)
-    return turbo.stream(turbo.replace(render_template('dashboard.html', tasks=tasks, tasks_show_edit=False, TaskStatus=TaskStatus, users = User.query.all()), target='page_content'))
+    sprint = board_sprint()
+    return turbo.stream(turbo.replace(render_template('board.html', tasks=tasks, sprint=sprint), target='page_content'))
 
 @app.route('/backlog', methods=['POST'])
 @login_required
@@ -164,7 +192,7 @@ def backlog():
     sprint.tasks = sorted(sprint.tasks, key=lambda task: task.order) # Sort sprint.tasks by task.order
     project1 = Project.query.get_or_404(1)
     sprint_count = len(project1.sprints)
-    return turbo.stream(turbo.replace(render_template('backlog.html', tasks=tasks, tasks_show_edit=True, TaskStatus=TaskStatus, users = User.query.all(), sprint=sprint, sprint_count=sprint_count), target='page_content'))
+    return turbo.stream(turbo.replace(render_template('backlog.html', tasks=tasks, TaskStatus=TaskStatus, users = User.query.all(), sprint=sprint, sprint_count=sprint_count), target='page_content'))
 
 @app.route('/task/add/', methods=['POST'])
 def task_add():
@@ -176,8 +204,7 @@ def task_add():
     sync_current_sprint() # Sync all user's current_sprint to same number
     turbo.push([ # Push realtime changes to all connected clients
         page_sprint_area_refresh(),
-        page_task_list_refresh(tasks_show_edit=True), # Backlog page
-        page_task_list_refresh(tasks_show_edit=False), # Index page
+        page_task_list_refresh(), # Backlog page
     ]) 
     return ('', NO_CONTENT)
 
@@ -189,9 +216,9 @@ def task_remove(id):
     sync_current_sprint() # Sync all user's current_sprint to same number
     turbo.push([ # Push realtime changes to all connected clients
         turbo.replace("<div class='alert alert-danger'>Task removed</div>",target=f'task_{task.id}'), # Remove task opened in edit view for all clients
+        page_board_refresh(),
         page_sprint_area_refresh(),
-        page_task_list_refresh(tasks_show_edit=True), # Backlog page
-        page_task_list_refresh(tasks_show_edit=False), # Index page
+        page_task_list_refresh(), # Backlog page
     ])  
     return ('', NO_CONTENT)
     
@@ -257,9 +284,9 @@ def task_edit(id):
         User.query.get_or_404(session['user_ref']).current_sprint = task.sprint[0].number
     sync_current_sprint() # Sync all user's current_sprint to same number
     turbo.push([ # Push realtime changes to all connected clients
+        page_board_refresh(),
         page_sprint_area_refresh(),
-        page_task_list_refresh(tasks_show_edit=True), # Backlog page
-        page_task_list_refresh(tasks_show_edit=False), # Index page
+        page_task_list_refresh(), # Backlog page
     ])
     return ('', NO_CONTENT)
 
@@ -272,6 +299,15 @@ def task_status(id, status):
             status = "DONE"
         else:
             status = task.status_prev.name  
+    # Set status_order to last in the board if in sprint
+    if task.in_sprint:
+        sprint = board_sprint()
+        if (status == "TODO") and (task.status != TaskStatus.TODO):
+            task.status_order = len(sprint.board.TODO) + 1
+        elif (status == "IN_PROGRESS") and (task.status != TaskStatus.IN_PROGRESS):
+            task.status_order = len(sprint.board.IN_PROGRESS) + 1
+        elif (status == "DONE") and (task.status != TaskStatus.DONE):
+            task.status_order = len(sprint.board.DONE) + 1
     task.status = TaskStatus[status] # Edit status
     db.session.commit() # Save database changes
     # Overide user current sprint to task's sprint number in case it desyncs from other users' realtime changes
@@ -279,26 +315,57 @@ def task_status(id, status):
         User.query.get_or_404(session['user_ref']).current_sprint = task.sprint[0].number
     sync_current_sprint() # Sync all user's current_sprint to same number
     turbo.push([ # Push realtime changes to all connected clients
+        page_board_refresh(),
         page_sprint_area_refresh(),
-        page_task_list_refresh(tasks_show_edit=True), # Backlog page
-        page_task_list_refresh(tasks_show_edit=False), # Index page
+        page_task_list_refresh(), # Backlog page
     ])
     return ('', NO_CONTENT)
 
 @app.route('/task/reorder/<string:task_type>', methods=['POST'])
 def task_reorder(task_type):
+    if request.form['sort_order'] != '': # Catch empty respone (not sure why it sometimes occurs)
+        sort_order = request.form['sort_order'].split(',')
+        print(sort_order)
+        tasks = Task.query.all() # Get all Tasks (backlog) in database (query)
+        user = User.query.get_or_404(session['user_ref'])
+        sprint = Sprint.query.filter_by(number=user.current_sprint).first()
+        for i in range(len(sort_order)):
+            for task in tasks:
+                if int(task.id) == int(sort_order[i]):
+                    if (task_type == "backlog") and (task.in_sprint == True): # Remove from sprint if in sprint
+                        sprint_task_remove(sprint.number, task.id, refresh=False)
+                    elif (task_type == "sprint") and (task.in_sprint == False): # Add to sprint if in backlog
+                        sprint_task_add(sprint.number, task.id, refresh=False)
+                    task.order = i+1
+                    break
+        db.session.commit() # Save changes to db
+        # Overide user current sprint to task's sprint number in case it desyncs from other users' realtime changes
+        if (len(task.sprint) >= 1):
+            User.query.get_or_404(session['user_ref']).current_sprint = task.sprint[0].number
+        sync_current_sprint() # Sync all user's current_sprint to same number
+        time.sleep(0.05) # 50 ms delay to avoid flickers when moving tasks too quickly
+        turbo.push([ # Push realtime changes to all connected clients
+            page_board_refresh(),
+            page_sprint_area_refresh(),
+            page_task_list_refresh(), # Backlog page
+        ])
+    return ('', NO_CONTENT)
+
+@app.route('/task/status/reorder/<string:status_type>', methods=['POST'])
+def task_status_reorder(status_type):
     sort_order = request.form['sort_order'].split(',')
-    tasks = Task.query.all() # Get all Tasks (backlog) in database (query)
     user = User.query.get_or_404(session['user_ref'])
     sprint = Sprint.query.filter_by(number=user.current_sprint).first()
     for i in range(len(sort_order)):
-        for task in tasks:
+        for task in sprint.tasks:
             if int(task.id) == int(sort_order[i]):
-                if (task_type == "backlog") and (task.in_sprint == True): # Remove from sprint if in sprint
-                    sprint_task_remove(sprint.number, task.id, refresh=False)
-                elif (task_type == "sprint") and (task.in_sprint == False): # Add to sprint if in backlog
-                    sprint_task_add(sprint.number, task.id, refresh=False)
-                task.order = i+1
+                if (status_type == "TODO"): # Check tasks moving in TODO board
+                    task.status = TaskStatus.TODO # Set task status to TODO
+                elif (status_type == "IN_PROGRESS"): # Check tasks moving in IN_PROGRESS board
+                    task.status = TaskStatus.IN_PROGRESS # Set task status to IN_PROGRESS
+                elif (status_type == "DONE"): # Check tasks moving in DONE board
+                    task.status = TaskStatus.DONE # Set task status to DONE
+                task.status_order = i+1
                 break
     db.session.commit() # Save changes to db
     # Overide user current sprint to task's sprint number in case it desyncs from other users' realtime changes
@@ -307,9 +374,9 @@ def task_reorder(task_type):
     sync_current_sprint() # Sync all user's current_sprint to same number
     time.sleep(0.05) # 50 ms delay to avoid flickers when moving tasks too quickly
     turbo.push([ # Push realtime changes to all connected clients
+        page_board_refresh(),
         page_sprint_area_refresh(),
-        page_task_list_refresh(tasks_show_edit=True), # Backlog page
-        page_task_list_refresh(tasks_show_edit=False), # Index page
+        page_task_list_refresh(), # Backlog page
     ])
     return ('', NO_CONTENT)
 
@@ -324,14 +391,23 @@ def sprint_task_add(sprint_number, task_id, refresh=True):
     task = Task.query.get_or_404(task_id) 
     task.in_sprint = True
     sprint = Sprint.query.filter_by(number=sprint_number).first()
+    task.order = len(sprint.tasks) + 1
+    # Set status_order to last in board
+    sprint_board = board_sprint()
+    if (task.status == TaskStatus.TODO):
+        task.status_order = len(sprint_board.board.TODO) + 1
+    elif (task.status == TaskStatus.IN_PROGRESS):
+        task.status_order = len(sprint_board.board.IN_PROGRESS) + 1
+    elif (task.status == TaskStatus.DONE):
+        task.status_order = len(sprint_board.board.DONE) + 1
     sprint.tasks.append(task) # Add task to sprint's tasks
     db.session.commit() # Commit database changes
     sync_current_sprint() # Sync all user's current_sprint to same number
     if refresh:
         turbo.push([ # Push realtime changes to all connected clients
+            page_board_refresh(),
             page_sprint_area_refresh(),
-            page_task_list_refresh(tasks_show_edit=True), # Backlog page
-            page_task_list_refresh(tasks_show_edit=False), # Index page
+            page_task_list_refresh(), # Backlog page
         ]) 
     return ('', NO_CONTENT)
     
@@ -339,15 +415,17 @@ def sprint_task_add(sprint_number, task_id, refresh=True):
 def sprint_task_remove(sprint_number, task_id, refresh=True):
     task = Task.query.get_or_404(task_id) 
     task.in_sprint = False
+    tasks = Task.query.filter_by(in_sprint=False).all() # Get all Tasks (backlog) in database (query)
+    task.order = len(tasks) + 1
     sprint = Sprint.query.filter_by(number=sprint_number).first()
     sprint.tasks.remove(task) # Add task to sprint's tasks
     db.session.commit() # Commit database changes
     sync_current_sprint() # Sync all user's current_sprint to same number
     if refresh:
         turbo.push([ # Push realtime changes to all connected clients
+            page_board_refresh(),
             page_sprint_area_refresh(),
-            page_task_list_refresh(tasks_show_edit=True), # Backlog page
-            page_task_list_refresh(tasks_show_edit=False), # Index page
+            page_task_list_refresh(), # Backlog page
         ]) 
     return ('', NO_CONTENT)
     
@@ -374,8 +452,9 @@ def sprint_edit(sprint_number):
     User.query.get_or_404(session['user_ref']).current_sprint = sprint.number # Overide user current sprint to task's sprint number in case it desyncs from other users' realtime changes
     sync_current_sprint() # Sync all user's current_sprint to same number
     turbo.push([ # Push realtime changes to all connected clients
+        page_board_refresh(),
         page_sprint_area_refresh(),
-        page_task_list_refresh(tasks_show_edit=True) # Backlog page
+        page_task_list_refresh() # Backlog page
     ]) 
     return ('', NO_CONTENT)
 
@@ -391,8 +470,9 @@ def sprint_add():
     db.session.commit()
     sync_current_sprint() # Sync all user's current_sprint to same number    
     turbo.push([ # Push realtime changes to all connected clients
+        page_board_refresh(),
         page_sprint_area_refresh(),
-        page_task_list_refresh(tasks_show_edit=True), # Backlog page
+        page_task_list_refresh(), # Backlog page
         page_task_panel_show(), # Show task panel
         page_sprint_edit_show(user.current_sprint)
     ]) 
@@ -413,8 +493,9 @@ def sprint_remove(sprint_number):
     db.session.commit()
     sync_current_sprint() # Sync all user's current_sprint to same number    
     turbo.push([ # Push realtime changes to all connected clients
+        page_board_refresh(),
         page_sprint_area_refresh(),
-        page_task_list_refresh(tasks_show_edit=True), # Backlog page
+        page_task_list_refresh(), # Backlog page
         page_task_panel_show(), # Show task panel
         page_sprint_edit_show(user.current_sprint)
     ]) 
@@ -430,7 +511,7 @@ def sprint_start(sprint_number):
     sync_current_sprint() # Sync all user's current_sprint to same number    
     turbo.push([ # Push realtime changes to all connected clients
         page_sprint_area_refresh(),
-        page_task_list_refresh(tasks_show_edit=True), # Backlog page
+        page_task_list_refresh(), # Backlog page
         page_task_panel_show(), # Show task panel
         page_sprint_edit_show(sprint_number),
     ]) 
@@ -446,7 +527,7 @@ def sprint_stop(sprint_number):
     sync_current_sprint() # Sync all user's current_sprint to same number
     turbo.push([ # Push realtime changes to all connected clients
         page_sprint_area_refresh(),
-        page_task_list_refresh(tasks_show_edit=True), # Backlog page
+        page_task_list_refresh(), # Backlog page
         page_task_panel_show(), # Show task panel
         page_sprint_edit_show(sprint_number)
     ]) 
@@ -459,8 +540,9 @@ def sprint_prev():
         user.current_sprint -= 1
         db.session.commit()
     return turbo.stream([
+        page_board_refresh(),
         page_sprint_area_refresh(),
-        page_task_list_refresh(tasks_show_edit=True), # Backlog page
+        page_task_list_refresh(), # Backlog page
         page_task_panel_show(), # Show task panel
         page_sprint_edit_show(user.current_sprint),
     ])  
@@ -473,8 +555,9 @@ def sprint_next():
         user.current_sprint += 1
         db.session.commit()
     return turbo.stream([
+        page_board_refresh(),
         page_sprint_area_refresh(),
-        page_task_list_refresh(tasks_show_edit=True), # Backlog page
+        page_task_list_refresh(), # Backlog page
         page_task_panel_show(), # Show task panel
         page_sprint_edit_show(user.current_sprint),
     ])  

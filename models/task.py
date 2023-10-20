@@ -16,6 +16,7 @@ class Task(db.Model):
     priority = db.Column(db.Integer, unique=False)
     status = db.Column(db.Enum(TaskStatus), default=TaskStatus.TODO) # from TaskStatus, either TODO, IN_PROGRESS or DONE
     status_prev = db.Column(db.Enum(TaskStatus), default=TaskStatus.TODO) # from TaskStatus, either TODO, IN_PROGRESS or DONE
+    status_order = db.Column(db.Integer, default=0) # Used to track the order of displaying tasks
     estimated_effort = db.Column(db.Integer)
     start_date = db.Column(db.DateTime(timezone=True))
     due_date = db.Column(db.DateTime(timezone=True))
