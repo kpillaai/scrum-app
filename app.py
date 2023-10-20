@@ -70,7 +70,7 @@ class RegisterForm(FlaskForm):
 
 class LoginForm(FlaskForm):
     email = StringField(validators=[InputRequired()], render_kw={"placeholder": "Email"})
-    password = StringField(validators=[InputRequired()], render_kw={"placeholder": "Password"})
+    password = PasswordField(validators=[InputRequired()], render_kw={"placeholder": "Password"})
     submit = SubmitField("Login")
 
 class TeamForm(FlaskForm):
