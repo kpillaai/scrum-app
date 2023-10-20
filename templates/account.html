@@ -44,6 +44,7 @@
             </select><br/><br/>
 
             <h2>Colour Blind Options</h2><br/>
+            <button style="margin-right: 10px;" onclick="location.href='/set/main'">Default</button>
             <button style="margin-right: 10px;" onclick="location.href='/set/protanopia'">Protanopia</button>
             <button style="margin-right: 10px;" onclick="location.href='/set/deuteranopia'">Deuteranopia</button>
             <button style="margin-right: 10px;" onclick="location.href='/set/tritanopia'">Tritanopia</button>
@@ -53,16 +54,34 @@
                 const colorPicker = document.getElementById("colorpicker");
                 const header = document.querySelector("header");
 
+                const savedColor = localStorage.getItem("headerBackgroundColor");
+                if (savedColor) {
+                    header.style.backgroundColor = savedColor;
+                    colorPicker.value = savedColor;
+                }
+
+                // Add an event listener to update local storage and header color
                 colorPicker.addEventListener("input", function () {
-                    header.style.backgroundColor = colorPicker.value;
-                });
+                    const selectedColor = colorPicker.value;
+                    header.style.backgroundColor = selectedColor;
+                    localStorage.setItem("headerBackgroundColor", selectedColor);
+                })
 
                 const fontSelector = document.getElementById("fontSelector");
                 const body = document.body;
 
+                // Get the selected font from local storage
+                const savedFont = localStorage.getItem("selectedFont");
+                if (savedFont) {
+                    body.style.fontFamily = savedFont;
+                    fontSelector.value = savedFont;
+                }
+
+                // Add an event listener to update local storage and font family
                 fontSelector.addEventListener("change", function () {
                     const selectedFont = fontSelector.value;
                     body.style.fontFamily = selectedFont;
+                    localStorage.setItem("selectedFont", selectedFont);
                 });
             </script>
 
