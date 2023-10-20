@@ -19,7 +19,7 @@ class Task(db.Model):
     status_order = db.Column(db.Integer, default=0) # Used to track the order of displaying tasks
     estimated_effort = db.Column(db.Integer, default=1)
     start_date = db.Column(db.DateTime(timezone=True))
-    due_date = db.Column(db.DateTime(timezone=True))
+    end_date = db.Column(db.DateTime(timezone=True))
     assignee =  db.Column(db.Integer, db.ForeignKey('a_user.id')) # ForeignKey = reference to another db table (id)
     hours_taken = db.Column(db.Integer)
     in_sprint = db.Column(db.Boolean, default=False)
