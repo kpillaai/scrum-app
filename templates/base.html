@@ -34,7 +34,7 @@
 
         <ul class="left-side">
             <li> <a href="{{url_for('logout') }}">Logout</a></li>
-            <li> <a href="{{url_for('account') }}">Account</a></li>
+            <li> <a href="{{url_for('account') }}" data-turbo-method="post">Account</a></li>
         </ul>
     </nav>
     {% block header %}{% endblock %}

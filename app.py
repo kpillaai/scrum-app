@@ -168,6 +168,10 @@ def board_sprint():
 @app.route('/', methods=['GET'])
 @login_required
 def index():
+    # Handle account page loading at / when "page_redirect" in session is set to 'account'
+    if ('page_redirect' in session and session['page_redirect'] == "account"): 
+        session['page_redirect'] = None # Clear page_redirect value
+        return render_template('account.html', form=UserForm()) # Load account page html instead of index html
     if 'loggedin' in session:
         if session['loggedin'] == True:
             print('User Logged In: ' + session['username'])
@@ -641,15 +645,17 @@ def account():
         user_to_update.password = form.password.data
         db.session.commit()
         return redirect(url_for('account'))
-
+    if request.method == 'POST':
+        return turbo.stream(turbo.replace(render_template('account.html', form=form, target="page_content"), target="page_content")) # the target="page_content" loads account.html page_content part only 
     return render_template('account.html', form=form)
 
 @app.route('/set')
 @app.route('/set/<theme>')
 def set_theme(theme="light"):
-  res = make_response(redirect(url_for('account')))
-  res.set_cookie("theme", theme)
-  return res  
+    res = make_response(redirect(url_for('index')))
+    session['page_redirect'] = "account" # set page_redirect to account so that when it redircts to index page, it will load full account.html instead of index.html
+    res.set_cookie("theme", theme)
+    return res  
 
 @app.route('/teams/delete/<int:id>', methods=['GET', 'POST'])
 def teams_delete(id):

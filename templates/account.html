@@ -1,72 +1,71 @@
-{% extends 'base.html' %}
+{% if (target != "page_content")%}
+    {% extends 'base.html' %}
 
-{% block title %}Agility App{% endblock %}
+    {% block title %}Agility App{% endblock %}
 
-{% block header %}{% endblock %}
+    {% block header %}{% endblock %}
+{% endif %}
+    {% block content %}
+        <div id="page_content">
+            <h2>Account Details</h2><br/>
+            <strong>Name:</strong>
+            {{ current_user.name }}<br/><br/>
 
-{% block content %}
-<div id="page_content">
-    <h2>Account Details</h2><br/>
-    <strong>Name:</strong>
-	{{ current_user.name }}<br/><br/>
+            <strong>User ID:</strong>
+            {{ current_user.id }}<br/><br/>
 
-	<strong>User ID:</strong>
-	{{ current_user.id }}<br/><br/>
+            <strong>Role:</strong>
+            {{ current_user.role.value }}<br/><br/>
 
-    <strong>Role:</strong>
-	{{ current_user.role.value }}<br/><br/>
+            <strong>Phone Number:</strong>
+            {{ current_user.phone_number }}<br/><br/>
 
-    <strong>Phone Number:</strong>
-	{{ current_user.phone_number }}<br/><br/>
+            <strong>Email:</strong>
+            {{ current_user.email }}<br/><br/>
 
-	<strong>Email:</strong>
-	{{ current_user.email }}<br/><br/>
+            <strong>Password:</strong>
+            {{ current_user.password }}<br/><br/>
+            
+            <form method="POST" action="">
+                {{ form.hidden_tag() }}
+                {{ form.password}}
+                {{ form.submit}}
+            </form><br/><br/>
 
-    <strong>Password:</strong>
-	{{ current_user.password }}<br/><br/>
-    
-    <form method="POST" action="">
-        {{ form.hidden_tag() }}
-        {{ form.password}}
-        {{ form.submit}}
-    </form><br/><br/>
+            <h2>Customize</h2><br/>
+            <strong><label for="colorpicker">Colour Picker:</label></strong>
+            <input type="color" id="colorpicker" value="#0000ff"><br/><br/>
 
-    <h2>Customize</h2><br/>
-    <strong><label for="colorpicker">Colour Picker:</label></strong>
-    <input type="color" id="colorpicker" value="#0000ff"><br/><br/>
+            <strong><label for="fontSelector">Select Font:</label></strong>
+            <select id="fontSelector">
+                <option value="Arial, sans-serif">Arial</option>
+                <option value="Times New Roman, serif">Times New Roman</option>
+                <option value="Courier New, monospace">Courier New</option>
+            </select><br/><br/>
 
-    <strong><label for="fontSelector">Select Font:</label></strong>
-    <select id="fontSelector">
-        <option value="Arial, sans-serif">Arial</option>
-        <option value="Times New Roman, serif">Times New Roman</option>
-        <option value="Courier New, monospace">Courier New</option>
-    </select><br/><br/>
+            <h2>Colour Blind Options</h2><br/>
+            <button style="margin-right: 10px;" onclick="location.href='/set/protanopia'">Protanopia</button>
+            <button style="margin-right: 10px;" onclick="location.href='/set/deuteranopia'">Deuteranopia</button>
+            <button style="margin-right: 10px;" onclick="location.href='/set/tritanopia'">Tritanopia</button>
+            <button style="margin-right: 10px;" onclick="location.href='/set/achromatopsia'">Achromatopsia</button>        
 
-    <h2>Colour Blind Options</h2><br/>
-    <button style="margin-right: 10px;" onclick="location.href='/set/protanopia'">Protanopia</button>
-    <button style="margin-right: 10px;" onclick="location.href='/set/deuteranopia'">Deuteranopia</button>
-    <button style="margin-right: 10px;" onclick="location.href='/set/tritanopia'">Tritanopia</button>
-    <button style="margin-right: 10px;" onclick="location.href='/set/achromatopsia'">Achromatopsia</button>        
+            <script>
+                const colorPicker = document.getElementById("colorpicker");
+                const header = document.querySelector("header");
 
-    <script>
-        const colorPicker = document.getElementById("colorpicker");
-        const header = document.querySelector("header");
+                colorPicker.addEventListener("input", function () {
+                    header.style.backgroundColor = colorPicker.value;
+                });
 
-        colorPicker.addEventListener("input", function () {
-            header.style.backgroundColor = colorPicker.value;
-        });
+                const fontSelector = document.getElementById("fontSelector");
+                const body = document.body;
 
-        const fontSelector = document.getElementById("fontSelector");
-        const body = document.body;
-
-        fontSelector.addEventListener("change", function () {
-            const selectedFont = fontSelector.value;
-            body.style.fontFamily = selectedFont;
-        });
-    </script>
+                fontSelector.addEventListener("change", function () {
+                    const selectedFont = fontSelector.value;
+                    body.style.fontFamily = selectedFont;
+                });
+            </script>
 
 
-</div>
-
-    
-{% endblock %}
+        </div>
+    {% endblock %}
