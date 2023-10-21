@@ -73,7 +73,7 @@
                                         {% if sprint.tasks[i].status ==  TaskStatus.TODO %}
                                             <span class="btn badge bg-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="z-index:3; position:relative;">TO DO</span>
                                         {% elif sprint.tasks[i].status ==  TaskStatus.IN_PROGRESS %}
-                                            <span class="btn badge bg-warning dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="z-index:3; position:relative;">IN PROGRESS</span>
+                                            <span class="btn badge btn-custom-warning dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="z-index:3; position:relative;">IN PROGRESS</span>
                                         {% elif sprint.tasks[i].status ==  TaskStatus.DONE %}
                                             <span class="btn badge btn-custom-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="z-index:3; position:relative;">DONE</span>
                                         {% endif %}
@@ -85,7 +85,7 @@
                                             </li>
                                             <li>
                                                 <a class="dropdown-item" href="/task/{{sprint.tasks[i].id}}/status/IN_PROGRESS" data-turbo-method="post">
-                                                    <span class="btn badge bg-warning">IN PROGRESS</span>
+                                                    <span class="btn badge btn-custom-warning">IN PROGRESS</span>
                                                 </a>
                                             </li>
                                             <li>
