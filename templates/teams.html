@@ -1,14 +1,27 @@
 <div id="page_content">
-<h1>Add Team</h1>
-  <form action="/teams/add/" method="POST">
-    <div class="mb-3 mt-3">
-        <label for="team" class="form-label">Team:</label>
-        <input method="POST" type="text" name="team" class="form-control" required="true" placeholder="Enter team name" />
-        <button class="btn btn-custom-primary">Submit</button>
-    </div>  
-</form>
-<h1>Teams</h1>
-{% include 'team_list.html' %}
-{% include 'user_list.html' %}
-
+  <div class="card bg-light border-0">
+    <div class="card-body">
+      <h2 class="pb-2">Teams</h2>
+        <div class="card border-0">
+          <div class="shadow-sm">
+            {% include 'team_list.html' %}
+          </div>
+        </div>
+      {% if admin %} 
+        <div class="mb-1 mt-1 pt-1"></div>
+        <!-- HTML form to add team  -->
+        <form action="/teams/add/" id="form_task_add" method="POST" class="d-flex flex-row align-items-center flex-wrap" onsubmit="this.requestSubmit(); setTimeout(()=>{document.getElementById('form_task_add').reset()}, 1);">
+            <label for="team" class="text-secondary my-1 me-2"><b>&nbsp;+ Add Team:</b></label>
+            <input method="POST" type="text" name="team" class="form-control form-control-sm my-1 me-2 w-25" required="true" placeholder="Enter team name" />
+            <button type="submit" class="btn btn-sm btn-custom-primary my-1 me-2" style="display: inline;"><b>Add</b></button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+  <div class="card border-0">
+    <div class="card-body">
+      <h2>Users</h2>
+      {% include 'user_list.html' %}
+    </div>
+  </div>
 </div>

@@ -72,7 +72,7 @@ class RegisterForm(FlaskForm):
 
 class LoginForm(FlaskForm):
     email = StringField(validators=[InputRequired()], render_kw={"placeholder": "Email"})
-    password = StringField(validators=[InputRequired()], render_kw={"placeholder": "Password"})
+    password = PasswordField(validators=[InputRequired()], render_kw={"placeholder": "Password"})
     submit = SubmitField("Login")
 
 class TeamForm(FlaskForm):
@@ -161,11 +161,43 @@ def page_user_list_show():
 
     return turbo.replace(render_template('user_list.html', teams=Team.query.all(), users=User.query.all(), admin=admin, notaccountpage=True), target="user_list")
 
+def page_burndown_show(sprint_id, labels, values, optimal):
+    sprint = Sprint.query.filter_by(id=sprint_id).first()
+    print(sprint_id, values, labels)
+    return turbo.replace(render_template('burndown.html', labels=labels, values=values, optimal=optimal), target="page_content")
+    
+def board_sprint():
+    user = User.query.get_or_404(session['user_ref'])
+    sprint = Sprint.query.filter_by(number=user.current_sprint).first()
+    sprint.count = len(Project.query.get_or_404(1).sprints) # set sprint count 
+    sprint.board = type('obj', (object,), {
+        'TODO' : [],
+        'IN_PROGRESS' : [],
+        'DONE': []
+    }) # Obj holding each status's tasks (list)
+    for task in sprint.tasks: # Sort task by status (todo, in progress, done) into sprint.board
+        if (task.status == TaskStatus.TODO):
+            sprint.board.TODO.append(task)
+        elif (task.status == TaskStatus.IN_PROGRESS):
+            sprint.board.IN_PROGRESS.append(task)
+        elif (task.status == TaskStatus.DONE):
+            sprint.board.DONE.append(task)
+    # Sort each task in each status by task's status_order
+    sprint.board.TODO = sorted(sprint.board.TODO, key=lambda task: task.status_order) # Sort sprint.tasks by task.status_order
+    sprint.board.IN_PROGRESS = sorted(sprint.board.IN_PROGRESS, key=lambda task: task.status_order) # Sort sprint.tasks by task.status_order
+    sprint.board.DONE = sorted(sprint.board.DONE, key=lambda task: task.status_order) # Sort sprint.tasks by task.status_order
+    return sprint
+
+
 
 # Routes
 @app.route('/', methods=['GET'])
 @login_required
 def index():
+    # Handle account page loading at / when "page_redirect" in session is set to 'account'
+    if ('page_redirect' in session and session['page_redirect'] == "account"): 
+        session['page_redirect'] = None # Clear page_redirect value
+        return render_template('account.html', form=UserForm(), admin=(current_user.role == RoleType.ADMIN), notaccountpage=False, users=User.query.all()) # Load account page html instead of index html
     if 'loggedin' in session:
         if session['loggedin'] == True:
             print('User Logged In: ' + session['username'])
@@ -630,9 +662,7 @@ def login():
 def logout():
     logout_user()
     session['loggedin'] = False
-    return redirect(url_for('login'))
-    # session['loggedin'] = False
-    # return render_template('login.html')
+    return redirect(url_for('login', r=''))
 
 @app.route('/account', methods=['GET','POST'])
 @login_required
@@ -653,15 +683,17 @@ def account():
         user_to_update.password = form.password.data
         db.session.commit()
         return redirect(url_for('account'))
-    
-    return render_template('account.html', form=form, admin=admin, notaccountpage=False, users=User.query.all())
+    if request.method == 'POST':
+        return turbo.stream(turbo.replace(render_template('account.html', form=form, admin=(current_user.role == RoleType.ADMIN), notaccountpage=False, users=User.query.all(), target="page_content"), target="page_content")) # the target="page_content" loads account.html page_content part only     
+    return render_template('account.html', form=form, admin=(current_user.role == RoleType.ADMIN), notaccountpage=False, users=User.query.all())
 
 @app.route('/set')
 @app.route('/set/<theme>')
 def set_theme(theme="light"):
-  res = make_response(redirect(url_for('account')))
-  res.set_cookie("theme", theme)
-  return res  
+    res = make_response(redirect(url_for('index')))
+    session['page_redirect'] = "account" # set page_redirect to account so that when it redircts to index page, it will load full account.html instead of index.html
+    res.set_cookie("theme", theme)
+    return res  
 
 @app.route('/teams/delete/<int:id>', methods=['GET', 'POST'])
 def teams_delete(id):
@@ -716,7 +748,7 @@ def users_edit(id, val):
         user_to_update.phone_number = request.form.get("phone_change")
         db.session.commit()
         return redirect(url_for('account'))
-    return turbo.stream([page_user_list_show(), turbo.replace(render_template('account.html', form=form, admin=admin, notaccountpage=False, users=User.query.all()),target="page_content")])
+    return turbo.stream([page_user_list_show(), turbo.replace(render_template('account.html', form=form, admin=(current_user.role == RoleType.ADMIN), notaccountpage=False, users=User.query.all()),target="page_content")])
 
 @app.route('/teams/move/<user_id>', methods=['POST'])
 def move_user(user_id):

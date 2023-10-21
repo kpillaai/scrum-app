@@ -1,28 +1,52 @@
 <!DOCTYPE html>
 <html>
 
-<head>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <title>Register</title>
-</head>
-<body>
-    <center> 
-        <h1>Register</h1>
-    <div> 
-        <form method="POST" action="/register">
-            {{ form.hidden_tag() }}
-            {{ form.name}}<br><br>
-            {{ form.phone_number}}<br><br>
-            {{ form.email}}<br><br>
-            {{ form.password}}<br><br>
-            Admin: {{ form.admin}}<br><br>
-            {{ form.submit}}
-        </form>
+    <head>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+        <title>Register</title>    
+    </head>
 
-        <a href="{{url_for('login')}}">Already have an account? Log in!</a>
-    </div>
-    </center>
-
-</body>
+    <body class="bg-dark">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
+                    <div class="card border-0 rounded-3 my-5 shadow">
+                        <div class="card-body p-4 p-sm-5">
+                            <h1 class="card-title text-center mb-5">Sign Up</h1>
+                            <form action="" method="post" novalidate>
+                                {{ form.hidden_tag() }}                    
+                                <div class="form-floating mb-3">
+                                    {{ form.name(class_="form-control") }}
+                                    {{ form.name.label }}
+                                </div>
+                                <div class="form-floating mb-3">
+                                    {{ form.phone_number(class_="form-control") }}
+                                    {{ form.phone_number.label }}
+                                </div>
+                                <div class="form-floating mb-3">
+                                    {{ form.email(class_="form-control") }}
+                                    {{ form.email.label }}
+                                </div>
+                                <div class="form-floating mb-3">
+                                    {{ form.password(class_="form-control") }}
+                                    {{ form.password.label }}
+                                </div>
+                                <div class="form-check mb-3">
+                                    {{ form.admin(class_="form-check-input") }}
+                                    {{ form.admin.label }}
+                                </div>
+                                <div class="d-grid">
+                                    {{ form.submit(class_="btn btn-primary text-uppercase fw-bold py-2", style_="letter-spacing: 0.05rem;") }}
+                                </div>
+                                <hr class="my-4">
+                                <a class="text-muted" href="{{url_for('login')}}">Already have an account? Log in!</a>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    
 </html>

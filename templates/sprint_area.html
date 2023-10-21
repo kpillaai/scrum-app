@@ -22,13 +22,26 @@
                         </svg>
                     </a>
                 </div>
-                <div class="col text-end align-items-center">
+                <div class="col col-sm-auto pe-1">
                     <h6>
                         <a class="btn btn-sm btn-secondary {% if sprint.number <= 1 %} disabled {% endif %}" href="/sprint/prev/" data-turbo-method="post"><b> < </b></a>
                         <span class="btn btn-sm btn-secondary disabled"><b>#{{sprint.number}}</b></span>
                         <a class="btn btn-sm btn-secondary {% if sprint.number >= sprint_count %} disabled {% endif %}" href="/sprint/next/" data-turbo-method="post"><b> > </b></a>
-                        <!-- <b>&nbsp;#{{sprint.number}}</b> -->
                     </h6>
+                </div>
+                <div class="col col-sm-auto ps-0">
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                                <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                              </svg>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/sprint/edit/view/{{ sprint.number }}" data-turbo-method="post">Edit</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item {% if sprint.number <= 1 %} disabled {% endif %}" href="/sprint/remove/{{ sprint.number }}" data-turbo-method="post">Delete</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             <p class="text-secondary fst-light fs-6">{{sprint.goal}}</p>

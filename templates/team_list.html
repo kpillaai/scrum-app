@@ -1,76 +1,72 @@
 <div id="team_list">
-<table class="table">
-    <thead class="table-secondary">
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Users</th>
-            {% if show_edit == True %}
-                <th>Action</th>
-            {% endif %}
-        </tr>
-    </thead>
+    <table class="table">
+        <thead class="table">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Users</th>
+                {% if admin == True %}
+                    <th>Action</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in range(teams|length): %}
+                <tr>
+                    <td>{{teams[i].id}}</td>
+                    <td>{{teams[i].name}}</td>
+                    <td>
+                        {% if teams[i].users != [] %} 
+                            <table class="table">
+                                {% for j in range(teams[i].users|length): %}
+                                    <tr>
+                                        <div>
+                                            <td>{{teams[i].users[j].name}}</td>
+                                            {% if myteams %}
+                                            <td>
+                                                {{teams[i].users[j].email}}
+
+                                            </td>
+                                            {%- endif %} 
+                                            {% if myteams %}
+                                                <td>
+                                                    {{teams[i].users[j].phone_number}}
+                                                </td>
+                                            {%- endif %} 
+                                            {% if admin %} 
+                                                <td>
+                                                    <a href="/teams/remove/{{teams[i].id}}/{{teams[i].users[j].id}}" data-turbo-method="post" class="btn btn-custom-danger">Remove User</a> 
+                                                </td>
+                                            {%- endif %}
+                                        </div>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        {%- endif %}
+                    </td>
+                    {% if admin %}
+                        <td> 
+                            <a href="/teams/delete/{{teams[i].id}}" data-turbo-method="post" class="btn btn-custom-danger"><i class="material-icons">delete</i> Delete Team</a>
+                        </td>
+                    {%- endif %}  
+                </tr>   
+            {% endfor %}
+        </tbody>
+    </table>
     <script>
         function allowDrop(ev) {
-          ev.preventDefault();
+        ev.preventDefault();
         }
         
         function drag(ev) {
-          ev.dataTransfer.setData("text", ev.target.id);
+        ev.dataTransfer.setData("text", ev.target.id);
         }
         
         function drop(ev, teamid) {
-          ev.preventDefault();
-          var data = ev.dataTransfer.getData("text");
-          ev.target.appendChild(document.getElementById(data));
-          document.getElementById(teamid).innerHTML = data 
+        ev.preventDefault();
+        var data = ev.dataTransfer.getData("text");
+        ev.target.appendChild(document.getElementById(data));
+        document.getElementById(teamid).innerHTML = data 
         }
-        </script>
-    <tbody>
-        {% for i in range(teams|length): %}
-            <tr>
-        
-                <td>{{teams[i].id}}</td>
-                <td>{{teams[i].name}}</td>
-                
-                <td>{% if teams[i].users != [] %} 
-                    <table class="table">
-                        </thead>
-                        {% for j in range(teams[i].users|length): %}
-                        <tr>
-                            <form class="form-inline" action="/teams/remove/{{teams[i].users[j].id}}" method="POST" onchange="this.requestSubmit()">
-                                <div>
-                                    <td>{{teams[i].users[j].name}}</td>
-                                    <td>{% if myteams %}
-                                        {{teams[i].users[j].email}}
-                                        {%- endif %} 
-                                    </td>
-                                    <td>{% if myteams %}
-                                        {{teams[i].users[j].phone_number}}
-                                        {%- endif %} 
-                                    </td>
-                                    <td>{% if admin %} 
-                                        <a href="/teams/remove/{{teams[i].id}}/{{teams[i].users[j].id}}" data-turbo-method="post" class="btn btn-custom-primary">Remove User</a>
-                                        {%- endif %} 
-                                    </td>
-                                </div>
-                                </form>
-                        </tr>
-                        
-                        {% endfor %}
-                        {%- endif %} 
-                    </table>
-                </td>
-
-                <form class="form-inline" action="/teams/delete/{{teams[i].id}}" method="POST">
-                <td>{% if admin %} 
-                    <a href="/teams/delete/{{teams[i].id}}" data-turbo-method="post" class="btn btn-custom-primary"><i class="material-icons">delete</i> Delete Team</a>
-                    {%- endif %} 
-                </td>
-                
-                </form>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    </script>
 </div>
