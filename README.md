@@ -1,4 +1,4 @@
-# FIT2101 Project (sprint2)
+# FIT2101 Project (sprint3)
 Team Agility
 Agile Project Management Software
 
