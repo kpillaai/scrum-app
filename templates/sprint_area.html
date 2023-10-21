@@ -75,7 +75,7 @@
                                         {% elif sprint.tasks[i].status ==  TaskStatus.IN_PROGRESS %}
                                             <span class="btn badge bg-warning dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="z-index:3; position:relative;">IN PROGRESS</span>
                                         {% elif sprint.tasks[i].status ==  TaskStatus.DONE %}
-                                            <span class="btn badge bg-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="z-index:3; position:relative;">DONE</span>
+                                            <span class="btn badge btn-custom-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="z-index:3; position:relative;">DONE</span>
                                         {% endif %}
                                         <ul class="dropdown-menu">
                                             <li>
@@ -90,7 +90,7 @@
                                             </li>
                                             <li>
                                                 <a class="dropdown-item" href="/task/{{sprint.tasks[i].id}}/status/DONE" data-turbo-method="post"> 
-                                                    <span class="btn badge bg-success">DONE</span>
+                                                    <span class="btn badge btn-custom-success">DONE</span>
                                                 </a>
                                             </li>
                                         </ul>
