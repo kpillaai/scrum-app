@@ -27,7 +27,7 @@
             <strong>Password:</strong>
             {{ current_user.password }}<br/><br/>
             
-            <form method="POST" action="" class="d-flex flex-row align-items-center flex-wrap">
+            <form method="POST" action="/account" class="d-flex flex-row align-items-center flex-wrap">
                 {{ form.hidden_tag() }}
                     {{ form.password(class_="form-control my-1 me-2 w-25") }}
                     {{ form.submit(class_="btn btn-custom-primary my-1 me-2", _style="display: inline;")}}
