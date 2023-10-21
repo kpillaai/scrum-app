@@ -161,6 +161,9 @@ def page_user_list_show():
 
     return turbo.replace(render_template('user_list.html', teams=Team.query.all(), users=User.query.all(), admin=admin, notaccountpage=True), target="user_list")
 
+def page_account_refresh():
+    return turbo.replace(render_template('account.html', form=UserForm(), admin=(current_user.role == RoleType.ADMIN), notaccountpage=False, users=User.query.all(), target="page_content"), target="page_content") # the target="page_content" loads account.html page_content part only     
+
 def page_burndown_show(sprint_id, labels, values, optimal):
     sprint = Sprint.query.filter_by(id=sprint_id).first()
     print(sprint_id, values, labels)
@@ -683,8 +686,8 @@ def account():
         user_to_update.password = form.password.data
         db.session.commit()
     if request.method == 'POST':
-        return turbo.stream(turbo.replace(render_template('account.html', form=form, admin=(current_user.role == RoleType.ADMIN), notaccountpage=False, users=User.query.all(), target="page_content"), target="page_content")) # the target="page_content" loads account.html page_content part only     
-    return render_template('account.html', form=form, admin=(current_user.role == RoleType.ADMIN), notaccountpage=False, users=User.query.all())
+        return turbo.stream(page_account_refresh()) # the target="page_content" loads account.html page_content part only     
+    return render_template('account.html', form = UserForm(), admin=(current_user.role == RoleType.ADMIN), notaccountpage=False, users=User.query.all())
 
 @app.route('/set')
 @app.route('/set/<theme>')
@@ -716,9 +719,9 @@ def users_delete(id):
         user_to_update = User.query.get_or_404(id)
         user_to_update.password = form.password.data
         db.session.commit()
-        return redirect(url_for('account'))
+        return turbo.stream(page_account_refresh())
     
-    return redirect(url_for('account'))
+    return turbo.stream(page_account_refresh())
 
 @app.route('/users/edit/<int:id>/<int:val>', methods=['GET', 'POST'])
 def users_edit(id, val):
@@ -735,18 +738,18 @@ def users_edit(id, val):
         user_to_update = User.query.get_or_404(id2)
         user_to_update.password = form.password.data
         db.session.commit()
-        return redirect(url_for('account'))
+        return turbo.stream(page_account_refresh())
     if val == 1:
         user_to_update = User.query.get_or_404(id)
         print(request.form.get("email_change"))
         user_to_update.email = request.form.get("email_change")
         db.session.commit()
-        return redirect(url_for('account'))
+        return turbo.stream(page_account_refresh())
     if val == 2:
         user_to_update = User.query.get_or_404(id)
         user_to_update.phone_number = request.form.get("phone_change")
         db.session.commit()
-        return redirect(url_for('account'))
+        return turbo.stream(page_account_refresh())
     return turbo.stream([page_user_list_show(), turbo.replace(render_template('account.html', form=form, admin=(current_user.role == RoleType.ADMIN), notaccountpage=False, users=User.query.all()),target="page_content")])
 
 @app.route('/teams/move/<user_id>', methods=['POST'])
