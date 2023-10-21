@@ -13,7 +13,7 @@ class User(db.Model, UserMixin):
     name = db.Column(db.String, nullable=False)
 
     role = db.Column(db.Enum(RoleType), default=RoleType.MEMBER)  # from RoleType, either Admin or Member
-    email = db.Column(db.String, unique=True, nullable=False)
+    email = db.Column(db.String, unique=False, nullable=False)
     phone_number = db.Column(db.String, unique=False)
     password = db.Column(db.String, nullable=False)
     current_sprint =  db.Column(db.Integer, db.ForeignKey('sprint.id'), default=1) # ForeignKey = reference to another db table (id)
