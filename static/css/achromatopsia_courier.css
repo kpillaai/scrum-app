@@ -2,6 +2,10 @@ header {
     background: #000000
 }
 
+body {
+    font-family: 'Courier New', Courier, monospace !important;
+}
+
 .nav-container {
     width: 100%;
     margin: 0px;
@@ -63,11 +67,6 @@ nav a {
 .btn-custom-danger {
     background-color: #000000 !important; /* Change the danger button background color */
     color: white !important; /* Change the text color for the danger button */
-}
-
-.btn-custom-warning {
-    background-color: black !important;
-    color: white !important;
 }
 
 .dashboard-link {

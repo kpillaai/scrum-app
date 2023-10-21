@@ -1,44 +1,104 @@
-{% extends 'base.html' %}
+{% if (target == "page_content")%}
+    <script>location.href="/set/refresh"</script>
+{% else %}
+    {% extends 'base.html' %}
 
-{% block title %}Agility App{% endblock %}
+    {% block title %}Agility App{% endblock %}
 
-{% block header %}{% endblock %}
+    {% block header %}{% endblock %}
+    {% block content %}
+        <div id="page_content">
+        
+    <h2 class="pb-3">Account Details</h2>
+            <strong>Name:</strong>
+            {{ current_user.name }}<br/><br/>
 
-{% block content %}
-<div id="page_content">
-    <h1>Account Details</h1><br/>
-    <strong>Name:</strong>
-	{{ current_user.name }}<br/><br/>
+            <strong>User ID:</strong>
+            {{ current_user.id }}<br/><br/>
 
-	<strong>User ID:</strong>
-	{{ current_user.id }}<br/><br/>
+            <strong>Role:</strong>
+            {{ current_user.role.value }}<br/><br/>
 
-    <strong>Role:</strong>
-	{{ current_user.role.value }}<br/><br/>
+            <strong>Phone Number:</strong>
+            {{ current_user.phone_number }}<br/><br/>
 
-    <strong>Phone Number:</strong>
-	{{ current_user.phone_number }}<br/><br/>
+            <strong>Email:</strong>
+            {{ current_user.email }}<br/><br/>
 
-	<strong>Email:</strong>
-	{{ current_user.email }}<br/><br/>
+            <strong>Password:</strong>
+            {{ current_user.password }}<br/><br/>
+            
+            <form method="POST" action="/account" class="d-flex flex-row align-items-center flex-wrap">
+                {{ form.hidden_tag() }}
+                    {{ form.password(class_="form-control my-1 me-2 w-25") }}
+                    {{ form.submit(class_="btn btn-custom-primary my-1 me-2", _style="display: inline;")}}
+            </form>
 
-    <strong>Password:</strong>
-	{{ current_user.password }}<br/><br/>
-    
-    <form method="POST" action="">
-        {{ form.hidden_tag() }}
-        {{ form.password}}
-        {{ form.submit}}
-    </form><br/><br/>
+            <h2 class="pt-5 pb-3">Customize</h2>
+            <strong><label for="colorpicker">Colour Picker:</label></strong>
+            <input type="color" id="colorpicker" value="#0000ff" class="form-control form-control-color" style="display:inline-block;">
+            <button class="btn btn-sm btn-light text-muted" onclick="resetColorpicker()">Reset</button>
+            <br/><br/>
 
-    <h1>Colour Modes</h1><br/>
-    <button onclick="location.href='/set/main'">Main</button><br/><br/>
-    <button onclick="location.href='/set/protanopia'">Protanopia</button><br/><br/>
-    <button onclick="location.href='/set/deuteranopia'">Deuteranopia</button><br/><br/>
-    <button onclick="location.href='/set/tritanopia'">Tritanopia</button><br/><br/>
-    <button onclick="location.href='/set/achromatopsia'">Achromatopsia</button><br/><br/>
+            <strong><label for="fontSelector">Select Font:</label></strong>
+            <select id="fontSelector" class="form-select form-select-sm" style="display: inline; max-width: 180px">
+                <option value="">Default</option>
+                <option value="Arial, sans-serif">Arial</option>
+                <option value="Times New Roman, serif">Times New Roman</option>
+                <option value="Courier New, monospace">Courier New</option>
+            </select>
+            
+            <h2 class="pt-5 pb-3">Colour Blind Options</h2>
+            <button  type="button" class="btn btn-secondary" style="margin-right: 10px;" onclick="location.href='/set/main'">Default</button>
+            <button type="button" class="btn btn-custom-danger" style="margin-right: 10px;" onclick="location.href='/set/protanopia'">Protanopia</button>
+            <button type="button" class="btn btn-custom-success" style="margin-right: 10px;" onclick="location.href='/set/deuteranopia'">Deuteranopia</button>
+            <button type="button" class="btn btn-custom-primary" style="margin-right: 10px;" onclick="location.href='/set/tritanopia'">Tritanopia</button>
+            <button type="button" class="btn btn-dark" style="margin-right: 10px;" onclick="location.href='/set/achromatopsia'">Achromatopsia</button>        
+            
+            <script>
+                function resetColorpicker(){
+                    localStorage.removeItem("headerBackgroundColor");
+                    location.href="/set/refresh"
+                }
 
-</div>
+                const colorPicker = document.getElementById("colorpicker");
+                const header = document.querySelector("header");
+                
+                const savedColor = localStorage.getItem("headerBackgroundColor");
+                if (savedColor) {
+                    header.style.backgroundColor = savedColor;
+                    colorPicker.value = savedColor;
+                }
 
-    
-{% endblock %}
+                // Add an event listener to update local storage and header color
+                colorPicker.addEventListener("input", function () {
+                    const selectedColor = colorPicker.value;
+                    header.style.backgroundColor = selectedColor;
+                    localStorage.setItem("headerBackgroundColor", selectedColor);
+                })
+
+                const dropdownItems = document.querySelectorAll(".dropdown-item");
+                const body = document.body;
+
+                // Get the selected font from local storage
+                const savedFont = localStorage.getItem("selectedFont");
+                if (savedFont) {
+                    body.style.fontFamily = savedFont;
+                    fontSelector.value = savedFont;
+                }
+
+                // Add an event listener to update local storage and font family
+                fontSelector.addEventListener("change", function () {
+                    const selectedFont = fontSelector.value;
+                    body.style.fontFamily = selectedFont;
+                    localStorage.setItem("selectedFont", selectedFont);
+                });
+            </script>
+
+            {% if admin %} 
+                <h2 class="pt-5">Users Details</h2>
+                {% include 'user_list.html' %}
+            {%- endif %} 
+        </div>
+    {% endblock %}
+{% endif %}

@@ -1,16 +1,29 @@
 <div id="page_content">
-    <div class="row" style="height: 90vh">
-        {% if (show_task_panel): %}
-            <div class="col-9" style="height: 100%; overflow-y: scroll;">
-                {% include 'task_area.html' %}
+    <div class="row hide-scroll" style="height: calc(100vh - 130px)">
+        <div class="col" style="height: 100%; overflow-y: scroll;">
+            <div id="task_area">
+                {% include 'sprint_area.html' %}
+                <div class="card border-0">
+                    <div class="card-body">
+                        {% include 'task_list.html' %}
+                        <div id="task_add">
+                            <div class="mb-1 mt-1 pt-1"></div>
+                            <!-- HTML form to add tasks  -->
+                            <form action="/task/add/" id="form_task_add" method="POST" class="d-flex flex-row align-items-center flex-wrap" onsubmit="this.requestSubmit(); setTimeout(()=>{document.getElementById('form_task_add').reset()}, 1);">
+                                <label for="task_name" class="text-secondary my-1 me-2"><b>&nbsp;+ Add Task:</b></label>
+                                <input method="POST" type="text" name="task_name" class="form-control form-control-sm my-1 me-2 w-25" required="true" placeholder="Enter task name" />
+                                <button type="submit" class="btn btn-sm btn-custom-primary my-1 me-2" style="display: inline;"><b>Add</b></button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="col-3" style="height: 100%; overflow-y: scroll;">
-                <div id="task_panel"></div>
-            </div>
-        {% else %}
-            <div class="col" style="height: 100%; overflow-y: scroll;">
-                {% include 'task_area.html' %}
-            </div>
-        {% endif %}
+        </div>
+        <div id="side_panel"></div>
     </div>
+    <style>
+        body {
+            overflow-y:hidden;
+        }
+    </style>
 </div>

@@ -1,40 +1,62 @@
 <div id="user_list">
-<h1>Users</h1>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script>
-
-</script>
-<table class="table">
-    <thead class="table-secondary">
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Team Selection</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for i in range(users|length): %}
+    <table class="table">
+        <thead class="table">
             <tr>
-                <td>{{users[i].id}}</td>
-                <td>{{users[i].name}}</td>
-                
-                <td>
-                    <form action="/teams/move/{{users[i].id}}" method="POST" id="move_user_{{users[i].id}}">
-                        <label class="form-label" for="teams_select_{{users[i].id}}" ></label>
-                    <select id="teams_select_{{users[i].id}}" name="teams_select_{{users[i].id}}" class="form-select"> 
-                        <option value="" selected disabled hidden></option>
-                        {% for i in range(teams|length): %}
-                        <option value="{{teams[i].name}}">{{teams[i].name}}</option> 
-                        {% endfor %}
-                    </select>
-                    
-                    <td><button class="btn btn-custom-primary" onclick="document.querySelector('#move_user_{{users[i].id}}').requestSubmit()">Add to Team</button></td>
-                    </form>
-                </td>
-                
+                <th>ID</th>
+                <th>Name</th>
+                {% if admin %} 
+                    {% if notaccountpage %} 
+                        <th>Team Selection</th>
+                    {%- endif %} 
+                    {% if notaccountpage == False %}
+                        <th>Email</th>
+                        <th>Phone Number</th>
+                    {%- endif %} 
+                    <th>Action</th>
+                {%- endif %} 
             </tr>
-        {% endfor %}
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            {% for i in range(users|length): %}
+                <tr>
+                    <td>{{users[i].id}}</td>
+                    <td>{{users[i].name}}</td>
+                    {% if admin %} 
+                        {% if notaccountpage %} 
+                            <td>
+                                <form action="/teams/move/{{users[i].id}}" method="POST" id="move_user_{{users[i].id}}">
+                                    <select id="teams_select_{{users[i].id}}" name="teams_select_{{users[i].id}}" class="form-select"> 
+                                        <option value="" selected disabled hidden></option>
+                                        {% for j in range(teams|length): %}
+                                            <option value="{{teams[j].id}}" {% if (users[i] in teams[j].users) %} disabled {%- endif %}>{{teams[j].name}}</option>     
+                                        {% endfor %}
+                                    </select>
+                            <td>
+                                    <button class="btn btn-custom-primary" onclick="document.querySelector('#move_user_{{users[i].id}}').requestSubmit()">Add to Team</button></td>
+                                </form>
+                            </td>
+                        {%- endif %} 
+                        {% if notaccountpage == False %}
+                            <td>
+                                <form method="POST" action="/users/edit/{{users[i].id}}/1" class="d-flex flex-row align-items-center flex-wrap">
+                                    <input class="form-control my-1 me-2 w-auto" type="text" id="email_change" name="email_change" value="{{users[i].email}}">
+                                    <button class="btn btn-custom-primary my-1 me-2" method="post">Change Email</button>
+                                </form>
+                            </td>
+                            <td>
+                                <form method="POST" action="/users/edit/{{users[i].id}}/2" class="d-flex flex-row align-items-center flex-wrap">
+                                    <input class="form-control my-1 me-2 w-auto" type="text" id="phone_change" name="phone_change" value="{{users[i].phone_number}}">
+                                    <button class="btn btn-custom-primary my-1 me-2" method="post">Change Phone Number</button>
+                                </form>
+                            </td>
+                            <td>
+                                <a href="/users/delete/{{users[i].id}}" data-turbo-method="post" class="btn btn-custom-danger"><i class="material-icons">delete</i> Delete User</a>
+                            </td>
+                        {%- endif %} 
+                    {%- endif %} 
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 

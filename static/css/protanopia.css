@@ -9,12 +9,18 @@ header {
     justify-content: space-between;
 }
 
+.image-container {
+    position: relative;
+    left: -15px;
+    top: 5px;
+}
+
 nav li {
     color: black;
     display: inline-block;
     margin-left: 0px;
     margin-right: 30px;
-    padding-top: 20px;
+    padding-top: 35px;
     padding-bottom: 10px;
 }
 
@@ -71,4 +77,9 @@ nav a {
 .btn-custom-danger {
     background-color: #CF6696 !important; /* Change the danger button background color */
     color: white !important; /* Change the text color for the danger button */
+}
+
+.btn-custom-warning {
+    background-color: #FFC107 !important;
+    color: white !important;
 }

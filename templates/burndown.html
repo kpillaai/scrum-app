@@ -1,0 +1,39 @@
+<div id="page_content">
+    <div>
+        <form action="/backlog" method="POST" style="display: inline;">
+            <button type="submit" class="btn-close">&nbsp;</button>
+        </form>
+        <canvas id="lineChart"></canvas>
+    </div>
+    <script>
+        var ctx =  document.getElementById("lineChart").getContext("2d");
+        var lineChart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: {{ labels | safe }},
+                datasets: [
+                    {
+                        label: "Actual Progression",
+                        data: {{ values | safe }},
+                        fill: false,
+                        lineTension: 0.1
+                    },
+                    {
+                        label: "Optimal Progression",
+                        data: {{ optimal | safe }},
+                        fill: false,
+                        lineTension: 0.1
+                    }
+                ]
+            },
+            options: {
+                responsive: true
+            }
+        });
+
+    </script>
+
+
+
+
+</div>

@@ -2,6 +2,10 @@ header {
     background: #FF9E00
 }
 
+body {
+    font-family: 'Times New Roman', Times, serif !important;
+}
+
 .nav-container {
     width: 100%;
     margin: 0px;
@@ -77,9 +81,4 @@ nav a {
 .btn-custom-danger {
     background-color: #CF6696 !important; /* Change the danger button background color */
     color: white !important; /* Change the text color for the danger button */
-}
-
-.btn-custom-warning {
-    background-color: #FFC107 !important;
-    color: white !important;
 }
