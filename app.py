@@ -197,7 +197,7 @@ def index():
     # Handle account page loading at / when "page_redirect" in session is set to 'account'
     if ('page_redirect' in session and session['page_redirect'] == "account"): 
         session['page_redirect'] = None # Clear page_redirect value
-        return render_template('account.html', form=UserForm(), notaccountpage=False, users=User.query.all()) # Load account page html instead of index html
+        return render_template('account.html', form=UserForm(), admin=(current_user.role == RoleType.ADMIN), notaccountpage=False, users=User.query.all()) # Load account page html instead of index html
     if 'loggedin' in session:
         if session['loggedin'] == True:
             print('User Logged In: ' + session['username'])
@@ -684,8 +684,8 @@ def account():
         db.session.commit()
         return redirect(url_for('account'))
     if request.method == 'POST':
-        return turbo.stream(turbo.replace(render_template('account.html', form=form, notaccountpage=False, users=User.query.all(), target="page_content"), target="page_content")) # the target="page_content" loads account.html page_content part only     
-    return render_template('account.html', form=form, admin=admin, notaccountpage=False, users=User.query.all())
+        return turbo.stream(turbo.replace(render_template('account.html', form=form, admin=(current_user.role == RoleType.ADMIN), notaccountpage=False, users=User.query.all(), target="page_content"), target="page_content")) # the target="page_content" loads account.html page_content part only     
+    return render_template('account.html', form=form, admin=(current_user.role == RoleType.ADMIN), notaccountpage=False, users=User.query.all())
 
 @app.route('/set')
 @app.route('/set/<theme>')
@@ -748,7 +748,7 @@ def users_edit(id, val):
         user_to_update.phone_number = request.form.get("phone_change")
         db.session.commit()
         return redirect(url_for('account'))
-    return turbo.stream([page_user_list_show(), turbo.replace(render_template('account.html', form=form, admin=admin, notaccountpage=False, users=User.query.all()),target="page_content")])
+    return turbo.stream([page_user_list_show(), turbo.replace(render_template('account.html', form=form, admin=(current_user.role == RoleType.ADMIN), notaccountpage=False, users=User.query.all()),target="page_content")])
 
 @app.route('/teams/move/<user_id>', methods=['POST'])
 def move_user(user_id):

@@ -8,7 +8,7 @@
     {% block content %}
         <div id="page_content">
         
-    <h2>Account Details</h2><br/>
+    <h2 class="pb-3">Account Details</h2>
             <strong>Name:</strong>
             {{ current_user.name }}<br/><br/>
 
@@ -27,22 +27,22 @@
             <strong>Password:</strong>
             {{ current_user.password }}<br/><br/>
             
-            <form method="POST" action="">
+            <form method="POST" action="" class="d-flex flex-row align-items-center flex-wrap">
                 {{ form.hidden_tag() }}
-                {{ form.password}}
-                {{ form.submit}}
-            </form><br/><br/>
+                    {{ form.password(class_="form-control my-1 me-2 w-25") }}
+                    {{ form.submit(class_="btn btn-custom-primary my-1 me-2", _style="display: inline;")}}
+            </form>
 
-            <h2>Customize</h2><br/>
+            <h2 class="pt-5 pb-3">Customize</h2>
             <strong><label for="colorpicker">Colour Picker:</label></strong>
-            <input type="color" id="colorpicker" value="#0000ff"><br/><br/>
+            <input type="color" id="colorpicker" value="#0000ff" class="form-control form-control-color" style="display: inline;"><br/><br/>
 
             <strong><label for="fontSelector">Select Font:</label></strong>
-            <select id="fontSelector">
+            <select id="fontSelector" class="form-select form-select-sm" style="display: inline; max-width: 180px">
                 <option value="Arial, sans-serif">Arial</option>
                 <option value="Times New Roman, serif">Times New Roman</option>
                 <option value="Courier New, monospace">Courier New</option>
-            </select><br/><br/>
+            </select>
 
             <!-- <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -54,7 +54,7 @@
                     <li><a class="dropdown-item" data-font='Courier New, monospace'>Courier New</a></li>
                 </ul>
             </div> -->
-            <h2>Colour Blind Options</h2><br/>
+            <h2 class="pt-5 pb-3">Colour Blind Options</h2>
             <button  type="button" class="btn btn-secondary" style="margin-right: 10px;" onclick="location.href='/set/main'">Default</button>
             <button type="button" class="btn btn-custom-danger" style="margin-right: 10px;" onclick="location.href='/set/protanopia'">Protanopia</button>
             <button type="button" class="btn btn-custom-success" style="margin-right: 10px;" onclick="location.href='/set/deuteranopia'">Deuteranopia</button>
@@ -104,7 +104,7 @@
             </script>
 
             {% if admin %} 
-                <h1>User Details</h1>
+                <h1 class="pt-5">User Details</h1>
                 {% include 'user_list.html' %}
             {%- endif %} 
         </div>
