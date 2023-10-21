@@ -335,7 +335,7 @@ def task_status(id, status):
     status_before = None
     status_after = None
     if str(task.status) != "TaskStatus." + str(status):
-        date_modified = datetime.today().strftime('%m-%d')
+        date_modified = (datetime.today() + timedelta(days=1)).strftime('%m-%d')
         if str(task.status) == str("TaskStatus.TODO"):
             status_before = task.estimated_effort
         elif str(task.status) == str("TaskStatus.IN_PROGRESS"):
