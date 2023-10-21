@@ -43,17 +43,7 @@
                 <option value="Times New Roman, serif">Times New Roman</option>
                 <option value="Courier New, monospace">Courier New</option>
             </select>
-
-            <!-- <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Font Selector
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" data-font='Arial, sans-serif'>Arial</a></li>
-                    <li><a class="dropdown-item" data-font='Times New Roman, serif'>Times New Roman</a></li>
-                    <li><a class="dropdown-item" data-font='Courier New, monospace'>Courier New</a></li>
-                </ul>
-            </div> -->
+            
             <h2 class="pt-5 pb-3">Colour Blind Options</h2>
             <button  type="button" class="btn btn-secondary" style="margin-right: 10px;" onclick="location.href='/set/main'">Default</button>
             <button type="button" class="btn btn-custom-danger" style="margin-right: 10px;" onclick="location.href='/set/protanopia'">Protanopia</button>
@@ -94,17 +84,10 @@
                     body.style.fontFamily = selectedFont;
                     localStorage.setItem("selectedFont", selectedFont);
                 });
-
-                // dropdownItems.forEach(item => {
-                //     item.addEventListener("click", function () {
-                //     const selectedFont = item.getAttribute("data-font");
-                //     body.style.fontFamily = selectedFont;
-                //     });
-                // });
             </script>
 
             {% if admin %} 
-                <h1 class="pt-5">User Details</h1>
+                <h2 class="pt-5">Users Details</h2>
                 {% include 'user_list.html' %}
             {%- endif %} 
         </div>
