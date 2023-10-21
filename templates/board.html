@@ -1,0 +1,106 @@
+{% if target != 'board'%}
+    <div id="page_content">
+{% endif %}
+        <div id="board">
+            <div class="container-fluid" style="padding-left: 10vw !important; padding-right: 10vw !important;">
+                <div class="text-center pb-3">
+                    <h2>{{sprint.name}}</h2>
+                    <a class="btn btn-sm btn-secondary {% if sprint.number <= 1 %} disabled {% endif %}" href="/sprint/prev/" data-turbo-method="post"><b> < </b></a>
+                    <span class="btn btn-sm btn-secondary disabled"><b>#{{sprint.number}}</b></span>
+                    <a class="btn btn-sm btn-secondary {% if sprint.number >= sprint.count %} disabled {% endif %}" href="/sprint/next/" data-turbo-method="post"><b> > </b></a>
+                </div>
+                <div class="row">
+                <div class="col">
+                    <!-- TODO -->
+                    <div class="card border-0 pb-4">
+                        <div class="card-header bg-light border-0 text-center pt-3 ">
+                            <h5>
+                                <span class="badge bg-secondary position-relative">
+                                    TO DO
+                                    <span class="badge">{{sprint.board.TODO|length}}</span>
+                                </span>
+                            </h5>
+
+                        </div>                
+                        <ul id="board_TODO_sortable" class="list-group list-group-flush boardConnectedSortable bg-light border-0" style="min-height: calc(100vh - 300px);">
+                            {% for task in sprint.board.TODO: %}
+                                <li id="{{task.id}}" class="list-group-item hover-effect bg-transparent border-0">
+                                    <div class="card shadow-sm border" style="border: 1px solid lightgrey;border-radius: 6px">
+                                        <div class="card-body">
+                                            <p class="card-text">
+                                                {{ task.name }}
+                                                <br />
+                                                <span class="text-muted"><b>ST-{{task.id}}</b></span>  
+                                            </p>
+                                        </div>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                <div class="col">
+                    <!-- IN PROGRESS -->
+                    <div class="card border-0 pb-4">
+                        <div class="card-header bg-light border-0 text-center pt-3 ">
+                            <h5>
+                                <span class="badge btn-custom-warning position-relative">
+                                    IN PROGRESS
+                                    <span class="badge">{{sprint.board.IN_PROGRESS|length}}</span>
+                                </span>
+                            </h5>
+
+                        </div>                
+                        <ul id="board_IN_PROGRESS_sortable" class="list-group list-group-flush boardConnectedSortable bg-light border-0" style="min-height: calc(100vh - 300px);">
+                            {% for task in sprint.board.IN_PROGRESS %}
+                                <li id="{{task.id}}" class="list-group-item hover-effect bg-transparent border-0">
+                                    <div class="card shadow-sm border" style="border: 1px solid lightgrey;border-radius: 6px">
+                                        <div class="card-body">
+                                            <p class="card-text">
+                                                {{ task.name }}
+                                                <br />
+                                                <span class="text-muted"><b>ST-{{task.id}}</b></span>  
+                                            </p>
+                                        </div>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                <div class="col">
+                    <!-- DONE -->
+                    <div class="card border-0 pb-4">
+                        <div class="card-header bg-light border-0 text-center pt-3 ">
+                            <h5>
+                                <span class="badge btn-custom-success position-relative">
+                                    DONE
+                                    <span class="badge">{{sprint.board.DONE|length}}</span>
+                                </span>
+                            </h5>
+                        </div>                
+                        <ul id="board_DONE_sortable" class="list-group list-group-flush boardConnectedSortable bg-light border-0" style="min-height: calc(100vh - 300px);">
+                            {% for task in sprint.board.DONE: %}
+                                <li id="{{task.id}}" class="list-group-item hover-effect bg-transparent border-0">
+                                    <div class="card shadow-sm border" style="border: 1px solid lightgrey;border-radius: 6px">
+                                        <div class="card-body">
+                                            <p class="card-text">
+                                                {{ task.name }}
+                                                <br />
+                                                <span class="text-muted"><b>ST-{{task.id}}</b></span>  
+                                            </p>
+                                        </div>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                </div>
+            </div>
+            <!-- Drag and drop tasks board reordering & sort -->
+            <script src="{{ url_for('static', filename='js/board_sorting.js')}}"></script> 
+        </div>
+{% if target != 'board'%}
+</div>
+{% endif %}

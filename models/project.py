@@ -13,6 +13,6 @@ class Project(db.Model):
     status = db.Column(db.Enum(TaskStatus), default=TaskStatus.TODO) # from TaskStatus, either TODO, IN_PROGRESS or DONE
     start_date = db.Column(db.DateTime(timezone=True))
     due_date = db.Column(db.DateTime(timezone=True))
-    sprints = db.relationship('Sprint', secondary=project_sprint, backref='projects')
+    sprints = db.relationship('Sprint', secondary=project_sprint, backref='project')
     
     

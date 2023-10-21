@@ -1,53 +1,123 @@
 <div id="sprint_area">
-    <h2>
-        <a href="/sprint/edit/view/{{ sprint.number }}" data-turbo-method="post" style="text-decoration: none">
-            {{sprint.name}}
-        </a>
-        {% if (sprint.status ==  TaskStatus.TODO) %}
-            <a class="btn btn-custom-primary" href="/sprint/start/{{ sprint.number }}" data-turbo-method="post">Start Sprint</a>
-        {% elif (sprint.status ==  TaskStatus.IN_PROGRESS) %}
-            <a class="btn btn-custom-primary" href="/sprint/stop/{{ sprint.number }}" data-turbo-method="post">Complete Sprint</a>
-        {% elif (sprint.status ==  TaskStatus.DONE) %}
-            <a class="btn btn-custom-primary disabled" data-turbo-method="post">Sprint Completed</a>
-        {% endif %}
-        <a class="btn btn-secondary {% if sprint.number <= 1 %} disabled {% endif %}" href="/sprint/prev/" data-turbo-method="post"> < </a>
-        <a class="btn btn-secondary {% if sprint.number >= sprint_count %} disabled {% endif %}" href="/sprint/next/" data-turbo-method="post"> > </a>
-        #{{sprint.number}}
-    </h2>
-    <!-- HTML table to display all tasks  -->
-    <table class="table table-responsive">
-        <thead>
-            <tr>
-                <th>No.</th>
-                <th>Task</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for i in range(sprint.tasks|length): %}
-                <tr>
-                    <td>{{i+1}}.</td>
-                        <td>
-                            {% if sprint.tasks[i].status ==  TaskStatus.DONE %}
-                                <del>
-                            {% endif %}
-                            <a href="/task/edit/view/{{ sprint.tasks[i].id }}" data-turbo-method="post" style="text-decoration: none">
-                                {{ sprint.tasks[i].name }}
-                            </a>
-                            {% if sprint.tasks[i].status ==  TaskStatus.DONE %}
-                                </del>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {{ sprint.tasks[i].status.value }}
-                        </td>
-                        <td>
-                            <a href="/task/sprint/{{sprint.number}}/task/remove/{{ sprint.tasks[i].id }}" data-turbo-method="post" class="btn btn-custom-primary">Remove from sprint</a>
-                            <a href="/task/edit/view/{{ sprint.tasks[i].id }}" data-turbo-method="post" class="btn btn-custom-success">Edit</a>
-                            <a href="/task/remove/{{ sprint.tasks[i].id }}" data-turbo-method="post" class="btn btn-custom-danger">Remove</a>
-                        </td>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="card bg-light border-0">
+        <div class="card-body">
+            <div class="row">
+                <div class="col d-flex align-items-center">
+                    <h2>
+                        <a href="/sprint/edit/view/{{ sprint.number }}" data-turbo-method="post" style="text-decoration: none">
+                            {{sprint.name}}&nbsp;&nbsp;
+                        </a>
+                    </h2>
+                    {% if (sprint.status ==  TaskStatus.TODO) %}
+                        <a class="btn btn-sm btn-custom-primary" href="/sprint/start/{{ sprint.number }}" data-turbo-method="post"><b>Start Sprint</b></a>
+                    {% elif (sprint.status ==  TaskStatus.IN_PROGRESS) %}
+                        <a class="btn btn-sm btn-custom-primary" href="/sprint/stop/{{ sprint.number }}" data-turbo-method="post"><b>Complete Sprint</b></a>
+                    {% elif (sprint.status ==  TaskStatus.DONE) %}
+                        <a class="btn btn-sm btn-custom-primary disabled" data-turbo-method="post"><b>Sprint Completed</b></a>
+                    {% endif %}
+                    &nbsp;
+                    <a href="/sprint/add/" data-turbo-method="post">
+                        <svg width="32" height="32" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                        </svg>
+                    </a>
+                </div>
+                <div class="col col-sm-auto pe-1">
+                    <h6>
+                        <a class="btn btn-sm btn-secondary {% if sprint.number <= 1 %} disabled {% endif %}" href="/sprint/prev/" data-turbo-method="post"><b> < </b></a>
+                        <span class="btn btn-sm btn-secondary disabled"><b>#{{sprint.number}}</b></span>
+                        <a class="btn btn-sm btn-secondary {% if sprint.number >= sprint_count %} disabled {% endif %}" href="/sprint/next/" data-turbo-method="post"><b> > </b></a>
+                    </h6>
+                </div>
+                <div class="col col-sm-auto ps-0">
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                                <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                              </svg>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/sprint/edit/view/{{ sprint.number }}" data-turbo-method="post">Edit</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item {% if sprint.number <= 1 %} disabled {% endif %}" href="/sprint/remove/{{ sprint.number }}" data-turbo-method="post">Delete</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <p class="text-secondary fst-light fs-6">{{sprint.goal}}</p>
+            <!-- Card to display tasks  -->
+            <div class="card border" style="border: 1px solid lightgrey;border-radius: 3px">
+                <ul id="tasks_sprint_sortable" class="list-group list-group-flush tasksConnectedSortable" style="min-height: 32px;">
+                    {% for i in range(sprint.tasks|length): %}
+                        <li id="{{sprint.tasks[i].id}}" class="list-group-item px-3 py-2 hover-effect">
+                            <div class="row">
+                                <div class="col col-sm">
+                                    <form action="/task/{{sprint.tasks[i].id}}/status/checkbox" method="POST" style="display: inline; z-index:3; position:relative;">
+                                        <input class="form-check-input hover-effect" style="cursor: pointer;" type="checkbox" {% if sprint.tasks[i].status ==  TaskStatus.DONE %} checked {% endif %} onChange="this.form.requestSubmit()">
+                                    </form>
+                                    &nbsp;
+                                    {% if sprint.tasks[i].status ==  TaskStatus.DONE %}
+                                        <del>
+                                    {% endif %}
+                                        <a href="/task/edit/view/{{ sprint.tasks[i].id }}" data-turbo-method="post" style="text-decoration: none;" class="text-muted stretched-link">
+                                            ST-{{sprint.tasks[i].id}}
+                                        </a>
+                                    {% if sprint.tasks[i].status ==  TaskStatus.DONE %}
+                                        </del>
+                                    {% endif %}
+                                    &nbsp;
+                                    {{ sprint.tasks[i].name }}
+                                </div>
+                                <div class="col col-sm-auto">
+                                    <div class="dropdown">                    
+                                        {% if sprint.tasks[i].status ==  TaskStatus.TODO %}
+                                            <span class="btn badge bg-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="z-index:3; position:relative;">TO DO</span>
+                                        {% elif sprint.tasks[i].status ==  TaskStatus.IN_PROGRESS %}
+                                            <span class="btn badge btn-custom-warning dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="z-index:3; position:relative;">IN PROGRESS</span>
+                                        {% elif sprint.tasks[i].status ==  TaskStatus.DONE %}
+                                            <span class="btn badge btn-custom-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="z-index:3; position:relative;">DONE</span>
+                                        {% endif %}
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <a class="dropdown-item" href="/task/{{sprint.tasks[i].id}}/status/TODO" data-turbo-method="post">
+                                                    <span class="badge bg-secondary">TO DO</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="/task/{{sprint.tasks[i].id}}/status/IN_PROGRESS" data-turbo-method="post">
+                                                    <span class="btn badge btn-custom-warning">IN PROGRESS</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="/task/{{sprint.tasks[i].id}}/status/DONE" data-turbo-method="post"> 
+                                                    <span class="btn badge btn-custom-success">DONE</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col col-sm-auto">
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-light py-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="z-index:3; position:relative;">
+                                            <svg width="20" height="20" fill="currentColor" class="bi bi-three-dots" viewBox="0 0 16 16">
+                                                <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
+                                            </svg>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="/task/sprint/{{sprint.number}}/task/remove/{{ sprint.tasks[i].id }}" data-turbo-method="post">Remove from sprint</a></li>
+                                            <li><a class="dropdown-item" href="/task/edit/view/{{ sprint.tasks[i].id }}" data-turbo-method="post">Edit</a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item" href="/task/remove/{{ sprint.tasks[i].id }}" data-turbo-method="post">Delete</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- Drag and drop tasks reordering & sort -->
+    <script src="{{ url_for('static', filename='js/task_sorting.js')}}"></script> 
 </div>

@@ -9,12 +9,18 @@ header {
     justify-content: space-between;
 }
 
+.image-container {
+    position: relative;
+    left: -15px;
+    top: 5px;
+}
+
 nav li {
     color: #1E88E5;
     display: inline-block;
     margin-left: 0px;
     margin-right: 30px;
-    padding-top: 20px;
+    padding-top: 35px;
     padding-bottom: 10px;
 }
 
@@ -58,3 +64,33 @@ nav a {
     background-color: red !important; /* Change the danger button background color */
     color: white !important; /* Change the text color for the danger button */
 }
+
+.btn-custom-warning {
+    background-color: #FFC107 !important;
+    color: white !important;
+}
+
+
+.hover-effect:hover {
+    background-color: rgb(253, 253, 253);
+}
+.hover-effect-checkbox:hover {
+    background-color: rgb(251, 251, 251);
+    opacity: 0.85;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #F2F2F2;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: lightgray;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: grey;
+  }

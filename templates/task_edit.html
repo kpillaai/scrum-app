@@ -1,42 +1,70 @@
 <div id="task_edit">
-  <h2 style="display: inline;">
-    Edit Task
+  <div class="col d-flex align-items-center">
+    <h2 style="display: inline;">
+      Task 
+    </h2>
+    &nbsp;&nbsp;
     <h3 style="display: inline;">
-      <form action="/task/panel/hide/" method="POST" style="display: inline;">
-        <button type="submit" class="btn-close">&nbsp;</button>
-      </form>
+      <span class="badge bg-secondary">ST-{{task.id}}</span>
     </h3>
-  </h2>
+    <div class="col text-end align-items-center">
+      <a href="/task/panel/hide/" data-turbo-method="post">
+        <svg width="64" height="64" class="bi bi-x" viewBox="0 0 16 16">
+          <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+        </svg>
+      </a>
+    </div>
+  </div> 
   <div id="task_{{task.id}}">
     <form class="mb-1 mt-1" action="/task/edit/{{ task.id }}" method="POST" onchange="this.requestSubmit()">
-        <label for="task_name" class="form-label">Name:</label>
+      <div class="mb-2">
+        <label for="task_name" class="form-label"><b>Name:</b></label>
         <input type="text" name="task_name" class="form-control" required="true" value="{{task.name}}"/>
-        <label for="task_description" class="form-label">Description:</label>
-        <input type="text" name="task_description" class="form-control" value="{{task.description}}"/>
-        <label for="task_priority" class="form-label">Priority:</label>
+      </div>
+      <div class="mb-2">
+        <label for="task_description" class="form-label"><b>Description:</b></label>
+        <textarea type="text" name="task_description" class="form-control">{{task.description}}</textarea>
+      </div>
+      <div class="mb-2">
+        <label for="task_priority" class="form-label"><b>Priority:</b></label>
         <input type="number" name="task_priority" class="form-control" value="{{task.priority}}" min="0"/>
-        <label for="task_status" class="form-label">Status:</label>
+      </div>
+      <div class="mb-2">
+        <label for="task_status" class="form-label"><b>Status:</b></label>
         <select class="form-select" name="task_status">
           {% for status in TaskStatus: %}
               <option value="{{status.name}}" {% if task.status == status %} selected {% endif %}>{{status.value}}</option>
           {% endfor %}
         </select>
-        <label for="task_estimated_effort" class="form-label">Story Point Estimate:</label>
+      </div>
+      <div class="mb-2">
+        <label for="task_estimated_effort" class="form-label"><b>Story Point Estimate:</b></label>
         <input type="number" name="task_estimated_effort" class="form-control" value="{{task.estimated_effort}}" min="0"/>
-        <label for="task_start_date" class="form-label">Start Date:</label>
-        <input type="datetime-local" name="task_start_date" class="form-control" value="{{task.start_date}}"/>
-        <label for="task_due_date" class="form-label">End Date:</label>
-        <input type="datetime-local" name="task_due_date" class="form-control" value="{{task.due_date}}"/>
-        <label for="task_assignee" class="form-label">Assignee:</label>
+      </div>
+      <div class="mb-2">
+        <label for="task_assignee" class="form-label"><b>Assignee:</b></label>
         <select class="form-select" name="task_assignee">
           <option value="None" >None</option>
           {% for user in users: %}
               <option value="{{user.id}}" {% if task.assignee == user.id %} selected {% endif %}>{{user.name}}</option>
           {% endfor %}
         </select>
-        <label for="task_hours_taken" class="form-label">Hours Taken:</label>
+      </div>
+      <div class="mb-2">
+        <label for="task_start_date" class="form-label"><b>Start Date:</b></label>
+        <input type="datetime-local" name="task_start_date" class="form-control" value="{{task.start_date}}"/>
+      </div>
+      <div class="mb-2">
+        <label for="task_end_date" class="form-label"><b>End Date:</b></label>
+        <input type="datetime-local" name="task_end_date" class="form-control" value="{{task.end_date}}"/>
+      </div>
+      <div class="mb-2">
+        <label for="task_hours_taken" class="form-label"><b>Hours Taken:</b></label>
         <input type="number" name="task_hours_taken" class="form-control" value="{{task.hours_taken}}" min="0"/>
-        <a class="btn btn-custom-success" href="/task/panel/hide/" data-turbo-method="post">Update</a>
+      </div>
+      <br />
+        <a class="btn btn-custom-success" href="/task/panel/hide/" data-turbo-method="post"><b>Update</b></a>
+        <a class="btn btn-custom-danger" href="/task/remove/{{ task.id }}" data-turbo-method="post">Delete</a></li>
     </form>
   </div>
 </div>
