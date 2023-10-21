@@ -27,8 +27,8 @@
                                 <form action="/teams/move/{{users[i].id}}" method="POST" id="move_user_{{users[i].id}}">
                                     <select id="teams_select_{{users[i].id}}" name="teams_select_{{users[i].id}}" class="form-select"> 
                                         <option value="" selected disabled hidden></option>
-                                        {% for i in range(teams|length): %}
-                                                <option value="{{teams[i].name}}">{{teams[i].name}}</option> 
+                                        {% for j in range(teams|length): %}
+                                            <option value="{{teams[j].id}}" {% if (users[i] in teams[j].users) %} disabled {%- endif %}>{{teams[j].name}}</option>     
                                         {% endfor %}
                                     </select>
                             <td>

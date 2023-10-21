@@ -756,7 +756,7 @@ def users_edit(id, val):
 def move_user(user_id):
     if request.method == 'POST':
         form_name = 'teams_select_' + user_id
-        team = Team.query.filter_by(name=request.form.get(form_name)).first()
+        team = Team.query.filter_by(id=request.form.get(form_name)).first()
         user = User.query.filter_by(id=user_id).first()
         if team is not None and user is not None:
             exists = False
