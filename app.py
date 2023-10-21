@@ -682,7 +682,6 @@ def account():
         user_to_update = User.query.get_or_404(id)
         user_to_update.password = form.password.data
         db.session.commit()
-        return redirect(url_for('account'))
     if request.method == 'POST':
         return turbo.stream(turbo.replace(render_template('account.html', form=form, admin=(current_user.role == RoleType.ADMIN), notaccountpage=False, users=User.query.all(), target="page_content"), target="page_content")) # the target="page_content" loads account.html page_content part only     
     return render_template('account.html', form=form, admin=(current_user.role == RoleType.ADMIN), notaccountpage=False, users=User.query.all())
