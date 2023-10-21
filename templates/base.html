@@ -28,7 +28,7 @@
     <nav class="nav-container">
         <ul class="right-side">
         <div class="image-container">
-            <a href="{{url_for('index') }}"><img src="{{url_for('static',filename='logo.png')}}" width="80" height="80"/></a>
+           <img src="{{url_for('static',filename='logo.png')}}" width="80" height="80" onclick="location.href='/'"/>
         </div>
         </ul>
 
@@ -112,5 +112,21 @@
         </div>
     </div>
 </body>
+<!-- Set user theme -->
+<script>
+    const header = document.querySelector("header");
 
+    const savedColor = localStorage.getItem("headerBackgroundColor");
+    if (savedColor) {
+        header.style.backgroundColor = savedColor;
+    }
+
+    const body = document.body;
+
+    // Get the selected font from local storage
+    const savedFont = localStorage.getItem("selectedFont");
+    if (savedFont) {
+        body.style.fontFamily = savedFont;
+    }
+</script>
 </html>
