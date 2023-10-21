@@ -1,5 +1,5 @@
 {% if (target == "page_content")%}
-    <script>location.href="/set"</script>
+    <script>location.href="/set/refresh"</script>
 {% else %}
     {% extends 'base.html' %}
 
@@ -36,7 +36,9 @@
 
             <h2 class="pt-5 pb-3">Customize</h2>
             <strong><label for="colorpicker">Colour Picker:</label></strong>
-            <input type="color" id="colorpicker" value="#0000ff" class="form-control form-control-color" style="display:inline-block;"><br/><br/>
+            <input type="color" id="colorpicker" value="#0000ff" class="form-control form-control-color" style="display:inline-block;">
+            <button class="btn btn-sm btn-light text-muted" onclick="resetColorpicker()">Reset</button>
+            <br/><br/>
 
             <strong><label for="fontSelector">Select Font:</label></strong>
             <select id="fontSelector" class="form-select form-select-sm" style="display: inline; max-width: 180px">
@@ -54,9 +56,14 @@
             <button type="button" class="btn btn-dark" style="margin-right: 10px;" onclick="location.href='/set/achromatopsia'">Achromatopsia</button>        
             
             <script>
+                function resetColorpicker(){
+                    localStorage.removeItem("headerBackgroundColor");
+                    location.href="/set/refresh"
+                }
+
                 const colorPicker = document.getElementById("colorpicker");
                 const header = document.querySelector("header");
-
+                
                 const savedColor = localStorage.getItem("headerBackgroundColor");
                 if (savedColor) {
                     header.style.backgroundColor = savedColor;

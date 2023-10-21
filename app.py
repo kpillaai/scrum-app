@@ -694,7 +694,8 @@ def account():
 def set_theme(theme="light"):
     res = make_response(redirect(url_for('index')))
     session['page_redirect'] = "account" # set page_redirect to account so that when it redircts to index page, it will load full account.html instead of index.html
-    res.set_cookie("theme", theme)
+    if (theme != "refresh"):
+        res.set_cookie("theme", theme)
     return res  
 
 @app.route('/teams/delete/<int:id>', methods=['GET', 'POST'])
